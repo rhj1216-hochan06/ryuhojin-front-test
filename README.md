@@ -79,13 +79,6 @@ npm run lint
 npm run typecheck
 ```
 
-## 신규 프로젝트 생성 참고
-
-같은 방식의 React + TypeScript 프로젝트를 새로 만들 때는 아래 명령어를 사용할 수 있습니다.
-
-```bash
-npx create-react-app my-app --template typescript
-```
 
 ## 포트폴리오 설명 포인트
 
