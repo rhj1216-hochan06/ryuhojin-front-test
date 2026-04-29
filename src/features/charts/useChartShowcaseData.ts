@@ -9,6 +9,7 @@ export const useChartShowcaseData = (payload: DashboardPayload) =>
       capabilityTree: payload.chartCapabilityTree,
       categoryShare: payload.chartCategoryShare,
       qualityDistribution: payload.qualityPoints,
+      genderBoxPlot: payload.genderBoxPlotMetrics,
       workflow: payload.workflow,
     }),
     [payload],

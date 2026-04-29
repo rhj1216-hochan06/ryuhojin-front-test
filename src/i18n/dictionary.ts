@@ -1,154 +1,258 @@
-import type { Locale, NavigationItem } from '../types/dashboard';
+import type {
+  GenderBoxPlotGender,
+  KpiMetric,
+  Locale,
+  NavigationItem,
+  PortfolioGridImpact,
+  PortfolioGridStatus,
+  RoadmapStatus,
+} from '../types/dashboard';
 
-interface DashboardDictionary {
+type WorkflowNodeKey = 'A' | 'C' | 'D2' | 'A-1' | 'C-1' | 'D2-1';
+
+export interface ChartCardCopy {
+  title: string;
+  description: string;
+  ariaLabel: string;
+  fallbackDescription: string;
+}
+
+export interface SectionCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+export interface SankeyCopy {
+  ariaLabel: string;
+  legendLabel: string;
+  fallbackDescription: string;
+  previousYear: string;
+  currentYear: string;
+  unitLabel: string;
+  numberLocale: string;
+  nodeLabels: Record<WorkflowNodeKey, string>;
+  legendItems: {
+    veryImproved: string;
+    improved: string;
+    noChange: string;
+    worsened: string;
+    veryWorsened: string;
+  };
+}
+
+export interface ChartOptionLabels {
+  businessTrend: {
+    revenueIndex: string;
+    activeUsers: string;
+    conversionRate: string;
+    revenueAxis: string;
+    conversionAxis: string;
+  };
+  implementationTrend: {
+    previous: string;
+    current: string;
+    reviewScore: string;
+    casesAxis: string;
+    reviewAxis: string;
+  };
+  qualityScatter: {
+    cycleTimeAxis: string;
+    defectRateAxis: string;
+    complexityHigh: string;
+    complexityLow: string;
+    seriesName: string;
+  };
+  genderBoxPlot: {
+    valueAxis: string;
+    seriesName: string;
+    numberLocale: string;
+    genderLabels: Record<GenderBoxPlotGender, string>;
+    statsLabels: {
+      min: string;
+      q1: string;
+      median: string;
+      q3: string;
+      max: string;
+      outlier: string;
+    };
+  };
+  categoryShare: {
+    centerLabel: string;
+    seriesName: string;
+    numberLocale: string;
+  };
+}
+
+export interface TimelineCopy {
+  editorLabel: string;
+  editorTitle: string;
+  editorDescription: string;
+  visibleLabel: string;
+  titleLabel: string;
+  groupLabel: string;
+  statusLabel: string;
+  startLabel: string;
+  endLabel: string;
+  progressLabel: string;
+  shellLabel: string;
+  summary: (visibleCount: number, groupCount: number) => string;
+  zoomControlsLabel: string;
+  zoomInLabel: string;
+  zoomOutLabel: string;
+  resetLabel: string;
+  sidebarLabel: string;
+  momentLocale: string;
+  markerLabels: {
+    now: string;
+    today: string;
+  };
+  statusLabels: Record<RoadmapStatus, string>;
+}
+
+export interface CustomGridCopy {
+  ariaLabel: string;
+  searchLabel: string;
+  searchPlaceholder: string;
+  categoryLabel: string;
+  allCategoriesLabel: string;
+  selectedLabel: (count: number) => string;
+  editModeLabel: string;
+  editModeNote: string;
+  cancelLabel: string;
+  saveLabel: string;
+  addRowLabel: string;
+  addChildLabel: string;
+  deleteSelectedLabel: string;
+  newRowLabel: string;
+  newChildLabel: string;
+  newRowPlaceholder: {
+    capability: string;
+    category: string;
+    owner: string;
+    coverage: string;
+  };
+  newChildPlaceholder: {
+    name: string;
+    owner: string;
+  };
+  clearLabel: string;
+  expandLabel: string;
+  collapseLabel: string;
+  selectAllLabel: string;
+  selectRowLabel: (capability: string) => string;
+  toggleRowLabel: (action: string, capability: string) => string;
+  headers: {
+    capability: string;
+    category: string;
+    owner: string;
+    status: string;
+    coverage: string;
+    updated: string;
+  };
+  impactSuffix: string;
+  addedChildNote: string;
+  statusLabels: Record<PortfolioGridStatus, string>;
+  impactLabels: Record<PortfolioGridImpact, string>;
+}
+
+export interface TableHeaders {
+  project: string;
+  domain: string;
+  status: string;
+  leadTime: string;
+  chartCoverage: string;
+  apiContract: string;
+  updatedAt: string;
+  leadTimeUnitLabel: string;
+  statusLabels: Record<'Stable' | 'Improving' | 'Watch', string>;
+}
+
+export interface DashboardDictionary {
   appName: string;
   appSubtitle: string;
   nav: NavigationItem[];
+  heroEyebrow: string;
   heroTitle: string;
   heroBody: string;
+  heroCtaLabel: string;
+  portfolioLinkLabel: string;
+  portfolioFocusLabel: string;
+  portfolioFocus: string[];
+  previewLabel: string;
+  previewTechLabel: string;
+  updatedLabel: string;
+  dateTimeLocale: string;
+  heroStats: {
+    chartCases: string;
+    timelineItems: string;
+    gridRows: string;
+  };
   languageLabel: string;
   refreshLabel: string;
   loading: string;
   errorTitle: string;
+  trendLabels: Record<KpiMetric['trend'], string>;
   chartCards: {
-    businessTrend: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
-    implementationTrend: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
-    capabilityTreemap: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
-    categoryShare: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
+    businessTrend: ChartCardCopy;
+    implementationTrend: ChartCardCopy;
+    qualityScatter: ChartCardCopy;
+    genderBoxPlot: ChartCardCopy;
+    capabilityTreemap: ChartCardCopy;
+    categoryShare: ChartCardCopy;
     sankey: {
       title: string;
       description: string;
     };
   };
-  sankey: {
-    ariaLabel: string;
-    legendLabel: string;
-    fallbackDescription: string;
-    previousYear: string;
-    currentYear: string;
-    unitLabel: string;
-    legendItems: {
-      veryImproved: string;
-      improved: string;
-      noChange: string;
-      worsened: string;
-      veryWorsened: string;
-    };
-  };
-  timeline: {
-    editorLabel: string;
-    editorTitle: string;
-    editorDescription: string;
-    visibleLabel: string;
-    titleLabel: string;
-    groupLabel: string;
-    statusLabel: string;
-    startLabel: string;
-    endLabel: string;
-    progressLabel: string;
-    shellLabel: string;
-    summary: (visibleCount: number, groupCount: number) => string;
-    zoomControlsLabel: string;
-    zoomInLabel: string;
-    zoomOutLabel: string;
-    resetLabel: string;
-    sidebarLabel: string;
-  };
-  customGrid: {
-    ariaLabel: string;
-    searchLabel: string;
-    searchPlaceholder: string;
-    categoryLabel: string;
-    allCategoriesLabel: string;
-    selectedLabel: (count: number) => string;
-    editModeLabel: string;
-    editModeNote: string;
-    cancelLabel: string;
-    saveLabel: string;
-    addRowLabel: string;
-    addChildLabel: string;
-    deleteSelectedLabel: string;
-    newRowLabel: string;
-    newChildLabel: string;
-    newRowPlaceholder: {
-      capability: string;
-      category: string;
-      owner: string;
-      coverage: string;
-    };
-    newChildPlaceholder: {
-      name: string;
-      owner: string;
-    };
-    clearLabel: string;
-    expandLabel: string;
-    collapseLabel: string;
-    selectAllLabel: string;
-    selectRowLabel: (capability: string) => string;
-    toggleRowLabel: (action: string, capability: string) => string;
-    headers: {
-      capability: string;
-      category: string;
-      owner: string;
-      status: string;
-      coverage: string;
-      updated: string;
-    };
-    impactSuffix: string;
-  };
+  chartOptions: ChartOptionLabels;
+  sankey: SankeyCopy;
+  timeline: TimelineCopy;
+  customGrid: CustomGridCopy;
   dataGridCard: {
     title: string;
     description: string;
   };
   sections: {
-    overview: { eyebrow: string; title: string; description: string };
-    skills: { eyebrow: string; title: string; description: string };
-    charts: { eyebrow: string; title: string; description: string };
-    timeline: { eyebrow: string; title: string; description: string };
-    table: { eyebrow: string; title: string; description: string };
+    overview: SectionCopy;
+    skills: SectionCopy;
+    charts: SectionCopy;
+    timeline: SectionCopy;
+    table: SectionCopy;
   };
-  tableHeaders: {
-    project: string;
-    domain: string;
-    status: string;
-    leadTime: string;
-    chartCoverage: string;
-    apiContract: string;
-    updatedAt: string;
-  };
+  tableHeaders: TableHeaders;
 }
 
 export const dictionary: Record<Locale, DashboardDictionary> = {
   ko: {
     appName: '류호진',
     appSubtitle: 'Frontend Portfolio',
+    heroEyebrow: 'Frontend Portfolio',
     heroTitle: '실무에서 자주 만나는 데이터 UI를 직접 구현했습니다',
     heroBody:
       '차트, 일정, 그리드가 섞인 운영형 UI를 React와 TypeScript로 재구성했습니다. 실제 데이터 없이도 화면 설계와 컴포넌트 책임이 보이도록 만든 포트폴리오 데모입니다.',
+    heroCtaLabel: '구현 화면 보기',
+    portfolioLinkLabel: 'Notion Portfolio',
+    portfolioFocusLabel: '포트폴리오 구현 포커스',
+    portfolioFocus: ['차트 공통화', '간트 타임라인', '커스텀 그리드', '다국어 화면'],
+    previewLabel: '포트폴리오 화면 미리보기',
+    previewTechLabel: 'React + TypeScript',
+    updatedLabel: '업데이트',
+    dateTimeLocale: 'ko-KR',
+    heroStats: {
+      chartCases: '차트 예제',
+      timelineItems: '일정 항목',
+      gridRows: '그리드 행',
+    },
     languageLabel: '언어 변경',
     refreshLabel: '데이터 새로고침',
     loading: '데이터를 불러오는 중입니다.',
     errorTitle: '데이터를 불러오지 못했습니다.',
+    trendLabels: {
+      up: '개선',
+      down: '감소',
+      flat: '유지',
+    },
     chartCards: {
       businessTrend: {
         title: 'Bar + Line',
@@ -162,6 +266,22 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
           '전년도 비교 막대와 리뷰 점수를 함께 보여주고, 긴 데이터는 dataZoom으로 탐색합니다.',
         ariaLabel: '포트폴리오 차트 구현 추이',
         fallbackDescription: '이전 값과 현재 값을 비교하고 리뷰 점수를 라인으로 표시하는 복합 차트입니다.',
+      },
+      qualityScatter: {
+        title: 'Quality Scatter',
+        description:
+          '처리 기간, 결함률, 복잡도를 scatter chart와 visualMap으로 함께 비교합니다.',
+        ariaLabel: '기능 품질과 복잡도 scatter chart',
+        fallbackDescription:
+          '각 기능의 처리 기간, 결함률, 복잡도를 점 위치와 색상으로 비교하는 산점도입니다.',
+      },
+      genderBoxPlot: {
+        title: 'Gender Box Plot',
+        description:
+          '성별과 연령 그룹별 분포를 boxplot과 outlier 점으로 비교하는 더미 예제입니다.',
+        ariaLabel: '성별과 연령 그룹별 분포 boxplot chart',
+        fallbackDescription:
+          '성별과 연령 그룹별 최솟값, 사분위수, 중앙값, 최댓값, 이상치를 비교하는 boxplot 차트입니다.',
       },
       capabilityTreemap: {
         title: 'Capability Treemap',
@@ -181,6 +301,51 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
           '전년 대비 판정현황 화면을 참고해 좌우 상태 막대와 흐름선, 범례, 수치를 분리해 구성했습니다.',
       },
     },
+    chartOptions: {
+      businessTrend: {
+        revenueIndex: '매출 지수',
+        activeUsers: '활성 사용자',
+        conversionRate: '전환율',
+        revenueAxis: '매출',
+        conversionAxis: '전환',
+      },
+      implementationTrend: {
+        previous: '이전',
+        current: '현재',
+        reviewScore: '리뷰 점수',
+        casesAxis: '건수',
+        reviewAxis: '리뷰',
+      },
+      qualityScatter: {
+        cycleTimeAxis: '처리 기간',
+        defectRateAxis: '결함률',
+        complexityHigh: '높은 복잡도',
+        complexityLow: '낮음',
+        seriesName: '기능 품질',
+      },
+      genderBoxPlot: {
+        valueAxis: '지표값',
+        seriesName: '성별 분포',
+        numberLocale: 'ko-KR',
+        genderLabels: {
+          Male: '남성',
+          Female: '여성',
+        },
+        statsLabels: {
+          min: '최솟값',
+          q1: '1사분위',
+          median: '중앙값',
+          q3: '3사분위',
+          max: '최댓값',
+          outlier: '이상치',
+        },
+      },
+      categoryShare: {
+        centerLabel: '예제',
+        seriesName: '차트 아카이브',
+        numberLocale: 'ko-KR',
+      },
+    },
     sankey: {
       ariaLabel: '전년 대비 판정현황 sankey chart',
       legendLabel: 'Sankey 범례',
@@ -189,6 +354,15 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       previousYear: '2024년',
       currentYear: '2025년',
       unitLabel: '(명)',
+      numberLocale: 'ko-KR',
+      nodeLabels: {
+        A: '좋음',
+        C: '보통',
+        D2: '나쁨',
+        'A-1': '좋음',
+        'C-1': '보통',
+        'D2-1': '나쁨',
+      },
       legendItems: {
         veryImproved: '매우 완화',
         improved: '완화',
@@ -201,27 +375,37 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       editorLabel: 'Timeline 항목 편집 목록',
       editorTitle: 'Timeline Items',
       editorDescription: '왼쪽 리스트에서 제목, 그룹, 기간, 상태, 표시 여부를 수정합니다.',
-      visibleLabel: 'Visible',
-      titleLabel: 'Title',
-      groupLabel: 'Group',
-      statusLabel: 'Status',
-      startLabel: 'Start',
-      endLabel: 'End',
-      progressLabel: 'Progress',
+      visibleLabel: '표시',
+      titleLabel: '제목',
+      groupLabel: '그룹',
+      statusLabel: '상태',
+      startLabel: '시작',
+      endLabel: '종료',
+      progressLabel: '진행률',
       shellLabel: '포트폴리오 roadmap timeline',
       summary: (visibleCount, groupCount) =>
         `${visibleCount}개 항목 표시 / ${groupCount}개 그룹`,
       zoomControlsLabel: 'Timeline 확대 축소 컨트롤',
-      zoomInLabel: 'Zoom In',
-      zoomOutLabel: 'Zoom Out',
-      resetLabel: 'Reset',
+      zoomInLabel: '확대',
+      zoomOutLabel: '축소',
+      resetLabel: '초기화',
       sidebarLabel: '구분',
+      momentLocale: 'ko',
+      markerLabels: {
+        now: '현재',
+        today: '오늘',
+      },
+      statusLabels: {
+        done: '완료',
+        active: '진행 중',
+        planned: '예정',
+      },
     },
     customGrid: {
       ariaLabel: '포트폴리오 custom data grid',
-      searchLabel: 'Search',
+      searchLabel: '검색',
       searchPlaceholder: '역량 또는 작업 검색',
-      categoryLabel: 'Category',
+      categoryLabel: '카테고리',
       allCategoriesLabel: '전체 카테고리',
       selectedLabel: (count) => `${count}개 선택`,
       editModeLabel: '수정 모드',
@@ -243,21 +427,32 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         name: '하위 작업',
         owner: '담당자',
       },
-      clearLabel: 'Clear',
-      expandLabel: 'Expand',
-      collapseLabel: 'Collapse',
+      clearLabel: '초기화',
+      expandLabel: '펼치기',
+      collapseLabel: '접기',
       selectAllLabel: '현재 보이는 행 전체 선택',
       selectRowLabel: (capability) => `${capability} 선택`,
       toggleRowLabel: (action, capability) => `${capability} ${action}`,
       headers: {
-        capability: 'Capability',
-        category: 'Category',
-        owner: 'Owner',
-        status: 'Status',
-        coverage: 'Coverage',
-        updated: 'Updated',
+        capability: '역량',
+        category: '카테고리',
+        owner: '담당',
+        status: '상태',
+        coverage: '커버리지',
+        updated: '업데이트',
       },
-      impactSuffix: 'impact',
+      impactSuffix: '영향도',
+      addedChildNote: '수정 모드에서 추가한 항목입니다.',
+      statusLabels: {
+        Stable: '안정',
+        Improving: '개선 중',
+        Review: '검토',
+      },
+      impactLabels: {
+        High: '높음',
+        Medium: '중간',
+        Low: '낮음',
+      },
     },
     dataGridCard: {
       title: 'Custom Data Grid',
@@ -288,7 +483,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: 'ECharts Showcase',
         title: 'ECharts 차트 아카이브 데모',
         description:
-          '포트폴리오의 차트 공통화 경험을 바탕으로 bar+line, dataZoom, pie, treemap, sankey 예제를 구성했습니다.',
+          '포트폴리오의 차트 공통화 경험을 바탕으로 bar+line, dataZoom, scatter, boxplot, pie, treemap, sankey 예제를 구성했습니다.',
       },
       timeline: {
         eyebrow: 'Roadmap',
@@ -311,18 +506,43 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       chartCoverage: '차트 커버리지',
       apiContract: 'API 계약',
       updatedAt: '업데이트',
+      leadTimeUnitLabel: '일',
+      statusLabels: {
+        Stable: '안정',
+        Improving: '개선 중',
+        Watch: '관찰',
+      },
     },
   },
   en: {
     appName: 'Ryu Hojin',
     appSubtitle: 'Frontend Portfolio',
+    heroEyebrow: 'Frontend Portfolio',
     heroTitle: 'I make dense product screens easier to read',
     heroBody:
       'A React and TypeScript portfolio demo for chart-heavy operations screens, timelines, and custom grids, rebuilt with dummy data and clear component boundaries.',
+    heroCtaLabel: 'View demos',
+    portfolioLinkLabel: 'Notion Portfolio',
+    portfolioFocusLabel: 'Portfolio focus',
+    portfolioFocus: ['Chart system', 'Gantt timeline', 'Custom grid', 'i18n UI'],
+    previewLabel: 'Portfolio screen preview',
+    previewTechLabel: 'React + TypeScript',
+    updatedLabel: 'Updated',
+    dateTimeLocale: 'en-US',
+    heroStats: {
+      chartCases: 'Chart cases',
+      timelineItems: 'Timeline items',
+      gridRows: 'Grid rows',
+    },
     languageLabel: 'Change language',
     refreshLabel: 'Refresh data',
     loading: 'Loading dashboard data.',
     errorTitle: 'Failed to load dashboard data.',
+    trendLabels: {
+      up: 'Improving',
+      down: 'Reduced',
+      flat: 'Steady',
+    },
     chartCards: {
       businessTrend: {
         title: 'Bar + Line',
@@ -338,6 +558,22 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         ariaLabel: 'Portfolio chart implementation trend chart',
         fallbackDescription:
           'A mixed chart comparing previous and current values with review scores as a line.',
+      },
+      qualityScatter: {
+        title: 'Quality Scatter',
+        description:
+          'Cycle time, defect rate, and complexity are compared with a scatter chart and visualMap.',
+        ariaLabel: 'Feature quality and complexity scatter chart',
+        fallbackDescription:
+          'A scatter chart comparing each feature by cycle time, defect rate, and complexity.',
+      },
+      genderBoxPlot: {
+        title: 'Gender Box Plot',
+        description:
+          'A dummy boxplot example comparing distributions by gender and age group with outlier points.',
+        ariaLabel: 'Gender and age group distribution boxplot chart',
+        fallbackDescription:
+          'A boxplot chart comparing minimum, quartiles, median, maximum, and outliers by gender and age group.',
       },
       capabilityTreemap: {
         title: 'Capability Treemap',
@@ -359,6 +595,51 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
           'The flow separates left and right status bars, transition lines, legend, and values into a custom component.',
       },
     },
+    chartOptions: {
+      businessTrend: {
+        revenueIndex: 'Revenue index',
+        activeUsers: 'Active users',
+        conversionRate: 'Conversion rate',
+        revenueAxis: 'Revenue',
+        conversionAxis: 'Conversion',
+      },
+      implementationTrend: {
+        previous: 'Previous',
+        current: 'Current',
+        reviewScore: 'Review score',
+        casesAxis: 'Cases',
+        reviewAxis: 'Review',
+      },
+      qualityScatter: {
+        cycleTimeAxis: 'Cycle time',
+        defectRateAxis: 'Defect rate',
+        complexityHigh: 'High complexity',
+        complexityLow: 'Low',
+        seriesName: 'Feature quality',
+      },
+      genderBoxPlot: {
+        valueAxis: 'Value',
+        seriesName: 'Gender distribution',
+        numberLocale: 'en-US',
+        genderLabels: {
+          Male: 'Male',
+          Female: 'Female',
+        },
+        statsLabels: {
+          min: 'Min',
+          q1: 'Q1',
+          median: 'Median',
+          q3: 'Q3',
+          max: 'Max',
+          outlier: 'Outlier',
+        },
+      },
+      categoryShare: {
+        centerLabel: 'Example',
+        seriesName: 'Chart archive',
+        numberLocale: 'en-US',
+      },
+    },
     sankey: {
       ariaLabel: 'Year over year status transition sankey chart',
       legendLabel: 'Sankey legend',
@@ -367,6 +648,15 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       previousYear: '2024',
       currentYear: '2025',
       unitLabel: '(people)',
+      numberLocale: 'en-US',
+      nodeLabels: {
+        A: 'Good',
+        C: 'Normal',
+        D2: 'Poor',
+        'A-1': 'Good',
+        'C-1': 'Normal',
+        'D2-1': 'Poor',
+      },
       legendItems: {
         veryImproved: 'Greatly improved',
         improved: 'Improved',
@@ -394,6 +684,16 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       zoomOutLabel: 'Zoom Out',
       resetLabel: 'Reset',
       sidebarLabel: 'Group',
+      momentLocale: 'en',
+      markerLabels: {
+        now: 'Now',
+        today: 'Today',
+      },
+      statusLabels: {
+        done: 'Done',
+        active: 'Active',
+        planned: 'Planned',
+      },
     },
     customGrid: {
       ariaLabel: 'Portfolio custom data grid',
@@ -436,6 +736,17 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         updated: 'Updated',
       },
       impactSuffix: 'impact',
+      addedChildNote: 'Added in edit mode.',
+      statusLabels: {
+        Stable: 'Stable',
+        Improving: 'Improving',
+        Review: 'Review',
+      },
+      impactLabels: {
+        High: 'High',
+        Medium: 'Medium',
+        Low: 'Low',
+      },
     },
     dataGridCard: {
       title: 'Custom Data Grid',
@@ -466,7 +777,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: 'ECharts Showcase',
         title: 'ECharts Archive Demo',
         description:
-          'Bar+line, dataZoom, pie, treemap, and sankey examples share a wrapper and option-builder pattern.',
+          'Bar+line, dataZoom, scatter, boxplot, pie, treemap, and sankey examples share a wrapper and option-builder pattern.',
       },
       timeline: {
         eyebrow: 'Roadmap',
@@ -489,6 +800,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       chartCoverage: 'Chart coverage',
       apiContract: 'API contract',
       updatedAt: 'Updated',
+      leadTimeUnitLabel: 'd',
+      statusLabels: {
+        Stable: 'Stable',
+        Improving: 'Improving',
+        Watch: 'Watch',
+      },
     },
   },
 };

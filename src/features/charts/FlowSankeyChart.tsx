@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { SankeyLink, WorkflowSankeyData } from '../../types/dashboard';
+import type { SankeyCopy } from '../../i18n/dictionary';
 import {
   buildWorkflowSankeyOption,
   getWorkflowLinkColor,
@@ -11,33 +12,8 @@ import { EChart } from './EChart';
 
 interface FlowSankeyChartProps {
   workflow: WorkflowSankeyData;
-  copy: {
-    ariaLabel: string;
-    legendLabel: string;
-    fallbackDescription: string;
-    previousYear: string;
-    currentYear: string;
-    unitLabel: string;
-    legendItems: {
-      veryImproved: string;
-      improved: string;
-      noChange: string;
-      worsened: string;
-      veryWorsened: string;
-    };
-  };
+  copy: SankeyCopy;
 }
-
-const nodeLabel: Record<string, string> = {
-  A: '좋음',
-  C: '보통',
-  D2: '나쁨',
-  'A-1': '좋음',
-  'C-1': '보통',
-  'D2-1': '나쁨',
-};
-
-const numberFormatter = new Intl.NumberFormat('ko-KR');
 
 const sumBy = (links: SankeyLink[], key: 'source' | 'target', value: string) =>
   links
@@ -66,6 +42,7 @@ const buildFlexStyle = (value: number): CSSProperties => ({
 });
 
 export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
+  const numberFormatter = new Intl.NumberFormat(copy.numberLocale);
   const legendItems = [
     { label: copy.legendItems.veryImproved, color: judgmentFlowColors.veryImproved },
     { label: copy.legendItems.improved, color: judgmentFlowColors.improved },
@@ -103,7 +80,7 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
                 className="flow-sankey__node"
                 style={buildFlexStyle(node.value)}
               >
-                {nodeLabel[node.key]}
+                {copy.nodeLabels[node.key]}
               </div>
             ))}
           </div>
@@ -129,7 +106,7 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
                   className="flow-sankey__node"
                   style={buildFlexStyle(node.value)}
                 >
-                  {nodeLabel[node.key]}
+                  {copy.nodeLabels[node.key]}
                 </div>
               ))}
             </div>

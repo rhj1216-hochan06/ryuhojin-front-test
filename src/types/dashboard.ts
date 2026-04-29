@@ -54,6 +54,19 @@ export interface QualityScatterPoint {
   complexity: number;
 }
 
+export type GenderBoxPlotGender = 'Male' | 'Female';
+
+export interface GenderBoxPlotMetric {
+  group: string;
+  gender: GenderBoxPlotGender;
+  min: number;
+  q1: number;
+  median: number;
+  q3: number;
+  max: number;
+  outliers: number[];
+}
+
 export interface SankeyNode {
   name: string;
 }
@@ -132,6 +145,7 @@ export interface DashboardPayload {
   chartCapabilityTree: ChartCapabilityNode[];
   chartCategoryShare: ChartCategoryShare[];
   qualityPoints: QualityScatterPoint[];
+  genderBoxPlotMetrics: GenderBoxPlotMetric[];
   workflow: WorkflowSankeyData;
   roadmapGroups: RoadmapGroup[];
   roadmapItems: RoadmapItem[];

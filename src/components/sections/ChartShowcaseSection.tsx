@@ -1,10 +1,18 @@
 import { useState } from 'react';
 import type { DashboardPayload } from '../../types/dashboard';
+import type {
+  ChartCardCopy,
+  ChartOptionLabels,
+  SankeyCopy,
+  SectionCopy,
+} from '../../i18n/dictionary';
 import {
   buildCapabilityTreemapOption,
   buildCategoryShareOption,
   buildBusinessTrendOption,
+  buildGenderBoxPlotOption,
   buildImplementationTrendOption,
+  buildQualityScatterOption,
   type ChartLegendSelection,
 } from '../../features/charts/chartOptions';
 import { EChart } from '../../features/charts/EChart';
@@ -14,67 +22,35 @@ import { Card } from '../ui/Card';
 import { Section } from '../ui/Section';
 
 interface ChartShowcaseSectionProps {
-  section: {
-    eyebrow: string;
-    title: string;
-    description: string;
-  };
+  section: SectionCopy;
   chartCards: {
-    businessTrend: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
-    implementationTrend: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
-    capabilityTreemap: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
-    categoryShare: {
-      title: string;
-      description: string;
-      ariaLabel: string;
-      fallbackDescription: string;
-    };
+    businessTrend: ChartCardCopy;
+    implementationTrend: ChartCardCopy;
+    qualityScatter: ChartCardCopy;
+    genderBoxPlot: ChartCardCopy;
+    capabilityTreemap: ChartCardCopy;
+    categoryShare: ChartCardCopy;
     sankey: {
       title: string;
       description: string;
     };
   };
-  sankeyCopy: {
-    ariaLabel: string;
-    legendLabel: string;
-    fallbackDescription: string;
-    previousYear: string;
-    currentYear: string;
-    unitLabel: string;
-    legendItems: {
-      veryImproved: string;
-      improved: string;
-      noChange: string;
-      worsened: string;
-      veryWorsened: string;
-    };
-  };
+  chartOptionLabels: ChartOptionLabels;
+  sankeyCopy: SankeyCopy;
   payload: DashboardPayload;
 }
 
 export const ChartShowcaseSection = ({
   section,
   chartCards,
+  chartOptionLabels,
   sankeyCopy,
   payload,
 }: ChartShowcaseSectionProps) => {
   const chartData = useChartShowcaseData(payload);
   const [businessTrendLegendSelection, setBusinessTrendLegendSelection] =
+    useState<ChartLegendSelection>({});
+  const [genderBoxPlotLegendSelection, setGenderBoxPlotLegendSelection] =
     useState<ChartLegendSelection>({});
 
   return (
@@ -92,6 +68,7 @@ export const ChartShowcaseSection = ({
           <EChart
             option={buildBusinessTrendOption(
               chartData.businessTrend,
+              chartOptionLabels.businessTrend,
               businessTrendLegendSelection,
             )}
             ariaLabel={chartCards.businessTrend.ariaLabel}
@@ -104,7 +81,10 @@ export const ChartShowcaseSection = ({
           description={chartCards.implementationTrend.description}
         >
           <EChart
-            option={buildImplementationTrendOption(chartData.implementationTrend)}
+            option={buildImplementationTrendOption(
+              chartData.implementationTrend,
+              chartOptionLabels.implementationTrend,
+            )}
             ariaLabel={chartCards.implementationTrend.ariaLabel}
             fallbackDescription={chartCards.implementationTrend.fallbackDescription}
           />
@@ -120,11 +100,42 @@ export const ChartShowcaseSection = ({
           />
         </Card>
         <Card
+          title={chartCards.qualityScatter.title}
+          description={chartCards.qualityScatter.description}
+        >
+          <EChart
+            option={buildQualityScatterOption(
+              chartData.qualityDistribution,
+              chartOptionLabels.qualityScatter,
+            )}
+            ariaLabel={chartCards.qualityScatter.ariaLabel}
+            fallbackDescription={chartCards.qualityScatter.fallbackDescription}
+          />
+        </Card>
+        <Card
+          title={chartCards.genderBoxPlot.title}
+          description={chartCards.genderBoxPlot.description}
+        >
+          <EChart
+            option={buildGenderBoxPlotOption(
+              chartData.genderBoxPlot,
+              chartOptionLabels.genderBoxPlot,
+              genderBoxPlotLegendSelection,
+            )}
+            ariaLabel={chartCards.genderBoxPlot.ariaLabel}
+            fallbackDescription={chartCards.genderBoxPlot.fallbackDescription}
+            onLegendSelectChanged={setGenderBoxPlotLegendSelection}
+          />
+        </Card>
+        <Card
           title={chartCards.categoryShare.title}
           description={chartCards.categoryShare.description}
         >
           <EChart
-            option={buildCategoryShareOption(chartData.categoryShare)}
+            option={buildCategoryShareOption(
+              chartData.categoryShare,
+              chartOptionLabels.categoryShare,
+            )}
             ariaLabel={chartCards.categoryShare.ariaLabel}
             fallbackDescription={chartCards.categoryShare.fallbackDescription}
           />

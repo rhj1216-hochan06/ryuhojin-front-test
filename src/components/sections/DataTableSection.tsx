@@ -1,70 +1,16 @@
 import type { DeliveryRow, PortfolioGridRow } from '../../types/dashboard';
+import type { CustomGridCopy, SectionCopy, TableHeaders } from '../../i18n/dictionary';
 import { CustomDataGrid } from '../../features/dataGrid/CustomDataGrid';
 import { Card } from '../ui/Card';
 import { Section } from '../ui/Section';
 
-interface TableHeaders {
-  project: string;
-  domain: string;
-  status: string;
-  leadTime: string;
-  chartCoverage: string;
-  apiContract: string;
-  updatedAt: string;
-}
-
 interface DataTableSectionProps {
-  section: {
-    eyebrow: string;
-    title: string;
-    description: string;
-  };
+  section: SectionCopy;
   dataGridCard: {
     title: string;
     description: string;
   };
-  customGridCopy: {
-    ariaLabel: string;
-    searchLabel: string;
-    searchPlaceholder: string;
-    categoryLabel: string;
-    allCategoriesLabel: string;
-    selectedLabel: (count: number) => string;
-    editModeLabel: string;
-    editModeNote: string;
-    cancelLabel: string;
-    saveLabel: string;
-    addRowLabel: string;
-    addChildLabel: string;
-    deleteSelectedLabel: string;
-    newRowLabel: string;
-    newChildLabel: string;
-    newRowPlaceholder: {
-      capability: string;
-      category: string;
-      owner: string;
-      coverage: string;
-    };
-    newChildPlaceholder: {
-      name: string;
-      owner: string;
-    };
-    clearLabel: string;
-    expandLabel: string;
-    collapseLabel: string;
-    selectAllLabel: string;
-    selectRowLabel: (capability: string) => string;
-    toggleRowLabel: (action: string, capability: string) => string;
-    headers: {
-      capability: string;
-      category: string;
-      owner: string;
-      status: string;
-      coverage: string;
-      updated: string;
-    };
-    impactSuffix: string;
-  };
+  customGridCopy: CustomGridCopy;
   headers: TableHeaders;
   rows: DeliveryRow[];
   gridRows: PortfolioGridRow[];
@@ -114,10 +60,10 @@ export const DataTableSection = ({
                 <td>{row.domain}</td>
                 <td>
                   <span className={`status status--${row.status.toLowerCase()}`}>
-                    {row.status}
+                    {headers.statusLabels[row.status]}
                   </span>
                 </td>
-                <td>{row.leadTimeDays}d</td>
+                <td>{`${row.leadTimeDays}${headers.leadTimeUnitLabel}`}</td>
                 <td>{row.chartCoverage}%</td>
                 <td>{row.apiContract}</td>
                 <td>{row.updatedAt}</td>

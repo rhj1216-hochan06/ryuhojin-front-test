@@ -4,51 +4,11 @@ import type {
   PortfolioGridRow,
   PortfolioGridStatus,
 } from '../../types/dashboard';
+import type { CustomGridCopy } from '../../i18n/dictionary';
 
 interface CustomDataGridProps {
   rows: PortfolioGridRow[];
-  copy: {
-    ariaLabel: string;
-    searchLabel: string;
-    searchPlaceholder: string;
-    categoryLabel: string;
-    allCategoriesLabel: string;
-    selectedLabel: (count: number) => string;
-    editModeLabel: string;
-    editModeNote: string;
-    cancelLabel: string;
-    saveLabel: string;
-    addRowLabel: string;
-    addChildLabel: string;
-    deleteSelectedLabel: string;
-    newRowLabel: string;
-    newChildLabel: string;
-    newRowPlaceholder: {
-      capability: string;
-      category: string;
-      owner: string;
-      coverage: string;
-    };
-    newChildPlaceholder: {
-      name: string;
-      owner: string;
-    };
-    clearLabel: string;
-    expandLabel: string;
-    collapseLabel: string;
-    selectAllLabel: string;
-    selectRowLabel: (capability: string) => string;
-    toggleRowLabel: (action: string, capability: string) => string;
-    headers: {
-      capability: string;
-      category: string;
-      owner: string;
-      status: string;
-      coverage: string;
-      updated: string;
-    };
-    impactSuffix: string;
-  };
+  copy: CustomGridCopy;
 }
 
 type SortKey = 'capability' | 'category' | 'coverage' | 'updatedAt';
@@ -68,18 +28,6 @@ interface NewGridChildDraft {
   status: PortfolioGridStatus;
   impact: PortfolioGridImpact;
 }
-
-const statusLabel: Record<PortfolioGridStatus, string> = {
-  Stable: 'Stable',
-  Improving: 'Improving',
-  Review: 'Review',
-};
-
-const impactLabel: Record<PortfolioGridImpact, string> = {
-  High: 'High',
-  Medium: 'Medium',
-  Low: 'Low',
-};
 
 const getSearchText = (row: PortfolioGridRow) =>
   [
@@ -314,7 +262,7 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
                   status: draft.status,
                   impact: draft.impact,
                   updatedAt: getTodayLabel(),
-                  notes: 'Added in edit mode.',
+                  notes: copy.addedChildNote,
                 },
                 ...currentRow.children,
               ],
@@ -554,9 +502,9 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
                       }))
                     }
                   >
-                    {Object.keys(statusLabel).map((status) => (
+                    {Object.keys(copy.statusLabels).map((status) => (
                       <option key={status} value={status}>
-                        {statusLabel[status as PortfolioGridStatus]}
+                        {copy.statusLabels[status as PortfolioGridStatus]}
                       </option>
                     ))}
                   </select>
@@ -649,7 +597,7 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
                   <div className="custom-grid__cell">{row.owner}</div>
                   <div className="custom-grid__cell">
                     <span className={`status status--${row.status.toLowerCase()}`}>
-                      {statusLabel[row.status]}
+                      {copy.statusLabels[row.status]}
                     </span>
                   </div>
                   <div className="custom-grid__cell">{row.coverage}%</div>
@@ -691,9 +639,9 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
                               })
                             }
                           >
-                            {Object.keys(impactLabel).map((impact) => (
+                            {Object.keys(copy.impactLabels).map((impact) => (
                               <option key={impact} value={impact}>
-                                {impactLabel[impact as PortfolioGridImpact]}
+                                {copy.impactLabels[impact as PortfolioGridImpact]}
                               </option>
                             ))}
                           </select>
@@ -722,9 +670,9 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
                               })
                             }
                           >
-                            {Object.keys(statusLabel).map((status) => (
+                            {Object.keys(copy.statusLabels).map((status) => (
                               <option key={status} value={status}>
-                                {statusLabel[status as PortfolioGridStatus]}
+                                {copy.statusLabels[status as PortfolioGridStatus]}
                               </option>
                             ))}
                           </select>
@@ -767,10 +715,10 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
                             </label>
                           )}
                           <span>{child.name}</span>
-                          <span>{`${impactLabel[child.impact]} ${copy.impactSuffix}`}</span>
+                          <span>{`${copy.impactLabels[child.impact]} ${copy.impactSuffix}`}</span>
                           <span>{child.owner}</span>
                           <span className={`status status--${child.status.toLowerCase()}`}>
-                            {statusLabel[child.status]}
+                            {copy.statusLabels[child.status]}
                           </span>
                           <span>{child.updatedAt}</span>
                           <small>{child.notes}</small>

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef } from 'react';
 import {
   BarChart,
+  BoxplotChart,
   LineChart,
   PieChart,
   SankeyChart,
@@ -22,6 +23,7 @@ import { SVGRenderer } from 'echarts/renderers';
 
 echarts.use([
   BarChart,
+  BoxplotChart,
   LineChart,
   PieChart,
   SankeyChart,

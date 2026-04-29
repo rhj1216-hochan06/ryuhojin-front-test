@@ -3,6 +3,7 @@ import type { ApiResponse, DashboardPayload } from '../types/dashboard';
 
 export const useDashboardViewModel = (
   response: ApiResponse<DashboardPayload> | null,
+  dateTimeLocale: string,
 ) =>
   useMemo(() => {
     if (!response) {
@@ -22,7 +23,7 @@ export const useDashboardViewModel = (
 
     return {
       payload: response.data,
-      generatedAtLabel: new Intl.DateTimeFormat('ko-KR', {
+      generatedAtLabel: new Intl.DateTimeFormat(dateTimeLocale, {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -34,5 +35,4 @@ export const useDashboardViewModel = (
         stableDeliveries,
       },
     };
-  }, [response]);
-
+  }, [dateTimeLocale, response]);

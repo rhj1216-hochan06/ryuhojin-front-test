@@ -23,29 +23,12 @@ import moment from 'moment';
 import 'moment/locale/ko';
 import styled from 'styled-components';
 import type { RoadmapGroup, RoadmapItem, RoadmapStatus } from '../../types/dashboard';
+import type { TimelineCopy } from '../../i18n/dictionary';
 
 interface RoadmapTimelineProps {
   groups: RoadmapGroup[];
   items: RoadmapItem[];
-  copy: {
-    editorLabel: string;
-    editorTitle: string;
-    editorDescription: string;
-    visibleLabel: string;
-    titleLabel: string;
-    groupLabel: string;
-    statusLabel: string;
-    startLabel: string;
-    endLabel: string;
-    progressLabel: string;
-    shellLabel: string;
-    summary: (visibleCount: number, groupCount: number) => string;
-    zoomControlsLabel: string;
-    zoomInLabel: string;
-    zoomOutLabel: string;
-    resetLabel: string;
-    sidebarLabel: string;
-  };
+  copy: TimelineCopy;
 }
 
 interface CalendarItemFields {
@@ -69,12 +52,6 @@ const statusColor: Record<RoadmapStatus, string> = {
   done: '#0f766e',
   active: '#2563eb',
   planned: '#b45309',
-};
-
-const statusLabel: Record<RoadmapStatus, string> = {
-  done: 'Done',
-  active: 'Active',
-  planned: 'Planned',
 };
 
 const timelineKeys: TimelineKeys = {
@@ -434,6 +411,8 @@ const TimelineShell = styled.div`
 `;
 
 export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) => {
+  moment.locale(copy.momentLocale);
+
   const initialRange = useMemo(() => buildInitialRange(items), [items]);
   const [editableItems, setEditableItems] = useState<EditableRoadmapItem[]>(
     () => normalizeItems(items),
@@ -477,11 +456,11 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
           progress: item.progress,
           status: item.status,
           itemProps: {
-            'aria-label': `${item.title}, ${statusLabel[item.status]}, ${item.progress}%`,
+            'aria-label': `${item.title}, ${copy.statusLabels[item.status]}, ${item.progress}%`,
             title: `${item.title} (${item.progress}%)`,
           },
         })),
-    [editableItems],
+    [copy.statusLabels, editableItems],
   );
 
   const updateItem = useCallback((itemId: number, patch: Partial<EditableRoadmapItem>) => {
@@ -624,7 +603,7 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
   const visibleCount = editableItems.filter((item) => item.isVisible).length;
   const currentVisibleSpan = visibleTime.end - visibleTime.start;
   const isMaxZoomedIn = currentVisibleSpan <= minZoom * 1.02;
-  const markerLabel = isMaxZoomedIn ? 'Now' : 'Today';
+  const markerLabel = isMaxZoomedIn ? copy.markerLabels.now : copy.markerLabels.today;
 
   return (
     <TimelineWorkbench>
@@ -694,7 +673,7 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
                         })
                       }
                     >
-                      {Object.entries(statusLabel).map(([value, label]) => (
+                      {Object.entries(copy.statusLabels).map(([value, label]) => (
                         <option key={value} value={value}>
                           {label}
                         </option>

@@ -1,32 +1,11 @@
 import type { RoadmapGroup, RoadmapItem } from '../../types/dashboard';
+import type { SectionCopy, TimelineCopy } from '../../i18n/dictionary';
 import { RoadmapTimeline } from '../../features/timeline/RoadmapTimeline';
 import { Section } from '../ui/Section';
 
 interface TimelineShowcaseSectionProps {
-  section: {
-    eyebrow: string;
-    title: string;
-    description: string;
-  };
-  timelineCopy: {
-    editorLabel: string;
-    editorTitle: string;
-    editorDescription: string;
-    visibleLabel: string;
-    titleLabel: string;
-    groupLabel: string;
-    statusLabel: string;
-    startLabel: string;
-    endLabel: string;
-    progressLabel: string;
-    shellLabel: string;
-    summary: (visibleCount: number, groupCount: number) => string;
-    zoomControlsLabel: string;
-    zoomInLabel: string;
-    zoomOutLabel: string;
-    resetLabel: string;
-    sidebarLabel: string;
-  };
+  section: SectionCopy;
+  timelineCopy: TimelineCopy;
   groups: RoadmapGroup[];
   items: RoadmapItem[];
 }

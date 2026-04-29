@@ -1,8 +1,11 @@
 import type { EChartsOption } from 'echarts';
+import type { ChartOptionLabels } from '../../i18n/dictionary';
 import type {
   ChartCapabilityNode,
   ChartCategoryShare,
   ChartImplementationMetric,
+  GenderBoxPlotGender,
+  GenderBoxPlotMetric,
   MonthlyBusinessMetric,
   QualityScatterPoint,
   WorkflowSankeyData,
@@ -14,6 +17,15 @@ const roundedBarTopRadius = [20, 20, 0, 0];
 const squareBarRadius = [0, 0, 0, 0];
 export const workflowSourceOrder = ['A', 'C', 'D2'] as const;
 export const workflowTargetOrder = ['A-1', 'C-1', 'D2-1'] as const;
+const genderBoxPlotOrder: GenderBoxPlotGender[] = ['Male', 'Female'];
+const genderBoxPlotColors: Record<GenderBoxPlotGender, string> = {
+  Male: '#2563eb',
+  Female: '#e4499a',
+};
+const genderBoxPlotFillColors: Record<GenderBoxPlotGender, string> = {
+  Male: 'rgba(37, 99, 235, 0.22)',
+  Female: 'rgba(228, 73, 154, 0.22)',
+};
 
 export type ChartLegendSelection = Record<string, boolean>;
 
@@ -102,20 +114,37 @@ const formatPieTooltip = (params: unknown) => {
   return '';
 };
 
-const formatChartValue = (value: number) =>
-  new Intl.NumberFormat('en-US').format(value);
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const getTooltipDataMetricIndex = (params: unknown) => {
+  if (!isRecord(params) || !isRecord(params.data)) {
+    return null;
+  }
+
+  return typeof params.data.metricIndex === 'number' ? params.data.metricIndex : null;
+};
+
+const getTooltipValue = (params: unknown) => {
+  if (!isRecord(params)) {
+    return null;
+  }
+
+  return Array.isArray(params.value) ? params.value : null;
+};
 
 export const buildBusinessTrendOption = (
   metrics: MonthlyBusinessMetric[],
+  labels: ChartOptionLabels['businessTrend'],
   legendSelection?: ChartLegendSelection,
 ): EChartsOption => {
   const businessStack = [
     {
-      name: 'Revenue index',
+      name: labels.revenueIndex,
       values: metrics.map((metric) => metric.revenue),
     },
     {
-      name: 'Active users',
+      name: labels.activeUsers,
       values: metrics.map((metric) => metric.activeUsers),
     },
   ];
@@ -144,20 +173,20 @@ export const buildBusinessTrendOption = (
     yAxis: [
       {
         type: 'value',
-        name: 'Revenue',
+        name: labels.revenueAxis,
         axisLabel: { color: axisTextColor },
         splitLine: { lineStyle: { color: splitLineColor } },
       },
       {
         type: 'value',
-        name: 'Conversion',
+        name: labels.conversionAxis,
         axisLabel: { color: axisTextColor },
         splitLine: { show: false },
       },
     ],
     series: [
       {
-        name: 'Revenue index',
+        name: labels.revenueIndex,
         type: 'bar',
         stack: 'monthlyMetrics',
         barWidth: 18,
@@ -167,7 +196,7 @@ export const buildBusinessTrendOption = (
         data: buildStackedBarData(businessStack, 0, legendSelection),
       },
       {
-        name: 'Active users',
+        name: labels.activeUsers,
         type: 'bar',
         stack: 'monthlyMetrics',
         barWidth: 18,
@@ -177,7 +206,7 @@ export const buildBusinessTrendOption = (
         data: buildStackedBarData(businessStack, 1, legendSelection),
       },
       {
-        name: 'Conversion rate',
+        name: labels.conversionRate,
         type: 'line',
         yAxisIndex: 1,
         smooth: true,
@@ -190,6 +219,7 @@ export const buildBusinessTrendOption = (
 
 export const buildImplementationTrendOption = (
   metrics: ChartImplementationMetric[],
+  labels: ChartOptionLabels['implementationTrend'],
 ): EChartsOption => ({
   aria: { enabled: true },
   color: ['rgba(37, 99, 235, 0.18)', '#0f766e', '#be123c'],
@@ -235,13 +265,13 @@ export const buildImplementationTrendOption = (
   yAxis: [
     {
       type: 'value',
-      name: 'Cases',
+      name: labels.casesAxis,
       axisLabel: { color: axisTextColor },
       splitLine: { lineStyle: { color: splitLineColor } },
     },
     {
       type: 'value',
-      name: 'Review',
+      name: labels.reviewAxis,
       min: 60,
       max: 100,
       axisLabel: { color: axisTextColor },
@@ -250,7 +280,7 @@ export const buildImplementationTrendOption = (
   ],
   series: [
     {
-      name: 'Previous',
+      name: labels.previous,
       type: 'bar',
       barWidth: 16,
       itemStyle: {
@@ -262,7 +292,7 @@ export const buildImplementationTrendOption = (
       data: metrics.map((metric) => metric.previous),
     },
     {
-      name: 'Current',
+      name: labels.current,
       type: 'bar',
       barWidth: 16,
       itemStyle: {
@@ -271,7 +301,7 @@ export const buildImplementationTrendOption = (
       data: metrics.map((metric) => metric.current),
     },
     {
-      name: 'Review score',
+      name: labels.reviewScore,
       type: 'line',
       yAxisIndex: 1,
       smooth: true,
@@ -284,24 +314,25 @@ export const buildImplementationTrendOption = (
 
 export const buildQualityScatterOption = (
   points: QualityScatterPoint[],
+  labels: ChartOptionLabels['qualityScatter'],
 ): EChartsOption => ({
   aria: { enabled: true },
   color: ['#be123c'],
   tooltip: { trigger: 'item' },
   grid: {
     left: 46,
-    right: 26,
+    right: 92,
     top: 32,
-    bottom: 42,
+    bottom: 36,
   },
   xAxis: {
-    name: 'Cycle time',
+    name: labels.cycleTimeAxis,
     type: 'value',
     axisLabel: { color: axisTextColor },
     splitLine: { lineStyle: { color: splitLineColor } },
   },
   yAxis: {
-    name: 'Defect rate',
+    name: labels.defectRateAxis,
     type: 'value',
     axisLabel: { color: axisTextColor },
     splitLine: { lineStyle: { color: splitLineColor } },
@@ -310,17 +341,19 @@ export const buildQualityScatterOption = (
     min: 3,
     max: 8,
     dimension: 2,
-    orient: 'horizontal',
-    left: 'center',
-    bottom: 0,
-    text: ['High complexity', 'Low'],
+    orient: 'vertical',
+    right: 0,
+    top: 'middle',
+    itemHeight: 120,
+    itemWidth: 12,
+    text: [labels.complexityHigh, labels.complexityLow],
     inRange: {
       color: ['#0f766e', '#b45309', '#be123c'],
     },
   },
   series: [
     {
-      name: 'Feature quality',
+      name: labels.seriesName,
       type: 'scatter',
       symbolSize: 16,
       data: points.map((point) => [
@@ -332,6 +365,193 @@ export const buildQualityScatterOption = (
     },
   ],
 });
+
+export const buildGenderBoxPlotOption = (
+  metrics: GenderBoxPlotMetric[],
+  labels: ChartOptionLabels['genderBoxPlot'],
+  legendSelection?: ChartLegendSelection,
+): EChartsOption => {
+  const formatter = new Intl.NumberFormat(labels.numberLocale);
+  const groups = Array.from(new Set(metrics.map((metric) => metric.group)));
+  const getMetric = (group: string, gender: GenderBoxPlotGender) =>
+    metrics.find((metric) => metric.group === group && metric.gender === gender);
+  const isGenderVisible = (gender: GenderBoxPlotGender) =>
+    isLegendItemVisible(legendSelection, labels.genderLabels[gender]);
+  const axisSlots = groups.flatMap((group) =>
+    genderBoxPlotOrder.flatMap((gender) => {
+      const metric = getMetric(group, gender);
+
+      return metric
+        ? [
+            {
+              group,
+              gender,
+              metric,
+            },
+          ]
+        : [];
+    }),
+  );
+  const visibleAxisSlots = axisSlots
+    .filter((slot) => isGenderVisible(slot.gender))
+    .map((slot, slotIndex) => ({
+      ...slot,
+      slotIndex,
+    }));
+  const visibleGroups = groups.filter((group) =>
+    visibleAxisSlots.some((slot) => slot.group === group),
+  );
+  const metricSlotIndex = new Map(
+    visibleAxisSlots.map((slot) => [slot.metric, slot.slotIndex]),
+  );
+
+  const formatMetricTooltip = (metric: GenderBoxPlotMetric) =>
+    [
+      `<strong>${metric.group} - ${labels.genderLabels[metric.gender]}</strong>`,
+      `${labels.statsLabels.min}: ${formatter.format(metric.min)}`,
+      `${labels.statsLabels.q1}: ${formatter.format(metric.q1)}`,
+      `${labels.statsLabels.median}: ${formatter.format(metric.median)}`,
+      `${labels.statsLabels.q3}: ${formatter.format(metric.q3)}`,
+      `${labels.statsLabels.max}: ${formatter.format(metric.max)}`,
+    ].join('<br/>');
+
+  const boxplotData = visibleAxisSlots.map(({ gender, metric, slotIndex }) => ({
+    value: [metric.min, metric.q1, metric.median, metric.q3, metric.max],
+    metricIndex: metrics.indexOf(metric),
+    gender,
+    slotIndex,
+    itemStyle: {
+      color: genderBoxPlotFillColors[gender],
+      borderColor: genderBoxPlotColors[gender],
+      borderWidth: 1.5,
+    },
+  }));
+
+  const getOutlierData = (gender: GenderBoxPlotGender) =>
+    metrics
+      .filter((metric) => metric.gender === gender)
+      .flatMap((metric) => {
+        const slotIndex = metricSlotIndex.get(metric);
+
+        if (slotIndex === undefined) {
+          return [];
+        }
+
+        return metric.outliers.map((outlier) => ({
+          value: [slotIndex, outlier],
+          gender,
+          slotIndex,
+          metricIndex: metrics.indexOf(metric),
+          itemStyle: {
+            color: genderBoxPlotColors[gender],
+          },
+        }));
+      });
+
+  const outlierSeries = genderBoxPlotOrder.map((gender) => ({
+    name: labels.genderLabels[gender],
+    type: 'scatter' as const,
+    symbolSize: 7,
+    data: isGenderVisible(gender) ? getOutlierData(gender) : [],
+    z: 3,
+  }));
+
+  const legendData = genderBoxPlotOrder.map((gender) => ({
+    name: labels.genderLabels[gender],
+    itemStyle: {
+      color: genderBoxPlotColors[gender],
+    },
+  }));
+  const primaryXAxis = {
+    type: 'category' as const,
+    data: visibleAxisSlots.map((slot) => labels.genderLabels[slot.gender]),
+    boundaryGap: true,
+    axisPointer: { type: 'shadow' as const },
+    axisTick: { show: false },
+    axisLabel: {
+      show: false,
+    },
+    axisLine: { lineStyle: { color: splitLineColor } },
+  };
+  const groupedXAxis = {
+    type: 'category' as const,
+    data: visibleGroups,
+    boundaryGap: true,
+    position: 'bottom' as const,
+    axisPointer: { show: false },
+    axisTick: { show: false },
+    axisLine: { show: false },
+    splitLine: { show: false },
+    axisLabel: {
+      color: axisTextColor,
+      interval: 0,
+      lineHeight: 16,
+    },
+  };
+
+  return {
+    aria: { enabled: true },
+    color: genderBoxPlotOrder.map((gender) => genderBoxPlotColors[gender]),
+    tooltip: {
+      trigger: 'item',
+      formatter: (params: unknown) => {
+        const metricIndex = getTooltipDataMetricIndex(params);
+        const metric =
+          typeof metricIndex === 'number' ? metrics[metricIndex] : undefined;
+
+        if (!metric) {
+          return '';
+        }
+
+        const value = getTooltipValue(params);
+
+        if (value && value.length === 2) {
+          return [
+            `<strong>${metric.group} - ${labels.genderLabels[metric.gender]}</strong>`,
+            `${labels.statsLabels.outlier}: ${formatter.format(Number(value[1]))}`,
+          ].join('<br/>');
+        }
+
+        return formatMetricTooltip(metric);
+      },
+    },
+    legend: {
+      top: 0,
+      right: 0,
+      data: legendData,
+      selected: legendSelection,
+      icon: 'circle',
+      itemWidth: 7,
+      itemHeight: 7,
+      itemGap: 10,
+      textStyle: { color: axisTextColor },
+    },
+    grid: {
+      left: 46,
+      right: 28,
+      top: 54,
+      bottom: 44,
+    },
+    xAxis: [primaryXAxis, groupedXAxis],
+    yAxis: {
+      type: 'value',
+      name: labels.valueAxis,
+      axisLabel: { color: axisTextColor },
+      splitLine: { lineStyle: { color: splitLineColor } },
+    },
+    series: [
+      {
+        name: labels.seriesName,
+        type: 'boxplot',
+        boxWidth: [6, 18],
+        data: boxplotData,
+        emphasis: { disabled: true },
+        z: 2,
+      },
+      ...outlierSeries,
+    ],
+  };
+};
 
 const sortCapabilityNodes = (
   nodes: ChartCapabilityNode[],
@@ -430,10 +650,12 @@ export const buildCapabilityTreemapOption = (
 
 export const buildCategoryShareOption = (
   shares: ChartCategoryShare[],
+  labels: ChartOptionLabels['categoryShare'],
 ): EChartsOption => {
   const activeSliceCount = shares.filter((share) => Number(share.value) > 0).length;
+  const numberFormatter = new Intl.NumberFormat(labels.numberLocale);
   const shareValueByName = new Map(
-    shares.map((share) => [share.name, formatChartValue(share.value)]),
+    shares.map((share) => [share.name, numberFormatter.format(share.value)]),
   );
 
   return {
@@ -479,7 +701,7 @@ export const buildCategoryShareOption = (
       z: 10,
       silent: true,
       style: {
-        text: 'Example',
+        text: labels.centerLabel,
         align: 'center',
         fill: '#27323a',
         fontSize: 20,
@@ -488,7 +710,7 @@ export const buildCategoryShareOption = (
     },
     series: [
       {
-        name: 'Chart archive',
+        name: labels.seriesName,
         type: 'pie',
         radius: ['38%', '72%'],
         center: ['50%', '58%'],

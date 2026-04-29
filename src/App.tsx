@@ -17,33 +17,23 @@ const App = () => {
   const [locale, setLocale] = useState<Locale>('ko');
   const t = dictionary[locale];
   const { data, error, isLoading, refresh } = useDashboardData();
-  const viewModel = useDashboardViewModel(data);
+  const viewModel = useDashboardViewModel(data, t.dateTimeLocale);
   useScrollReveal(viewModel?.generatedAtLabel);
-
-  const portfolioFocus =
-    locale === 'ko'
-      ? ['차트 공통화', '간트 타임라인', '커스텀 그리드', '다국어 화면']
-      : ['Chart system', 'Gantt timeline', 'Custom grid', 'i18n UI'];
 
   const heroStats = [
     {
-      label: locale === 'ko' ? '차트 예제' : 'Chart cases',
+      label: t.heroStats.chartCases,
       value: viewModel?.payload.chartImplementationMetrics.length ?? '-',
     },
     {
-      label: locale === 'ko' ? '일정 항목' : 'Timeline items',
+      label: t.heroStats.timelineItems,
       value: viewModel?.payload.roadmapItems.length ?? '-',
     },
     {
-      label: locale === 'ko' ? '그리드 행' : 'Grid rows',
+      label: t.heroStats.gridRows,
       value: viewModel?.payload.portfolioGridRows.length ?? '-',
     },
   ];
-
-  const heroCtaLabel = locale === 'ko' ? '구현 화면 보기' : 'View demos';
-  const previewLabel =
-    locale === 'ko' ? '포트폴리오 화면 미리보기' : 'Portfolio screen preview';
-  const updatedLabel = locale === 'ko' ? '업데이트' : 'Updated';
 
   return (
     <AppLayout
@@ -56,7 +46,7 @@ const App = () => {
     >
       <section className="profile-hero" aria-labelledby="hero-title" data-reveal>
         <div className="profile-hero__content">
-          <p className="eyebrow">Frontend Portfolio</p>
+          <p className="eyebrow">{t.heroEyebrow}</p>
           <h1
             id="hero-title"
             className={locale === 'ko' ? 'profile-hero__title--ko' : undefined}
@@ -67,7 +57,7 @@ const App = () => {
 
           <div className="profile-hero__actions">
             <a className="button" href="#charts">
-              {heroCtaLabel}
+              {t.heroCtaLabel}
             </a>
             <a
               className="button button--ghost"
@@ -75,7 +65,7 @@ const App = () => {
               target="_blank"
               rel="noreferrer"
             >
-              Notion Portfolio
+              {t.portfolioLinkLabel}
             </a>
             <button
               className="button button--ghost"
@@ -87,8 +77,8 @@ const App = () => {
             </button>
           </div>
 
-          <ul className="profile-hero__focus" aria-label="Portfolio focus">
-            {portfolioFocus.map((item) => (
+          <ul className="profile-hero__focus" aria-label={t.portfolioFocusLabel}>
+            {t.portfolioFocus.map((item) => (
               <li className="tag" key={item}>
                 {item}
               </li>
@@ -96,11 +86,11 @@ const App = () => {
           </ul>
         </div>
 
-        <aside className="profile-hero__preview" aria-label={previewLabel}>
+        <aside className="profile-hero__preview" aria-label={t.previewLabel}>
           <div className="profile-hero__preview-card">
             <div className="profile-hero__preview-head">
-              <span>React + TypeScript</span>
-              {viewModel && <small>{`${updatedLabel} ${viewModel.generatedAtLabel}`}</small>}
+              <span>{t.previewTechLabel}</span>
+              {viewModel && <small>{`${t.updatedLabel} ${viewModel.generatedAtLabel}`}</small>}
             </div>
             <div className="profile-hero__preview-body">
               <div className="profile-hero__bars" aria-hidden="true">
@@ -136,7 +126,11 @@ const App = () => {
 
       {viewModel && (
         <>
-          <OverviewSection section={t.sections.overview} kpis={viewModel.payload.kpis} />
+          <OverviewSection
+            section={t.sections.overview}
+            kpis={viewModel.payload.kpis}
+            trendLabels={t.trendLabels}
+          />
           <SkillSummarySection
             section={t.sections.skills}
             skills={viewModel.payload.skills}
@@ -144,6 +138,7 @@ const App = () => {
           <ChartShowcaseSection
             section={t.sections.charts}
             chartCards={t.chartCards}
+            chartOptionLabels={t.chartOptions}
             sankeyCopy={t.sankey}
             payload={viewModel.payload}
           />

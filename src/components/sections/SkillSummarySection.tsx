@@ -1,13 +1,10 @@
 import type { SkillSummary } from '../../types/dashboard';
+import type { SectionCopy } from '../../i18n/dictionary';
 import { Card } from '../ui/Card';
 import { Section } from '../ui/Section';
 
 interface SkillSummarySectionProps {
-  section: {
-    eyebrow: string;
-    title: string;
-    description: string;
-  };
+  section: SectionCopy;
   skills: SkillSummary[];
 }
 
@@ -39,4 +36,3 @@ export const SkillSummarySection = ({
     </Card>
   </Section>
 );
-
