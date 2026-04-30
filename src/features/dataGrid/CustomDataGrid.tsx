@@ -330,68 +330,74 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
   return (
     <div className="custom-grid" aria-label={copy.ariaLabel}>
       <div className="custom-grid__toolbar">
-        <label>
-          {copy.searchLabel}
-          <input
-            value={searchTerm}
-            placeholder={copy.searchPlaceholder}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              setSearchTerm(event.target.value)
-            }
-          />
-        </label>
-        <label>
-          {copy.categoryLabel}
-          <select
-            value={categoryFilter}
-            onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-              setCategoryFilter(event.target.value)
-            }
-          >
-            <option value="all">{copy.allCategoriesLabel}</option>
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="custom-grid__actions">
-          {isEditMode && <span aria-live="polite">{copy.selectedLabel(selectedCount)}</span>}
-          {!isEditMode ? (
+        <div className="custom-grid__toolbar-group custom-grid__toolbar-group--left">
+          <label className="custom-grid__field custom-grid__field--search">
+            {copy.searchLabel}
+            <input
+              value={searchTerm}
+              placeholder={copy.searchPlaceholder}
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setSearchTerm(event.target.value)
+              }
+            />
+          </label>
+          <label className="custom-grid__field custom-grid__field--category">
+            {copy.categoryLabel}
+            <select
+              value={categoryFilter}
+              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+                setCategoryFilter(event.target.value)
+              }
+            >
+              <option value="all">{copy.allCategoriesLabel}</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="custom-grid__actions custom-grid__actions--expand">
             <button
               type="button"
-              aria-pressed={isEditMode}
-              onClick={enterEditMode}
+              onClick={() => setExpandedRows(new Set(filteredRows.map((row) => row.id)))}
             >
-              {copy.editModeLabel}
+              {copy.expandLabel}
             </button>
-          ) : (
-            <>
+            <button type="button" onClick={() => setExpandedRows(new Set())}>
+              {copy.collapseLabel}
+            </button>
+          </div>
+        </div>
+        <div className="custom-grid__toolbar-group custom-grid__toolbar-group--right">
+          <div className="custom-grid__actions custom-grid__actions--edit">
+            {isEditMode && <span aria-live="polite">{copy.selectedLabel(selectedCount)}</span>}
+            {!isEditMode ? (
               <button
                 type="button"
-                onClick={deleteSelectedDraftRows}
-                disabled={selectedCount === 0}
+                aria-pressed={isEditMode}
+                onClick={enterEditMode}
               >
-                {copy.deleteSelectedLabel}
+                {copy.editModeLabel}
               </button>
-              <button type="button" onClick={cancelEditMode}>
-                {copy.cancelLabel}
-              </button>
-              <button type="button" className="is-primary" onClick={saveEditMode}>
-                {copy.saveLabel}
-              </button>
-            </>
-          )}
-          <button
-            type="button"
-            onClick={() => setExpandedRows(new Set(filteredRows.map((row) => row.id)))}
-          >
-            {copy.expandLabel}
-          </button>
-          <button type="button" onClick={() => setExpandedRows(new Set())}>
-            {copy.collapseLabel}
-          </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={deleteSelectedDraftRows}
+                  disabled={selectedCount === 0}
+                >
+                  {copy.deleteSelectedLabel}
+                </button>
+                <button type="button" onClick={cancelEditMode}>
+                  {copy.cancelLabel}
+                </button>
+                <button type="button" className="is-primary" onClick={saveEditMode}>
+                  {copy.saveLabel}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
       {isEditMode && (
