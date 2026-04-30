@@ -214,6 +214,10 @@ main {
     transform: none;
     transition: none;
   }
+
+  .floating-refresh__tooltip {
+    transition: none;
+  }
 }
 
 .hero {
@@ -679,6 +683,83 @@ main {
   grid-column: 1 / -1;
 }
 
+.floating-refresh {
+  position: fixed;
+  right: max(18px, calc((100vw - 1180px) / 2 - 76px));
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.floating-refresh button {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  border-radius: 999px;
+  background: var(--blue);
+  color: #ffffff;
+  box-shadow: 0 16px 34px rgba(37, 99, 235, 0.26);
+  cursor: grab;
+  outline-offset: 4px;
+  touch-action: none;
+}
+
+.floating-refresh button:active {
+  cursor: grabbing;
+}
+
+.floating-refresh button:hover,
+.floating-refresh button:focus-visible {
+  background: #1d4ed8;
+}
+
+.floating-refresh svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.1;
+}
+
+.floating-refresh__tooltip {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  width: max-content;
+  max-width: min(260px, calc(100vw - 96px));
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: #27323a;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.13);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(6px, -50%);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.floating-refresh:hover .floating-refresh__tooltip,
+.floating-refresh:focus-within .floating-refresh__tooltip {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.floating-refresh.is-dragging .floating-refresh__tooltip {
+  opacity: 0;
+  transform: translate(6px, -50%);
+}
+
 .demo-card__link {
   display: inline-flex;
   align-items: center;
@@ -711,6 +792,8 @@ main {
 
 .flow-sankey {
   min-width: 0;
+  --flow-sankey-gap: 7.5px;
+  --flow-sankey-height: 214px;
 }
 
 .flow-sankey__legend {
@@ -788,21 +871,22 @@ main {
 
 .flow-sankey__node-stack {
   display: flex;
-  height: 214px;
+  height: var(--flow-sankey-height);
   flex-direction: column;
-  gap: 7.5px;
+  gap: var(--flow-sankey-gap);
   transform: translateY(-1px);
 }
 
 .flow-sankey__node {
   display: grid;
-  min-height: 30px;
+  min-height: 0;
   place-items: center;
   border-radius: 4px;
   background: #e1e6ed;
   color: #596571;
   font-size: 0.9rem;
   font-weight: 800;
+  overflow: hidden;
 }
 
 .flow-sankey__side--left .flow-sankey__node {
@@ -825,8 +909,8 @@ main {
 .flow-sankey__values {
   display: flex;
   flex-direction: column;
-  gap: 7.5px;
-  height: 214px;
+  gap: var(--flow-sankey-gap);
+  height: var(--flow-sankey-height);
   padding-left: 10px;
   font-size: 0.72rem;
   font-weight: 900;
@@ -1462,11 +1546,15 @@ main {
 
   .flow-sankey__node-stack,
   .flow-sankey__values {
-    height: 190px;
+    height: var(--flow-sankey-height);
   }
 
   .flow-sankey__center .chart-canvas {
     height: 190px !important;
+  }
+
+  .flow-sankey {
+    --flow-sankey-height: 190px;
   }
 }
 
@@ -1487,6 +1575,15 @@ main {
   .site-nav a {
     padding: 8px 9px;
     white-space: nowrap;
+  }
+
+  .floating-refresh {
+    right: 14px;
+  }
+
+  .floating-refresh button {
+    width: 48px;
+    height: 48px;
   }
 
   main {

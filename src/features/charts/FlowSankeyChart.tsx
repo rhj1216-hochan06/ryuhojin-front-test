@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import type { SankeyLink, WorkflowSankeyData } from '../../types/dashboard';
 import type { SankeyCopy } from '../../i18n/dictionary';
 import {
@@ -20,6 +20,9 @@ const sumBy = (links: SankeyLink[], key: 'source' | 'target', value: string) =>
     .filter((link) => link[key] === value)
     .reduce((total, link) => total + link.value, 0);
 
+const defaultFlowHeight = 214;
+const defaultFlowGap = 7.5;
+
 const sortLinks = (links: SankeyLink[]) =>
   [...links].sort((first, second) => {
     const targetDiff =
@@ -36,12 +39,62 @@ const sortLinks = (links: SankeyLink[]) =>
     );
   });
 
-const buildFlexStyle = (value: number): CSSProperties => ({
-  flexGrow: Math.max(value, 1),
-  flexBasis: 0,
+const readPixelVariable = (
+  element: HTMLElement,
+  variableName: string,
+  fallback: number,
+) => {
+  const value = getComputedStyle(element).getPropertyValue(variableName).trim();
+  const parsed = Number.parseFloat(value);
+
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const getStackMetrics = (
+  totalHeight: number,
+  gap: number,
+  values: number[],
+) => {
+  const visibleValues = values.filter((value) => value > 0);
+  const totalValue = visibleValues.reduce((total, value) => total + value, 0);
+  const availableHeight = Math.max(
+    0,
+    totalHeight - Math.max(visibleValues.length - 1, 0) * gap,
+  );
+
+  return {
+    availableHeight,
+    totalValue,
+    visibleCount: visibleValues.length,
+  };
+};
+
+const getProportionalHeight = (
+  value: number,
+  metrics: ReturnType<typeof getStackMetrics>,
+) => {
+  if (value <= 0 || metrics.totalValue <= 0 || metrics.visibleCount === 0) {
+    return 0;
+  }
+
+  if (metrics.visibleCount === 1) {
+    return metrics.availableHeight;
+  }
+
+  return (value / metrics.totalValue) * metrics.availableHeight;
+};
+
+const buildHeightStyle = (height: number): CSSProperties => ({
+  flex: '0 0 auto',
+  height,
 });
 
 export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [flowSize, setFlowSize] = useState({
+    gap: defaultFlowGap,
+    height: defaultFlowHeight,
+  });
   const numberFormatter = new Intl.NumberFormat(copy.numberLocale);
   const legendItems = [
     { label: copy.legendItems.veryImproved, color: judgmentFlowColors.veryImproved },
@@ -58,9 +111,6 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
     key: target,
     value: sumBy(workflow.links, 'target', target),
   }));
-  const sourceValueByKey = Object.fromEntries(
-    sourceTotals.map((node) => [node.key, node.value]),
-  ) as Record<(typeof workflowSourceOrder)[number], number>;
   const targetValueByKey = Object.fromEntries(
     targetTotals.map((node) => [node.key, node.value]),
   ) as Record<(typeof workflowTargetOrder)[number], number>;
@@ -71,49 +121,44 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
     targetKey,
     links: sortedLinks.filter((link) => link.target === targetKey),
   }));
+  const sourceMetrics = getStackMetrics(
+    flowSize.height,
+    flowSize.gap,
+    sourceTotals.map((node) => node.value),
+  );
+  const targetMetrics = getStackMetrics(
+    flowSize.height,
+    flowSize.gap,
+    targetTotals.map((node) => node.value),
+  );
 
-  const getSourceNodeMarginStyle = (
-    key: (typeof workflowSourceOrder)[number],
-  ): CSSProperties => {
-    if (key === 'A') {
-      return {
-        marginBottom: sourceValueByKey.C > 0 ? 0 : sourceValueByKey.D2 > 0 ? 7.5 : 15,
-      };
+  useEffect(() => {
+    if (!rootRef.current) {
+      return undefined;
     }
 
-    if (key === 'C') {
-      return {
-        marginTop: sourceValueByKey.A > 0 ? 0 : 7.5,
-        marginBottom: sourceValueByKey.D2 > 0 ? 0 : 7.5,
-      };
-    }
-
-    return {
-      marginTop: sourceValueByKey.A > 0 || sourceValueByKey.C > 0 ? 0 : 15,
+    const element = rootRef.current;
+    const updateFlowSize = () => {
+      setFlowSize({
+        gap: readPixelVariable(element, '--flow-sankey-gap', defaultFlowGap),
+        height: readPixelVariable(
+          element,
+          '--flow-sankey-height',
+          defaultFlowHeight,
+        ),
+      });
     };
-  };
 
-  const getTargetNodeMarginStyle = (
-    key: (typeof workflowTargetOrder)[number],
-  ): CSSProperties => {
-    if (key === 'A-1') {
-      return {
-        marginBottom:
-          targetValueByKey['C-1'] > 0 || targetValueByKey['D2-1'] > 0 ? 0 : 15,
-      };
-    }
+    const resizeObserver = new ResizeObserver(updateFlowSize);
 
-    if (key === 'C-1') {
-      return {
-        marginBottom: targetValueByKey['D2-1'] > 0 ? 0 : 7.5,
-      };
-    }
+    updateFlowSize();
+    resizeObserver.observe(element);
 
-    return {};
-  };
+    return () => resizeObserver.disconnect();
+  }, []);
 
   return (
-    <div className="flow-sankey" aria-label={copy.ariaLabel}>
+    <div ref={rootRef} className="flow-sankey" aria-label={copy.ariaLabel}>
       <div className="flow-sankey__legend" aria-label={copy.legendLabel}>
         {legendItems.map((item) => (
           <span key={item.label}>
@@ -130,7 +175,9 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
               <div
                 key={node.key}
                 className="flow-sankey__node"
-                style={{ ...buildFlexStyle(node.value), ...getSourceNodeMarginStyle(node.key) }}
+                style={buildHeightStyle(
+                  getProportionalHeight(node.value, sourceMetrics),
+                )}
               >
                 {copy.nodeLabels[node.key]}
               </div>
@@ -160,7 +207,9 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
                 <div
                   key={node.key}
                   className="flow-sankey__node"
-                  style={{ ...buildFlexStyle(node.value), ...getTargetNodeMarginStyle(node.key) }}
+                  style={buildHeightStyle(
+                    getProportionalHeight(node.value, targetMetrics),
+                  )}
                 >
                   {copy.nodeLabels[node.key]}
                 </div>
@@ -173,10 +222,9 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
                   <div
                     key={targetKey}
                     className="flow-sankey__value-group"
-                    style={{
-                      ...buildFlexStyle(targetValueByKey[targetKey]),
-                      ...getTargetNodeMarginStyle(targetKey),
-                    }}
+                    style={buildHeightStyle(
+                      getProportionalHeight(targetValueByKey[targetKey], targetMetrics),
+                    )}
                   >
                     {links.map((link) => (
                       <span
