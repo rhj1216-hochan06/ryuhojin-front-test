@@ -1,9 +1,11 @@
 export type Locale = 'ko' | 'en';
+export type AppRoutePath = '/' | '/charts' | '/data-grid' | '/timeline';
 
 export interface NavigationItem {
   id: string;
   label: string;
   href: string;
+  path: AppRoutePath;
 }
 
 export interface KpiMetric {

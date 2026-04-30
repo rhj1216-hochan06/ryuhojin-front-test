@@ -25,7 +25,7 @@ export const DataTableSection = ({
   gridRows,
 }: DataTableSectionProps) => (
   <Section
-    id="delivery"
+    id="data-grid"
     eyebrow={section.eyebrow}
     title={section.title}
     description={section.description}

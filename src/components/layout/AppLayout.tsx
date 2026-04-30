@@ -1,12 +1,15 @@
 import type { PropsWithChildren } from 'react';
-import type { Locale, NavigationItem } from '../../types/dashboard';
+import type { AppRoutePath, Locale, NavigationItem } from '../../types/dashboard';
 
 interface AppLayoutProps {
   appName: string;
   appSubtitle: string;
   navItems: NavigationItem[];
+  currentPath: AppRoutePath;
   locale: Locale;
   languageLabel: string;
+  navigationLabel: string;
+  homeLabel: string;
   onLocaleChange: (locale: Locale) => void;
 }
 
@@ -14,15 +17,18 @@ export const AppLayout = ({
   appName,
   appSubtitle,
   navItems,
+  currentPath,
   locale,
   languageLabel,
+  navigationLabel,
+  homeLabel,
   onLocaleChange,
   children,
 }: PropsWithChildren<AppLayoutProps>) => (
   <div className="app-shell">
     <header className="site-header">
       <div className="site-header__inner">
-        <a className="brand" href="#top" aria-label={`${appName} home`}>
+        <a className="brand" href="#/" aria-label={homeLabel}>
           <span className="brand__mark" aria-hidden="true">
             RHJ
           </span>
@@ -31,9 +37,14 @@ export const AppLayout = ({
             <small>{appSubtitle}</small>
           </span>
         </a>
-        <nav className="site-nav" aria-label="Primary navigation">
+        <nav className="site-nav" aria-label={navigationLabel}>
           {navItems.map((item) => (
-            <a key={item.id} href={item.href}>
+            <a
+              key={item.id}
+              className={currentPath === item.path ? 'is-active' : undefined}
+              href={item.href}
+              aria-current={currentPath === item.path ? 'page' : undefined}
+            >
               {item.label}
             </a>
           ))}

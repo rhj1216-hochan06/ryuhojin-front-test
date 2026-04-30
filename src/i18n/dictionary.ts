@@ -172,6 +172,8 @@ export interface DashboardDictionary {
   appName: string;
   appSubtitle: string;
   nav: NavigationItem[];
+  navigationLabel: string;
+  homeLabel: string;
   heroEyebrow: string;
   heroTitle: string;
   heroBody: string;
@@ -213,6 +215,14 @@ export interface DashboardDictionary {
     title: string;
     description: string;
   };
+  pages: {
+    charts: SectionCopy;
+    dataGrid: SectionCopy;
+    timeline: SectionCopy;
+  };
+  demoRoutes: SectionCopy & {
+    openLabel: string;
+  };
   sections: {
     overview: SectionCopy;
     skills: SectionCopy;
@@ -227,6 +237,8 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
   ko: {
     appName: '류호진',
     appSubtitle: 'Frontend Portfolio',
+    navigationLabel: '주요 페이지',
+    homeLabel: '홈으로 이동',
     heroEyebrow: 'Frontend Portfolio',
     heroTitle: '실무에서 자주 만나는 데이터 UI를 직접 구현했습니다',
     heroBody:
@@ -460,12 +472,38 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         'AccordionTable과 RealGrid 경험을 더미 데이터로 재구성한 검색, 정렬, 필터, 선택 예제입니다.',
     },
     nav: [
-      { id: 'overview', label: 'Overview', href: '#overview' },
-      { id: 'skills', label: 'Skills', href: '#skills' },
-      { id: 'charts', label: 'Charts', href: '#charts' },
-      { id: 'timeline', label: 'Timeline', href: '#timeline' },
-      { id: 'delivery', label: 'Delivery', href: '#delivery' },
+      { id: 'home', label: '홈', href: '#/', path: '/' },
+      { id: 'charts', label: '차트', href: '#/charts', path: '/charts' },
+      { id: 'data-grid', label: '데이터 그리드', href: '#/data-grid', path: '/data-grid' },
+      { id: 'timeline', label: '타임라인', href: '#/timeline', path: '/timeline' },
     ],
+    pages: {
+      charts: {
+        eyebrow: 'Charts Page',
+        title: '차트 구현 사례를 한 페이지에서 검증합니다',
+        description:
+          'ECharts wrapper, option builder, i18n label, legend state, resize 처리를 차트 예제별로 분리해 보여줍니다.',
+      },
+      dataGrid: {
+        eyebrow: 'Data Grid Page',
+        title: '운영형 그리드 상호작용을 따로 검증합니다',
+        description:
+          '검색, 필터, 정렬, parent/child 선택, 편집 모드 흐름을 분리된 페이지에서 확인할 수 있습니다.',
+      },
+      timeline: {
+        eyebrow: 'Timeline Page',
+        title: '일정 편집과 timeline 조작을 분리해 보여줍니다',
+        description:
+          '왼쪽 편집 패널과 react-calendar-timeline canvas를 함께 배치해 move, resize, zoom 흐름을 확인합니다.',
+      },
+    },
+    demoRoutes: {
+      eyebrow: 'Demo Routes',
+      title: '기능별 데모 페이지',
+      description:
+        '메인 페이지는 프로젝트 맥락을 설명하고, 복잡한 UI는 기능별 페이지에서 집중해서 확인할 수 있도록 나눴습니다.',
+      openLabel: '페이지 열기',
+    },
     sections: {
       overview: {
         eyebrow: 'About',
@@ -495,7 +533,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: 'Data Grid',
         title: 'Custom Data Grid',
         description:
-          '계층형 데이터, 검색, 필터, 정렬, 선택을 포함한 포트폴리오형 더미 그리드와 전달 품질 테이블을 함께 보여줍니다.',
+          '계층형 데이터, 검색, 필터, 정렬, 선택, 편집 흐름을 포함한 포트폴리오형 더미 데이터 그리드를 보여줍니다.',
       },
     },
     tableHeaders: {
@@ -517,6 +555,8 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
   en: {
     appName: 'Ryu Hojin',
     appSubtitle: 'Frontend Portfolio',
+    navigationLabel: 'Primary pages',
+    homeLabel: 'Go to home',
     heroEyebrow: 'Frontend Portfolio',
     heroTitle: 'I make dense product screens easier to read',
     heroBody:
@@ -754,12 +794,38 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         'A dummy-data reconstruction of AccordionTable and RealGrid patterns with search, sorting, filters, and selection.',
     },
     nav: [
-      { id: 'overview', label: 'Overview', href: '#overview' },
-      { id: 'skills', label: 'Skills', href: '#skills' },
-      { id: 'charts', label: 'Charts', href: '#charts' },
-      { id: 'timeline', label: 'Timeline', href: '#timeline' },
-      { id: 'delivery', label: 'Delivery', href: '#delivery' },
+      { id: 'home', label: 'Home', href: '#/', path: '/' },
+      { id: 'charts', label: 'Charts', href: '#/charts', path: '/charts' },
+      { id: 'data-grid', label: 'Data Grid', href: '#/data-grid', path: '/data-grid' },
+      { id: 'timeline', label: 'Timeline', href: '#/timeline', path: '/timeline' },
     ],
+    pages: {
+      charts: {
+        eyebrow: 'Charts Page',
+        title: 'Validate chart implementation cases in one place',
+        description:
+          'Each example keeps the ECharts wrapper, option builder, i18n labels, legend state, and resize handling separated.',
+      },
+      dataGrid: {
+        eyebrow: 'Data Grid Page',
+        title: 'Inspect operational grid interactions separately',
+        description:
+          'Search, filtering, sorting, parent/child selection, and edit mode flows can be checked on a focused page.',
+      },
+      timeline: {
+        eyebrow: 'Timeline Page',
+        title: 'Show timeline editing and canvas interactions apart',
+        description:
+          'The editor panel and react-calendar-timeline canvas sit together so move, resize, and zoom flows are easy to verify.',
+      },
+    },
+    demoRoutes: {
+      eyebrow: 'Demo Routes',
+      title: 'Feature Demo Pages',
+      description:
+        'The home page explains the project context while complex UI examples live on focused feature pages.',
+      openLabel: 'Open page',
+    },
     sections: {
       overview: {
         eyebrow: 'About',
@@ -789,7 +855,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: 'Data Grid',
         title: 'Custom Data Grid',
         description:
-          'A dummy portfolio grid shows nested rows, search, filters, sorting, selection, and delivery quality data.',
+          'A dummy portfolio data grid shows nested rows, search, filters, sorting, selection, and edit-mode flows.',
       },
     },
     tableHeaders: {
