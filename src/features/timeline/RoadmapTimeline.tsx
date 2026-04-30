@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent,
   type CSSProperties,
@@ -17,13 +18,22 @@ import Timeline, {
   type TimelineGroup,
   type TimelineItem,
   type TimelineKeys,
+  type Unit,
 } from 'react-calendar-timeline';
 import 'react-calendar-timeline/lib/Timeline.css';
-import moment from 'moment';
+import moment, { type Moment } from 'moment';
 import 'moment/locale/ko';
 import styled from 'styled-components';
 import type { RoadmapGroup, RoadmapItem, RoadmapStatus } from '../../types/dashboard';
 import type { TimelineCopy } from '../../i18n/dictionary';
+import {
+  dayMs,
+  getTimelineEndMs,
+  getTimelineStartMs,
+  halfHourMs,
+  hourMs,
+  toDateTimeInputValue,
+} from './timelineDate';
 
 interface RoadmapTimelineProps {
   groups: RoadmapGroup[];
@@ -44,8 +54,7 @@ type CalendarItem = TimelineItem<CalendarItemFields, number>;
 type CalendarGroup = TimelineGroup<CalendarGroupFields>;
 type EditableRoadmapItem = RoadmapItem & { isVisible: boolean };
 
-const dayMs = 24 * 60 * 60 * 1000;
-const minZoom = dayMs;
+const minZoom = 6 * hourMs;
 const maxZoom = 365 * dayMs;
 
 const statusColor: Record<RoadmapStatus, string> = {
@@ -69,8 +78,6 @@ const timelineKeys: TimelineKeys = {
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-const toDateInputValue = (date: string | number) => moment(date).format('YYYY-MM-DD');
-
 const normalizeItems = (items: RoadmapItem[]): EditableRoadmapItem[] =>
   items.map((item) => ({
     ...item,
@@ -85,8 +92,8 @@ const buildInitialRange = (items: RoadmapItem[]) => {
     };
   }
 
-  const starts = items.map((item) => moment(item.startDate));
-  const ends = items.map((item) => moment(item.endDate));
+  const starts = items.map((item) => moment(getTimelineStartMs(item.startDate)));
+  const ends = items.map((item) => moment(getTimelineEndMs(item.endDate)));
 
   return {
     start: moment.min(starts).subtract(2, 'days').startOf('day').valueOf(),
@@ -149,11 +156,13 @@ const EditorPanel = styled.aside`
     border-left: 4px solid #0f766e;
     border-radius: 8px;
     background: #ffffff;
+    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
 
   .timeline-editor__item.is-active {
     border-color: #2563eb;
     border-left-color: #2563eb;
+    background: rgba(37, 99, 235, 0.06);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 
@@ -162,6 +171,10 @@ const EditorPanel = styled.aside`
     gap: 8px;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .timeline-editor__item-id {
+    color: #172026;
   }
 
   .timeline-editor__visible {
@@ -198,6 +211,11 @@ const EditorPanel = styled.aside`
     padding: 7px 9px;
   }
 
+  .timeline-editor__item:focus-within {
+    outline: 2px solid rgba(37, 99, 235, 0.24);
+    outline-offset: 2px;
+  }
+
   .timeline-editor__inline {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -226,7 +244,7 @@ const TimelineShell = styled.div`
     justify-content: space-between;
     padding: 12px;
     border-bottom: 1px solid #d7dee6;
-    background: #f7f9fb;
+    background: linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
   }
 
   .timeline-toolbar__summary {
@@ -272,6 +290,11 @@ const TimelineShell = styled.div`
     background: #f7f9fb;
   }
 
+  .rct-sidebar-header {
+    border-right: 1px solid #d7dee6;
+    background: #f7f9fb;
+  }
+
   .rct-sidebar {
     border-right: 1px solid #d7dee6;
     background: #ffffff;
@@ -287,6 +310,16 @@ const TimelineShell = styled.div`
     color: #64717f;
     font-size: 0.78rem;
     font-weight: 800;
+  }
+
+  .timeline-axis-header {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding: 0 12px;
+    color: #27323a;
+    font-size: 0.82rem;
+    font-weight: 900;
   }
 
   .rct-item {
@@ -411,14 +444,17 @@ const TimelineShell = styled.div`
 `;
 
 export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) => {
-  moment.locale(copy.momentLocale);
-
   const initialRange = useMemo(() => buildInitialRange(items), [items]);
   const [editableItems, setEditableItems] = useState<EditableRoadmapItem[]>(
     () => normalizeItems(items),
   );
   const [activeItemId, setActiveItemId] = useState<number | null>(items[0]?.id ?? null);
   const [visibleTime, setVisibleTime] = useState(initialRange);
+  const editorItemRefs = useRef<Record<number, HTMLElement | null>>({});
+
+  useEffect(() => {
+    moment.locale(copy.momentLocale);
+  }, [copy.momentLocale]);
 
   useEffect(() => {
     setEditableItems(normalizeItems(items));
@@ -428,6 +464,17 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
   useEffect(() => {
     setVisibleTime(initialRange);
   }, [initialRange]);
+
+  useEffect(() => {
+    if (activeItemId === null) {
+      return;
+    }
+
+    editorItemRefs.current[activeItemId]?.scrollIntoView({
+      block: 'nearest',
+      behavior: 'smooth',
+    });
+  }, [activeItemId]);
 
   const calendarGroups: CalendarGroup[] = useMemo(
     () =>
@@ -448,8 +495,8 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
           id: item.id,
           group: item.group,
           title: item.title,
-          start_time: moment(item.startDate).startOf('day').valueOf(),
-          end_time: moment(item.endDate).endOf('day').valueOf(),
+          start_time: getTimelineStartMs(item.startDate),
+          end_time: getTimelineEndMs(item.endDate),
           canMove: true,
           canResize: 'both',
           canChangeGroup: true,
@@ -461,6 +508,43 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
           },
         })),
     [copy.statusLabels, editableItems],
+  );
+
+  const focusTimelineItem = useCallback(
+    (itemId: number) => {
+      const target = editableItems.find((item) => item.id === itemId);
+
+      if (!target) {
+        return;
+      }
+
+      const start = getTimelineStartMs(target.startDate);
+      const end = getTimelineEndMs(target.endDate);
+      const duration = Math.max(end - start, hourMs);
+      const padding = Math.max(duration * 0.7, 8 * hourMs);
+      const rawStart = start - padding;
+      const rawEnd = end + padding;
+      const rawSpan = rawEnd - rawStart;
+      const nextSpan = clamp(rawSpan, minZoom, maxZoom);
+      const center = (start + end) / 2;
+
+      setVisibleTime({
+        start: center - nextSpan / 2,
+        end: center + nextSpan / 2,
+      });
+    },
+    [editableItems],
+  );
+
+  const selectTimelineItem = useCallback(
+    (itemId: number, shouldFocusTimeline = false) => {
+      setActiveItemId(itemId);
+
+      if (shouldFocusTimeline) {
+        focusTimelineItem(itemId);
+      }
+    },
+    [focusTimelineItem],
   );
 
   const updateItem = useCallback((itemId: number, patch: Partial<EditableRoadmapItem>) => {
@@ -515,14 +599,13 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
             return item;
           }
 
-          const duration = moment(item.endDate).endOf('day').valueOf() -
-            moment(item.startDate).startOf('day').valueOf();
+          const duration = getTimelineEndMs(item.endDate) - getTimelineStartMs(item.startDate);
 
           return {
             ...item,
             group: Number(nextGroup.id),
-            startDate: toDateInputValue(dragTime),
-            endDate: toDateInputValue(dragTime + duration),
+            startDate: toDateTimeInputValue(dragTime),
+            endDate: toDateTimeInputValue(dragTime + duration, 'end'),
           };
         }),
       );
@@ -542,8 +625,8 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
           item.id === itemId
             ? {
                 ...item,
-                startDate: edge === 'left' ? toDateInputValue(time) : item.startDate,
-                endDate: edge === 'right' ? toDateInputValue(time) : item.endDate,
+                startDate: edge === 'left' ? toDateTimeInputValue(time) : item.startDate,
+                endDate: edge === 'right' ? toDateTimeInputValue(time, 'end') : item.endDate,
               }
             : item,
         ),
@@ -567,6 +650,7 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
       const itemStyle: CSSProperties = {
         background: itemContext.selected ? '#dfe7ef' : statusColor[item.status],
         borderColor: itemContext.resizing ? '#be123c' : statusColor[item.status],
+        boxShadow: itemContext.selected ? '0 0 0 3px rgba(37, 99, 235, 0.22)' : undefined,
         color: '#172026',
       };
 
@@ -600,6 +684,48 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
     [],
   );
 
+  const formatPrimaryHeader = useCallback(
+    ([startTime]: [Moment, Moment], unit: Unit) => {
+      const start = startTime.clone().locale(copy.momentLocale);
+
+      if (unit === 'year') {
+        return start.format('YYYY');
+      }
+
+      if (unit === 'month') {
+        return start.format(copy.momentLocale === 'ko' ? 'YYYY년 MMMM' : 'MMMM YYYY');
+      }
+
+      if (unit === 'day' || unit === 'hour' || unit === 'minute') {
+        return start.format('LL');
+      }
+
+      return start.format('ll');
+    },
+    [copy.momentLocale],
+  );
+
+  const formatDateHeader = useCallback(
+    ([startTime]: [Moment, Moment], unit: Unit) => {
+      const start = startTime.clone().locale(copy.momentLocale);
+
+      if (unit === 'hour' || unit === 'minute') {
+        return start.format('HH:mm');
+      }
+
+      if (unit === 'day') {
+        return start.format(copy.momentLocale === 'ko' ? 'D일 ddd' : 'ddd D');
+      }
+
+      if (unit === 'month') {
+        return start.format('MMM');
+      }
+
+      return start.format('ll');
+    },
+    [copy.momentLocale],
+  );
+
   const visibleCount = editableItems.filter((item) => item.isVisible).length;
   const currentVisibleSpan = visibleTime.end - visibleTime.start;
   const isMaxZoomedIn = currentVisibleSpan <= minZoom * 1.02;
@@ -616,15 +742,22 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
           {editableItems.map((item) => (
             <article
               key={item.id}
+              ref={(node) => {
+                editorItemRefs.current[item.id] = node;
+              }}
               className={[
                 'timeline-editor__item',
                 activeItemId === item.id ? 'is-active' : undefined,
               ]
                 .filter(Boolean)
                 .join(' ')}
+              onClick={() => selectTimelineItem(item.id, true)}
+              onFocusCapture={() => selectTimelineItem(item.id, true)}
             >
               <div className="timeline-editor__top">
-                <strong>{item.id.toString().padStart(2, '0')}</strong>
+                <strong className="timeline-editor__item-id">
+                  {item.id.toString().padStart(2, '0')}
+                </strong>
                 <label className="timeline-editor__visible">
                   <input
                     type="checkbox"
@@ -641,7 +774,6 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
                   {copy.titleLabel}
                   <input
                     value={item.title}
-                    onFocus={() => setActiveItemId(item.id)}
                     onChange={(event: ChangeEvent<HTMLInputElement>) =>
                       updateItem(item.id, { title: event.target.value })
                     }
@@ -685,8 +817,8 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
                   <label>
                     {copy.startLabel}
                     <input
-                      type="date"
-                      value={item.startDate}
+                      type="datetime-local"
+                      value={toDateTimeInputValue(item.startDate)}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         updateItem(item.id, { startDate: event.target.value })
                       }
@@ -695,8 +827,8 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
                   <label>
                     {copy.endLabel}
                     <input
-                      type="date"
-                      value={item.endDate}
+                      type="datetime-local"
+                      value={toDateTimeInputValue(item.endDate, 'end')}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>
                         updateItem(item.id, { endDate: event.target.value })
                       }
@@ -745,17 +877,18 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
         </div>
         <div className="timeline-canvas">
           <Timeline<CalendarItem, CalendarGroup>
+            key={`timeline-${copy.momentLocale}`}
             groups={calendarGroups}
             items={calendarItems}
             keys={timelineKeys}
             visibleTimeStart={visibleTime.start}
             visibleTimeEnd={visibleTime.end}
+            selected={activeItemId === null ? [] : [activeItemId]}
             onTimeChange={handleTimeChange}
             onItemMove={handleItemMove}
             onItemResize={handleItemResize}
-            onItemClick={(itemId) =>
-              setActiveItemId(typeof itemId === 'number' ? itemId : Number(itemId))
-            }
+            onItemClick={(itemId) => selectTimelineItem(Number(itemId))}
+            onItemSelect={(itemId) => selectTimelineItem(Number(itemId))}
             canMove
             canResize="both"
             canChangeGroup
@@ -765,22 +898,22 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
             lineHeight={48}
             minZoom={minZoom}
             maxZoom={maxZoom}
-            dragSnap={dayMs}
+            dragSnap={halfHourMs}
             sidebarWidth={170}
             stackItems
             itemRenderer={itemRenderer}
             groupRenderer={groupRenderer}
           >
             <TimelineHeaders>
-              <SidebarHeader<{ label: string }> headerData={{ label: copy.sidebarLabel }}>
+              <SidebarHeader<{ label: string }> headerData={{ label: copy.axisHeaderLabel }}>
                 {({ getRootProps, data }) => (
                   <div {...getRootProps()}>
-                    <strong>{data.label}</strong>
+                    <strong className="timeline-axis-header">{data.label}</strong>
                   </div>
                 )}
               </SidebarHeader>
-              <DateHeader unit="primaryHeader" />
-              <DateHeader />
+              <DateHeader key={`primary-${copy.momentLocale}`} unit="primaryHeader" labelFormat={formatPrimaryHeader} />
+              <DateHeader key={`date-${copy.momentLocale}`} labelFormat={formatDateHeader} />
             </TimelineHeaders>
             <TimelineMarkers>
               <TodayMarker key={markerLabel} date={Date.now()} interval={1000}>

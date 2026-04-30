@@ -105,6 +105,7 @@ export interface TimelineCopy {
   zoomOutLabel: string;
   resetLabel: string;
   sidebarLabel: string;
+  axisHeaderLabel: string;
   momentLocale: string;
   markerLabels: {
     now: string;
@@ -461,8 +462,8 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       titleLabel: '제목',
       groupLabel: '그룹',
       statusLabel: '상태',
-      startLabel: '시작',
-      endLabel: '종료',
+      startLabel: '시작 시간',
+      endLabel: '종료 시간',
       progressLabel: '진행률',
       shellLabel: '포트폴리오 roadmap timeline',
       summary: (visibleCount, groupCount) =>
@@ -472,6 +473,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       zoomOutLabel: '축소',
       resetLabel: '초기화',
       sidebarLabel: '구분',
+      axisHeaderLabel: '구분 \\ 시간',
       momentLocale: 'ko',
       markerLabels: {
         now: '현재',
@@ -852,8 +854,8 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       titleLabel: 'Title',
       groupLabel: 'Group',
       statusLabel: 'Status',
-      startLabel: 'Start',
-      endLabel: 'End',
+      startLabel: 'Start time',
+      endLabel: 'End time',
       progressLabel: 'Progress',
       shellLabel: 'Portfolio roadmap timeline',
       summary: (visibleCount, groupCount) =>
@@ -863,6 +865,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       zoomOutLabel: 'Zoom Out',
       resetLabel: 'Reset',
       sidebarLabel: 'Group',
+      axisHeaderLabel: 'Group \\ Time',
       momentLocale: 'en',
       markerLabels: {
         now: 'Now',

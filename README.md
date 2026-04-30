@@ -43,7 +43,7 @@ ECharts 인스턴스 생성, resize, dispose는 `EChart` wrapper가 담당합니
 
 ### Timeline 구조
 
-`react-calendar-timeline`을 사용해 roadmap dummy data를 표시합니다. 왼쪽 편집 패널에서 제목, 그룹, 기간, 상태, 표시 여부를 수정할 수 있고, timeline에서는 item move, resize, zoom/reset 흐름을 확인할 수 있습니다.
+`react-calendar-timeline`을 사용해 roadmap dummy data를 표시합니다. 왼쪽 편집 패널에서 제목, 그룹, 날짜/시간, 상태, 표시 여부를 수정할 수 있고, timeline에서는 item move, resize, zoom/reset 흐름을 확인할 수 있습니다. Timeline canvas와 편집 목록은 선택 상태를 양방향으로 동기화해 선택한 항목으로 스크롤/표시 범위가 이동합니다.
 
 ### Custom Data Grid 구조
 
@@ -120,7 +120,7 @@ npm run typecheck
 - navigation active 상태와 `aria-current="page"` 확인
 - 한국어/영어 locale 전환 시 hero, Sankey, timeline, grid, table copy 확인
 - 브라우저 크기 변경 시 ECharts resize 확인
-- timeline 항목 편집, 표시 토글, move, resize, zoom/reset 확인
+- timeline 항목 시간대 편집, 표시 토글, 선택 동기화, move, resize, zoom/reset 확인
 - custom grid 검색, 필터, 정렬, 선택, 확장/접기, 편집/저장/취소 확인
 - data grid 하단 테이블에서 스크롤 하단 도달 또는 더 불러오기 버튼으로 다음 더미 항목 추가 확인
 - 모바일에서 카드, 차트, timeline, table의 가로 스크롤과 텍스트 겹침 확인
