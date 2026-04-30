@@ -16,8 +16,7 @@ export const DataGridPage = ({ copy, payload }: DataGridPageProps) => (
         section={copy.sections.table}
         dataGridCard={copy.dataGridCard}
         customGridCopy={copy.customGrid}
-        headers={copy.tableHeaders}
-        rows={payload.deliveryRows}
+        infiniteTableCopy={copy.infiniteTable}
         gridRows={payload.portfolioGridRows}
       />
     )}

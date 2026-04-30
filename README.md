@@ -49,6 +49,8 @@ ECharts 인스턴스 생성, resize, dispose는 `EChart` wrapper가 담당합니
 
 RealGrid/AccordionTable에서 자주 다루는 흐름을 dummy portfolio data로 재구성했습니다. 검색, 카테고리 필터, 정렬, parent/child 선택, 확장/접기, 편집 모드의 행/하위 작업 추가와 삭제를 포함합니다.
 
+Data Grid 페이지 하단에는 무한 렌더링 시연용 테이블을 함께 배치했습니다. 별도 dummy data 파일의 60개 항목을 Promise 기반 mock API가 10개 단위로 반환하고, `IntersectionObserver`가 하단 sentinel을 감지하면 다음 페이지를 가져와 행을 추가합니다. 키보드 사용자를 위한 수동 더 불러오기 버튼도 제공합니다.
+
 ### i18n 구조
 
 화면 copy는 `src/i18n/dictionary.ts`에 모아 관리합니다. hero, chart 설명, Sankey 라벨, timeline 상태, grid 상태/impact, table 상태, 날짜/숫자 formatter locale을 dictionary에서 전달해 한국어/영어 전환 시 하드코딩 문구가 남지 않도록 했습니다.
@@ -120,6 +122,7 @@ npm run typecheck
 - 브라우저 크기 변경 시 ECharts resize 확인
 - timeline 항목 편집, 표시 토글, move, resize, zoom/reset 확인
 - custom grid 검색, 필터, 정렬, 선택, 확장/접기, 편집/저장/취소 확인
+- data grid 하단 테이블에서 스크롤 하단 도달 또는 더 불러오기 버튼으로 다음 더미 항목 추가 확인
 - 모바일에서 카드, 차트, timeline, table의 가로 스크롤과 텍스트 겹침 확인
 
 ## 포트폴리오 설명 포인트
@@ -127,6 +130,7 @@ npm run typecheck
 - mock API 응답을 직접 렌더링하지 않고 hook과 view model로 가공합니다.
 - chart lifecycle과 option builder를 분리해 차트 공통화 경험을 보여줍니다.
 - timeline과 custom grid는 단순 static UI가 아니라 실제 조작 가능한 상태 흐름을 포함합니다.
+- infinite scroll 테이블은 mock API pagination, loading/end state, 수동 load more fallback을 보여줍니다.
 - dictionary 기반 i18n으로 화면 copy와 locale별 formatter를 컴포넌트 밖에서 관리합니다.
 - 메인 페이지에서 화면 문제와 구현 역량을 분리해 포트폴리오 방문자가 데모의 목적을 빠르게 이해하도록 구성했습니다.
 - README는 외부 설명용이고, `AGENTS.md`는 이후 AI Agent가 작업할 때 참고하는 내부 개발 규칙 문서입니다.

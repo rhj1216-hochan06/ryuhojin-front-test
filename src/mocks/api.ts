@@ -1,5 +1,11 @@
 import { dashboardPayload } from './dashboardData';
-import type { ApiResponse, DashboardPayload } from '../types/dashboard';
+import { infiniteRenderRows } from './infiniteRenderRows';
+import type {
+  ApiResponse,
+  DashboardPayload,
+  InfiniteRenderRow,
+  PaginatedResponse,
+} from '../types/dashboard';
 
 const SIMULATED_LATENCY_MS = 280;
 
@@ -28,3 +34,26 @@ export const fetchDashboardPayload = async (): Promise<ApiResponse<DashboardPayl
     }, SIMULATED_LATENCY_MS);
   });
 
+export const fetchInfiniteRenderRows = async (
+  page: number,
+  pageSize: number,
+): Promise<ApiResponse<PaginatedResponse<InfiniteRenderRow>>> =>
+  new Promise((resolve) => {
+    window.setTimeout(() => {
+      const startIndex = Math.max(page - 1, 0) * pageSize;
+      const items = infiniteRenderRows.slice(startIndex, startIndex + pageSize);
+
+      resolve({
+        status: 'success',
+        data: {
+          items,
+          page,
+          pageSize,
+          total: infiniteRenderRows.length,
+          hasNextPage: startIndex + pageSize < infiniteRenderRows.length,
+        },
+        generatedAt: new Date().toISOString(),
+        latencyMs: SIMULATED_LATENCY_MS,
+      });
+    }, SIMULATED_LATENCY_MS);
+  });

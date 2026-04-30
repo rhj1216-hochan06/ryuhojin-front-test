@@ -107,6 +107,17 @@ export interface DeliveryRow {
   updatedAt: string;
 }
 
+export type InfiniteRenderStatus = 'Queued' | 'Rendering' | 'Complete';
+
+export interface InfiniteRenderRow {
+  id: string;
+  screen: string;
+  module: string;
+  status: InfiniteRenderStatus;
+  requestCount: number;
+  loadedAt: string;
+}
+
 export type PortfolioGridStatus = 'Stable' | 'Improving' | 'Review';
 
 export type PortfolioGridImpact = 'High' | 'Medium' | 'Low';
@@ -151,4 +162,12 @@ export interface ApiResponse<TData> {
   data: TData;
   generatedAt: string;
   latencyMs: number;
+}
+
+export interface PaginatedResponse<TData> {
+  items: TData[];
+  page: number;
+  pageSize: number;
+  total: number;
+  hasNextPage: boolean;
 }

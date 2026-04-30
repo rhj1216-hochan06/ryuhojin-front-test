@@ -1,6 +1,7 @@
-import type { DeliveryRow, PortfolioGridRow } from '../../types/dashboard';
-import type { CustomGridCopy, SectionCopy, TableHeaders } from '../../i18n/dictionary';
+import type { PortfolioGridRow } from '../../types/dashboard';
+import type { CustomGridCopy, InfiniteTableCopy, SectionCopy } from '../../i18n/dictionary';
 import { CustomDataGrid } from '../../features/dataGrid/CustomDataGrid';
+import { InfiniteRenderTable } from '../../features/dataGrid/InfiniteRenderTable';
 import { Card } from '../ui/Card';
 import { Section } from '../ui/Section';
 
@@ -11,8 +12,7 @@ interface DataTableSectionProps {
     description: string;
   };
   customGridCopy: CustomGridCopy;
-  headers: TableHeaders;
-  rows: DeliveryRow[];
+  infiniteTableCopy: InfiniteTableCopy;
   gridRows: PortfolioGridRow[];
 }
 
@@ -20,8 +20,7 @@ export const DataTableSection = ({
   section,
   dataGridCard,
   customGridCopy,
-  headers,
-  rows,
+  infiniteTableCopy,
   gridRows,
 }: DataTableSectionProps) => (
   <Section
@@ -36,42 +35,11 @@ export const DataTableSection = ({
     >
       <CustomDataGrid rows={gridRows} copy={customGridCopy} />
     </Card>
-    <Card>
-      <div className="table-scroll">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th scope="col">{headers.project}</th>
-              <th scope="col">{headers.domain}</th>
-              <th scope="col">{headers.status}</th>
-              <th scope="col">{headers.leadTime}</th>
-              <th scope="col">{headers.chartCoverage}</th>
-              <th scope="col">{headers.apiContract}</th>
-              <th scope="col">{headers.updatedAt}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td>
-                  <strong>{row.project}</strong>
-                  <small>{row.id}</small>
-                </td>
-                <td>{row.domain}</td>
-                <td>
-                  <span className={`status status--${row.status.toLowerCase()}`}>
-                    {headers.statusLabels[row.status]}
-                  </span>
-                </td>
-                <td>{`${row.leadTimeDays}${headers.leadTimeUnitLabel}`}</td>
-                <td>{row.chartCoverage}%</td>
-                <td>{row.apiContract}</td>
-                <td>{row.updatedAt}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <Card
+      title={infiniteTableCopy.title}
+      description={infiniteTableCopy.description}
+    >
+      <InfiniteRenderTable copy={infiniteTableCopy} />
     </Card>
   </Section>
 );

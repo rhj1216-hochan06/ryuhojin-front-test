@@ -1,6 +1,7 @@
 import type {
   CapabilitySummary,
   GenderBoxPlotGender,
+  InfiniteRenderStatus,
   Locale,
   NavigationItem,
   PortfolioGridImpact,
@@ -170,6 +171,27 @@ export interface TableHeaders {
   statusLabels: Record<'Stable' | 'Improving' | 'Watch', string>;
 }
 
+export interface InfiniteTableCopy {
+  title: string;
+  description: string;
+  ariaLabel: string;
+  loadingLabel: string;
+  loadingMoreLabel: string;
+  loadMoreLabel: string;
+  endLabel: string;
+  emptyLabel: string;
+  rowCountLabel: (count: number, total: number) => string;
+  headers: {
+    screen: string;
+    module: string;
+    status: string;
+    requestCount: string;
+    loadedAt: string;
+  };
+  requestCountUnitLabel: string;
+  statusLabels: Record<InfiniteRenderStatus, string>;
+}
+
 export interface DashboardDictionary {
   appName: string;
   appSubtitle: string;
@@ -234,6 +256,7 @@ export interface DashboardDictionary {
     table: SectionCopy;
   };
   tableHeaders: TableHeaders;
+  infiniteTable: InfiniteTableCopy;
 }
 
 export const dictionary: Record<Locale, DashboardDictionary> = {
@@ -596,6 +619,31 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         Stable: '안정',
         Improving: '개선 중',
         Watch: '관찰',
+      },
+    },
+    infiniteTable: {
+      title: '무한 렌더링 시연 테이블',
+      description:
+        '스크롤 하단에 닿으면 mock API에서 다음 페이지를 가져와 행을 추가하는 lazy loading 예제입니다.',
+      ariaLabel: '무한 렌더링 mock API 호출 테이블',
+      loadingLabel: '첫 페이지를 불러오는 중입니다.',
+      loadingMoreLabel: '다음 항목을 불러오는 중입니다.',
+      loadMoreLabel: '더 불러오기',
+      endLabel: '모든 더미 항목을 불러왔습니다.',
+      emptyLabel: '표시할 항목이 없습니다.',
+      rowCountLabel: (count, total) => `${total}개 중 ${count}개 표시`,
+      headers: {
+        screen: '화면 시나리오',
+        module: '모듈',
+        status: '상태',
+        requestCount: '요청 수',
+        loadedAt: '로드 시각',
+      },
+      requestCountUnitLabel: '회',
+      statusLabels: {
+        Queued: '대기',
+        Rendering: '렌더링 중',
+        Complete: '완료',
       },
     },
   },
@@ -962,6 +1010,31 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         Stable: 'Stable',
         Improving: 'Improving',
         Watch: 'Watch',
+      },
+    },
+    infiniteTable: {
+      title: 'Infinite Render Demo Table',
+      description:
+        'A lazy-loading table that calls the mock API for the next page and appends rows when the scroll reaches the bottom.',
+      ariaLabel: 'Infinite render mock API table',
+      loadingLabel: 'Loading the first page.',
+      loadingMoreLabel: 'Loading more rows.',
+      loadMoreLabel: 'Load more',
+      endLabel: 'All dummy rows have been loaded.',
+      emptyLabel: 'No rows to display.',
+      rowCountLabel: (count, total) => `${count} of ${total} rows shown`,
+      headers: {
+        screen: 'Screen scenario',
+        module: 'Module',
+        status: 'Status',
+        requestCount: 'Requests',
+        loadedAt: 'Loaded at',
+      },
+      requestCountUnitLabel: 'x',
+      statusLabels: {
+        Queued: 'Queued',
+        Rendering: 'Rendering',
+        Complete: 'Complete',
       },
     },
   },
