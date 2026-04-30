@@ -59,12 +59,7 @@ export type GenderBoxPlotGender = 'Male' | 'Female';
 export interface GenderBoxPlotMetric {
   group: string;
   gender: GenderBoxPlotGender;
-  min: number;
-  q1: number;
-  median: number;
-  q3: number;
-  max: number;
-  outliers: number[];
+  values: number[];
 }
 
 export interface SankeyNode {

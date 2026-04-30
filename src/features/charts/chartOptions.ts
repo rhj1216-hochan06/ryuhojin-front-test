@@ -1,4 +1,4 @@
-import type { EChartsOption } from 'echarts';
+import type { EChartsOption, LabelLayoutOptionCallbackParams } from 'echarts';
 import type { ChartOptionLabels } from '../../i18n/dictionary';
 import type {
   ChartCapabilityNode,
@@ -32,6 +32,20 @@ export type ChartLegendSelection = Record<string, boolean>;
 interface StackedBarSeries {
   name: string;
   values: number[];
+}
+
+interface ChartSize {
+  width: number;
+  height: number;
+}
+
+interface ComputedGenderBoxPlotMetric extends GenderBoxPlotMetric {
+  min: number;
+  q1: number;
+  median: number;
+  q3: number;
+  max: number;
+  outliers: number[];
 }
 
 export const judgmentFlowColors = {
@@ -125,13 +139,110 @@ const getTooltipDataMetricIndex = (params: unknown) => {
   return typeof params.data.metricIndex === 'number' ? params.data.metricIndex : null;
 };
 
-const getTooltipValue = (params: unknown) => {
-  if (!isRecord(params)) {
+const getChartDataFocusKey = (params: unknown) => {
+  if (!isRecord(params) || !isRecord(params.data)) {
     return null;
   }
 
-  return Array.isArray(params.value) ? params.value : null;
+  return typeof params.data.focusKey === 'string' ? params.data.focusKey : null;
 };
+
+export const getGenderBoxPlotFocusKey = getChartDataFocusKey;
+
+const getQuantile = (sortedValues: number[], percentile: number) => {
+  if (sortedValues.length === 0) {
+    return 0;
+  }
+
+  const index = (sortedValues.length - 1) * percentile;
+  const lowerIndex = Math.floor(index);
+  const upperIndex = Math.ceil(index);
+  const weight = index - lowerIndex;
+
+  return (
+    sortedValues[lowerIndex] * (1 - weight) + sortedValues[upperIndex] * weight
+  );
+};
+
+const computeGenderBoxPlotMetric = (
+  metric: GenderBoxPlotMetric,
+): ComputedGenderBoxPlotMetric => {
+  const sortedValues = [...metric.values].sort((first, second) => first - second);
+  const q1 = getQuantile(sortedValues, 0.25);
+  const median = getQuantile(sortedValues, 0.5);
+  const q3 = getQuantile(sortedValues, 0.75);
+  const iqr = q3 - q1;
+  const lowerFence = q1 - iqr * 1.5;
+  const upperFence = q3 + iqr * 1.5;
+  const inliers = sortedValues.filter(
+    (value) => value >= lowerFence && value <= upperFence,
+  );
+  const outliers = sortedValues.filter(
+    (value) => value < lowerFence || value > upperFence,
+  );
+
+  return {
+    ...metric,
+    min: inliers[0] ?? sortedValues[0] ?? 0,
+    q1,
+    median,
+    q3,
+    max: inliers[inliers.length - 1] ?? sortedValues[sortedValues.length - 1] ?? 0,
+    outliers,
+  };
+};
+
+const formatGenderBoxPlotTooltip = (
+  metric: ComputedGenderBoxPlotMetric,
+  labels: ChartOptionLabels['genderBoxPlot'],
+  formatter: Intl.NumberFormat,
+) => {
+  const label = `${metric.group} - ${labels.genderLabels[metric.gender]}`;
+  const markerColor = genderBoxPlotColors[metric.gender];
+  const rows = [
+    [labels.statsLabels.max, formatter.format(metric.max)],
+    [labels.statsLabels.q3, formatter.format(metric.q3)],
+    [labels.statsLabels.median, formatter.format(metric.median)],
+    [labels.statsLabels.q1, formatter.format(metric.q1)],
+    [labels.statsLabels.min, formatter.format(metric.min)],
+    [
+      labels.statsLabels.outlier,
+      metric.outliers.length > 0
+        ? metric.outliers.map((outlier) => formatter.format(outlier)).join(', ')
+        : '-',
+    ],
+  ];
+
+  return `
+    <div style="min-width:168px;padding:10px 12px;border:1px solid #e4eaf0;border-radius:6px;background:#ffffff;color:#27323a;box-shadow:0 8px 22px rgba(15,23,42,0.12);font-size:12px;line-height:1.55;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:800;">
+        <span style="width:7px;height:7px;border-radius:50%;background:${markerColor};display:inline-block;"></span>
+        <span>${label}</span>
+      </div>
+      ${rows
+        .map(
+          ([name, value]) =>
+            `<div style="display:grid;grid-template-columns:auto minmax(62px,1fr);gap:16px;font-weight:700;"><span>${name}</span><span style="text-align:right;">${value}</span></div>`,
+        )
+        .join('')}
+    </div>
+  `;
+};
+
+const createCenteredPieLabelLayout =
+  (chartSize?: ChartSize) =>
+  ({ labelRect, rect }: LabelLayoutOptionCallbackParams) => {
+    const centerX = chartSize ? chartSize.width / 2 : rect.x + rect.width / 2;
+    const centerY = chartSize ? chartSize.height / 2 : rect.y + rect.height / 2;
+    const labelX = labelRect.x + labelRect.width / 2;
+    const labelY = labelRect.y + labelRect.height / 2;
+    const centerPullRatio = 0.95;
+
+    return {
+      x: centerX + (labelX - centerX) * centerPullRatio,
+      y: centerY + (labelY - centerY) * centerPullRatio,
+    };
+  };
 
 export const buildBusinessTrendOption = (
   metrics: MonthlyBusinessMetric[],
@@ -370,11 +481,13 @@ export const buildGenderBoxPlotOption = (
   metrics: GenderBoxPlotMetric[],
   labels: ChartOptionLabels['genderBoxPlot'],
   legendSelection?: ChartLegendSelection,
+  focusedKey?: string | null,
 ): EChartsOption => {
   const formatter = new Intl.NumberFormat(labels.numberLocale);
-  const groups = Array.from(new Set(metrics.map((metric) => metric.group)));
+  const computedMetrics = metrics.map(computeGenderBoxPlotMetric);
+  const groups = Array.from(new Set(computedMetrics.map((metric) => metric.group)));
   const getMetric = (group: string, gender: GenderBoxPlotGender) =>
-    metrics.find((metric) => metric.group === group && metric.gender === gender);
+    computedMetrics.find((metric) => metric.group === group && metric.gender === gender);
   const isGenderVisible = (gender: GenderBoxPlotGender) =>
     isLegendItemVisible(legendSelection, labels.genderLabels[gender]);
   const axisSlots = groups.flatMap((group) =>
@@ -405,30 +518,23 @@ export const buildGenderBoxPlotOption = (
     visibleAxisSlots.map((slot) => [slot.metric, slot.slotIndex]),
   );
 
-  const formatMetricTooltip = (metric: GenderBoxPlotMetric) =>
-    [
-      `<strong>${metric.group} - ${labels.genderLabels[metric.gender]}</strong>`,
-      `${labels.statsLabels.min}: ${formatter.format(metric.min)}`,
-      `${labels.statsLabels.q1}: ${formatter.format(metric.q1)}`,
-      `${labels.statsLabels.median}: ${formatter.format(metric.median)}`,
-      `${labels.statsLabels.q3}: ${formatter.format(metric.q3)}`,
-      `${labels.statsLabels.max}: ${formatter.format(metric.max)}`,
-    ].join('<br/>');
-
   const boxplotData = visibleAxisSlots.map(({ gender, metric, slotIndex }) => ({
     value: [metric.min, metric.q1, metric.median, metric.q3, metric.max],
-    metricIndex: metrics.indexOf(metric),
+    metricIndex: computedMetrics.indexOf(metric),
     gender,
     slotIndex,
+    focusKey: `${gender}-${slotIndex}`,
     itemStyle: {
       color: genderBoxPlotFillColors[gender],
       borderColor: genderBoxPlotColors[gender],
       borderWidth: 1.5,
+      opacity:
+        focusedKey && focusedKey !== `${gender}-${slotIndex}` ? 0.35 : 1,
     },
   }));
 
   const getOutlierData = (gender: GenderBoxPlotGender) =>
-    metrics
+    computedMetrics
       .filter((metric) => metric.gender === gender)
       .flatMap((metric) => {
         const slotIndex = metricSlotIndex.get(metric);
@@ -441,9 +547,12 @@ export const buildGenderBoxPlotOption = (
           value: [slotIndex, outlier],
           gender,
           slotIndex,
-          metricIndex: metrics.indexOf(metric),
+          metricIndex: computedMetrics.indexOf(metric),
+          focusKey: `${gender}-${slotIndex}`,
           itemStyle: {
             color: genderBoxPlotColors[gender],
+            opacity:
+              focusedKey && focusedKey !== `${gender}-${slotIndex}` ? 0.35 : 1,
           },
         }));
       });
@@ -494,25 +603,20 @@ export const buildGenderBoxPlotOption = (
     color: genderBoxPlotOrder.map((gender) => genderBoxPlotColors[gender]),
     tooltip: {
       trigger: 'item',
+      backgroundColor: 'transparent',
+      borderWidth: 0,
+      padding: 0,
+      extraCssText: 'box-shadow:none;',
       formatter: (params: unknown) => {
         const metricIndex = getTooltipDataMetricIndex(params);
         const metric =
-          typeof metricIndex === 'number' ? metrics[metricIndex] : undefined;
+          typeof metricIndex === 'number' ? computedMetrics[metricIndex] : undefined;
 
         if (!metric) {
           return '';
         }
 
-        const value = getTooltipValue(params);
-
-        if (value && value.length === 2) {
-          return [
-            `<strong>${metric.group} - ${labels.genderLabels[metric.gender]}</strong>`,
-            `${labels.statsLabels.outlier}: ${formatter.format(Number(value[1]))}`,
-          ].join('<br/>');
-        }
-
-        return formatMetricTooltip(metric);
+        return formatGenderBoxPlotTooltip(metric, labels, formatter);
       },
     },
     legend: {
@@ -651,6 +755,7 @@ export const buildCapabilityTreemapOption = (
 export const buildCategoryShareOption = (
   shares: ChartCategoryShare[],
   labels: ChartOptionLabels['categoryShare'],
+  chartSize?: ChartSize,
 ): EChartsOption => {
   const activeSliceCount = shares.filter((share) => Number(share.value) > 0).length;
   const numberFormatter = new Intl.NumberFormat(labels.numberLocale);
@@ -730,6 +835,7 @@ export const buildCategoryShareOption = (
           fontSize: 14,
           fontWeight: 400,
         },
+        labelLayout: createCenteredPieLabelLayout(chartSize),
         labelLine: {
           show: false,
         },
@@ -810,11 +916,18 @@ export const buildWorkflowSankeyOption = (
         },
       },
       label: { show: false },
-      data: workflow.nodes.map((node) => ({
-        ...node,
-        label: { show: false },
-        itemStyle: { opacity: 0 },
-      })),
+      data: workflow.nodes
+        .filter((node) =>
+          workflow.links.some(
+            (link) =>
+              link.value > 0 && (link.source === node.name || link.target === node.name),
+          ),
+        )
+        .map((node) => ({
+          ...node,
+          label: { show: false },
+          itemStyle: { opacity: 0 },
+        })),
       links: [...workflow.links]
         .filter((link) => link.value > 0)
         .sort((first, second) => {

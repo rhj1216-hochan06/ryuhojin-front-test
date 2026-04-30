@@ -11,8 +11,10 @@ export const useChartShowcaseData = (
   payload: DashboardPayload,
   refreshKey = 0,
 ) =>
-  useMemo(
-    () => ({
+  useMemo(() => {
+    void refreshKey;
+
+    return {
       businessTrend: payload.monthlyMetrics.map((metric) => ({
         ...metric,
         revenue: Math.round(clamp(withRandomOffset(metric.revenue, 8), 20, 240)),
@@ -45,25 +47,12 @@ export const useChartShowcaseData = (
         defectRate: Number(clamp(withRandomOffset(point.defectRate, 0.45), 0.3, 10).toFixed(1)),
         complexity: Math.round(clamp(withRandomOffset(point.complexity, 1.2), 1, 10)),
       })),
-      genderBoxPlot: payload.genderBoxPlotMetrics.map((metric) => {
-        const nextMin = Math.round(clamp(withRandomOffset(metric.min, 3), 0, 100));
-        const nextQ1 = Math.round(clamp(withRandomOffset(metric.q1, 3), nextMin, 110));
-        const nextMedian = Math.round(clamp(withRandomOffset(metric.median, 3), nextQ1, 120));
-        const nextQ3 = Math.round(clamp(withRandomOffset(metric.q3, 3), nextMedian, 130));
-        const nextMax = Math.round(clamp(withRandomOffset(metric.max, 4), nextQ3, 140));
-
-        return {
-          ...metric,
-          min: nextMin,
-          q1: nextQ1,
-          median: nextMedian,
-          q3: nextQ3,
-          max: nextMax,
-          outliers: metric.outliers.map((outlier) =>
-            Math.round(clamp(withRandomOffset(outlier, 4), nextMax, 160)),
-          ),
-        };
-      }),
+      genderBoxPlot: payload.genderBoxPlotMetrics.map((metric) => ({
+        ...metric,
+        values: metric.values.map((value) =>
+          Math.round(clamp(withRandomOffset(value, 3), 0, 160)),
+        ),
+      })),
       workflow: {
         ...payload.workflow,
         links: payload.workflow.links.map((link) => ({
@@ -71,6 +60,5 @@ export const useChartShowcaseData = (
           value: Math.round(clamp(withRandomOffset(link.value, 180), 0, 5000)),
         })),
       },
-    }),
-    [payload, refreshKey],
-  );
+    };
+  }, [payload, refreshKey]);
