@@ -1,0 +1,237 @@
+import type { Locale, PublishedWork } from '../types/dashboard';
+
+const cplusEvidenceFiles = [
+  'README.md',
+  'PROJECT_CONTEXT.md',
+  'package.json',
+  '.env.production',
+  'public/index.html',
+  'src/App.js',
+  'src/pages/MainPage.js',
+  'src/pages/CategoryPage.js',
+  'src/pages/DetailPage.js',
+  'src/pages/IntroductionPage.js',
+  'src/pages/MapPage.js',
+  'src/components/category/categoryall.js',
+  'src/components/map/Map.js',
+  'public/data/category.json',
+  'public/data/products.json',
+  'public/images/main',
+];
+
+const randomBombEvidenceFiles = [
+  'README.md',
+  'PROJECT_CONTEXT.md',
+  'package.json',
+  'public/index.html',
+  'public/alarm.mp3',
+  'public/bomb.png',
+  'public/bomb.svg',
+  'src/index.tsx',
+  'src/App.tsx',
+  'src/pages/AlarmGamePage.tsx',
+  'src/pages/ListPage.tsx',
+  'src/pages/QuestionBombPage.tsx',
+  'src/pages/BalanceGamePage.tsx',
+  'src/pages/NotFoundPage.tsx',
+  'src/components/HelpDialog.tsx',
+  'src/data/questionBombItems.ts',
+  'src/data/balanceGameItems.ts',
+  'src/utils/shuffleArray.ts',
+  'src/utils/questionBombStorage.ts',
+];
+
+export const publishedWorksByLocale: Record<Locale, PublishedWork[]> = {
+  ko: [
+    {
+      id: 'cplus-solution',
+      siteName: '씨플러스솔루션',
+      shortDescription:
+        '씨플러스솔루션의 회사 소개, 주요 고객, 오시는 길, Canon 사무기기 제품 카탈로그와 제품 상세 정보를 제공하는 React 기반 기업 소개형 SPA입니다.',
+      myRole:
+        'React SPA 프론트엔드 구현을 A부터 Z까지 전부 담당했습니다. 라우팅 구성, 제품 카탈로그/검색/상세 페이지, Kakao Maps 오시는 길, 반응형 화면, 배포 구조까지 모든 화면 기능과 사용자 흐름을 직접 구현했습니다.',
+      technologies: [
+        'React 18',
+        'Create React App / react-scripts',
+        'react-router-dom v6',
+        'MUI v5',
+        'CSS Modules',
+        'styled-components',
+        'axios',
+        'Swiper',
+        'Kakao Maps JavaScript SDK',
+        '정적 JSON 데이터',
+        'GitHub Pages 배포 구조',
+      ],
+      implementationPoints: [
+        '공통 Header/Footer를 유지하는 BrowserRouter 기반 SPA 라우팅 구성',
+        '메인 페이지에서 Swiper 자동 슬라이드와 카테고리 카드 제공',
+        'public/data/category.json, public/data/products.json 기반 정적 데이터 카탈로그 구현',
+        '제품 목록에서 카테고리 필터, 제품명/카테고리 검색, 페이지네이션, HOT 상품 우선 정렬 처리',
+        '제품 상세에서 detailtype 값에 따라 이미지형 상세 또는 제품별 HTML 상세 컴포넌트 분기',
+        '회사소개, 주요 고객, 오시는 길 페이지를 이미지 중심 콘텐츠와 Kakao Maps로 구성',
+        'useMediaQuery 기반 모바일/데스크톱 레이아웃 분기 적용',
+        'OG 메타 태그, Naver site verification, Google Tag Manager 설정 포함',
+      ],
+      externalLink: 'http://cplussol.com/',
+      screenshot: {
+        images: [
+          {
+            src: '/result/cplussol 결과물.png',
+            alt: '씨플러스솔루션 배포 결과물 스크린샷',
+          },
+        ],
+        alt: '씨플러스솔루션 배포 결과물 스크린샷',
+        statusLabel: '배포 결과물 캡처',
+        note: '실제 배포 화면을 캡처한 대표 이미지입니다.',
+      },
+      evidenceFiles: cplusEvidenceFiles,
+    },
+    {
+      id: 'random-bomb',
+      siteName: 'Random Bomb',
+      shortDescription:
+        '모임이나 자리에서 랜덤 타이밍 알람, 랜덤 질문 카드, 밸런스 게임을 활용해 분위기를 만드는 React 기반 모바일 친화형 미니 게임 SPA입니다.',
+      myRole:
+        'React SPA 프론트엔드 구현을 A부터 Z까지 전부 담당했습니다. 게임 로직, 라우팅, 랜덤 질문/밸런스 게임 페이지, localStorage 기반 사용자 설정 저장, 알람 사운드 흐름, 모바일 중심 UI까지 모든 기능을 직접 구현했습니다.',
+      technologies: [
+        'React 19',
+        'TypeScript',
+        'Create React App / react-scripts',
+        'React Router DOM 7',
+        'MUI 7',
+        'Emotion',
+        'MUI Icons',
+        'localStorage',
+        'HTMLAudioElement',
+        '정적 TypeScript 데이터',
+      ],
+      implementationPoints: [
+        'BrowserRouter와 Routes 기반 SPA 라우팅 구성',
+        '메인 Random Bomb 페이지에서 최소 알람 시간과 총 진행 시간 사이의 랜덤 알람 타이머 구현',
+        'setTimeout, setInterval, useRef, useEffect cleanup을 활용한 타이머/진행 시간 상태 관리',
+        'HTMLAudioElement 기반 알람음 재생, 미리듣기, 볼륨 조절, 알람 중지 흐름 구현',
+        'Range Slider와 고급 설정 입력값을 동기화해 모바일에서도 조작하기 쉬운 시간 설정 UI 구성',
+        '랜덤 질문 폭탄 페이지에서 모드별 질문/미션 카드, 최근 질문 제외, 즐겨찾기, 사용자 정의 질문/미션 저장 기능 구현',
+        'questionBombStorage 유틸을 통해 localStorage 데이터를 검증·정제하며 저장/복원 처리',
+        '밸런스 게임 페이지에서 질문 순서 셔플, 선택 기록, 전체 재시작, 다시 섞기 흐름 구현',
+        '공통 shuffleArray 유틸로 질문/미션/밸런스 게임 순서 랜덤화 처리',
+        "MUI Container maxWidth='sm' 기반 단일 컬럼 모바일 친화 UI 구성",
+        '게임 목록 페이지와 404 페이지를 포함한 기본 사용자 이동 흐름 구성',
+      ],
+      externalLink: 'https://ryuhojin1216.github.io/',
+      screenshot: {
+        images: [
+          {
+            src: '/result/랜덤밤 결과물.png',
+            alt: 'Random Bomb 배포 결과물 첫 번째 스크린샷',
+          },
+          {
+            src: '/result/랜덤밤 결과물2.png',
+            alt: 'Random Bomb 배포 결과물 두 번째 스크린샷',
+          },
+        ],
+        alt: 'Random Bomb 배포 결과물 스크린샷',
+        statusLabel: '배포 결과물 캡처',
+        note: '두 장의 실제 배포 화면 캡처가 자동으로 전환됩니다.',
+      },
+      evidenceFiles: randomBombEvidenceFiles,
+    },
+  ],
+  en: [
+    {
+      id: 'cplus-solution',
+      siteName: 'C Plus Solution',
+      shortDescription:
+        'A React-based corporate SPA for C Plus Solution that presents the company profile, key customers, location information, and Canon office equipment catalog with product detail pages.',
+      myRole:
+        'I owned the full React SPA frontend implementation from A to Z, including routing, product catalog/search/detail pages, Kakao Maps location flow, responsive screens, deployment structure, and every user-facing feature.',
+      technologies: [
+        'React 18',
+        'Create React App / react-scripts',
+        'react-router-dom v6',
+        'MUI v5',
+        'CSS Modules',
+        'styled-components',
+        'axios',
+        'Swiper',
+        'Kakao Maps JavaScript SDK',
+        'Static JSON data',
+        'GitHub Pages deployment structure',
+      ],
+      implementationPoints: [
+        'Built BrowserRouter-based SPA routing while keeping shared Header and Footer layout consistent',
+        'Added the main page Swiper autoplay carousel and category cards',
+        'Implemented a static data catalog from public/data/category.json and public/data/products.json',
+        'Handled category filters, product name/category search, pagination, and HOT product priority sorting',
+        'Split product detail rendering by detailtype into image-based detail views or product-specific HTML detail components',
+        'Composed company intro, major customers, and location pages with image-centered content and Kakao Maps',
+        'Applied mobile/desktop layout branching with useMediaQuery',
+        'Included OG meta tags, Naver site verification, and Google Tag Manager setup',
+      ],
+      externalLink: 'http://cplussol.com/',
+      screenshot: {
+        images: [
+          {
+            src: '/result/cplussol 결과물.png',
+            alt: 'C Plus Solution published site screenshot',
+          },
+        ],
+        alt: 'C Plus Solution published site screenshot',
+        statusLabel: 'Published site capture',
+        note: 'Representative screenshot captured from the live published site.',
+      },
+      evidenceFiles: cplusEvidenceFiles,
+    },
+    {
+      id: 'random-bomb',
+      siteName: 'Random Bomb',
+      shortDescription:
+        'A mobile-friendly React mini game SPA that uses random alarm timing, random question cards, and balance games to make meetups more lively.',
+      myRole:
+        'I owned the full React SPA frontend implementation from A to Z, including game logic, routing, random question and balance game pages, localStorage-based settings, alarm audio flow, and every mobile-focused UI feature.',
+      technologies: [
+        'React 19',
+        'TypeScript',
+        'Create React App / react-scripts',
+        'React Router DOM 7',
+        'MUI 7',
+        'Emotion',
+        'MUI Icons',
+        'localStorage',
+        'HTMLAudioElement',
+        'Static TypeScript data',
+      ],
+      implementationPoints: [
+        'Built SPA routing with BrowserRouter and Routes',
+        'Implemented a random alarm timer between the minimum alarm time and total session duration on the main Random Bomb page',
+        'Managed timer and elapsed-time state with setTimeout, setInterval, useRef, and useEffect cleanup',
+        'Implemented alarm playback, preview, volume control, and stop flow with HTMLAudioElement',
+        'Synchronized range sliders and advanced settings inputs for mobile-friendly time controls',
+        'Built random question card flows with modes, recent-question exclusion, favorites, and custom question/mission storage',
+        'Validated, sanitized, saved, and restored localStorage data through the questionBombStorage utility',
+        'Implemented shuffled balance-game questions, selection history, full restart, and reshuffle flows',
+        'Randomized question, mission, and balance-game order through the shared shuffleArray utility',
+        "Composed a single-column mobile-friendly UI with MUI Container maxWidth='sm'",
+        'Included the game list page and 404 page for a complete user navigation flow',
+      ],
+      externalLink: 'https://ryuhojin1216.github.io/',
+      screenshot: {
+        images: [
+          {
+            src: '/result/랜덤밤 결과물.png',
+            alt: 'Random Bomb published site first screenshot',
+          },
+          {
+            src: '/result/랜덤밤 결과물2.png',
+            alt: 'Random Bomb published site second screenshot',
+          },
+        ],
+        alt: 'Random Bomb published site screenshot',
+        statusLabel: 'Published site capture',
+        note: 'Two live-site screenshots rotate automatically.',
+      },
+      evidenceFiles: randomBombEvidenceFiles,
+    },
+  ],
+};

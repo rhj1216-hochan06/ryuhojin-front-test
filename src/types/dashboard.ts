@@ -1,5 +1,5 @@
 export type Locale = 'ko' | 'en';
-export type AppRoutePath = '/' | '/charts' | '/data-grid' | '/timeline';
+export type AppRoutePath = '/' | '/charts' | '/data-grid' | '/timeline' | '/works';
 
 export interface NavigationItem {
   id: string;
@@ -19,6 +19,29 @@ export interface CapabilitySummary {
   id: string;
   category: string;
   highlights: string[];
+}
+
+export interface PublishedWorkScreenshot {
+  images?: {
+    src: string;
+    alt: string;
+  }[];
+  imageUrl?: string;
+  alt: string;
+  statusLabel: string;
+  note: string;
+}
+
+export interface PublishedWork {
+  id: string;
+  siteName: string;
+  shortDescription: string;
+  myRole: string;
+  technologies: string[];
+  implementationPoints: string[];
+  externalLink?: string;
+  screenshot: PublishedWorkScreenshot;
+  evidenceFiles: string[];
 }
 
 export interface MonthlyBusinessMetric {

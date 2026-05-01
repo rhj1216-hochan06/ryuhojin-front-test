@@ -7,6 +7,7 @@ import { useDashboardViewModel } from './hooks/useDashboardViewModel';
 import { ChartsPage } from './pages/ChartsPage';
 import { DataGridPage } from './pages/DataGridPage';
 import { HomePage } from './pages/HomePage';
+import { PublishedWorksPage } from './pages/PublishedWorksPage';
 import { TimelinePage } from './pages/TimelinePage';
 import type { AppRoutePath, Locale } from './types/dashboard';
 
@@ -16,6 +17,7 @@ const routePaths: readonly AppRoutePath[] = [
   '/charts',
   '/data-grid',
   '/timeline',
+  '/works',
 ];
 
 const isAppRoutePath = (value: string): value is AppRoutePath =>
@@ -81,6 +83,10 @@ const App = () => {
 
     if (routePath === '/timeline') {
       return <TimelinePage copy={t} payload={viewModel?.payload} />;
+    }
+
+    if (routePath === '/works') {
+      return <PublishedWorksPage copy={t} locale={locale} />;
     }
 
     return (

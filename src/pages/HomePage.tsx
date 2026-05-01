@@ -117,7 +117,7 @@ export const HomePage = ({
       title={copy.demoRoutes.title}
       description={copy.demoRoutes.description}
     >
-      <div className="grid grid--3">
+      <div className="grid grid--4">
         <Card
           title={copy.sections.charts.title}
           description={copy.sections.charts.description}
@@ -139,6 +139,14 @@ export const HomePage = ({
           description={copy.sections.timeline.description}
         >
           <a className="demo-card__link" href="#/timeline">
+            {copy.demoRoutes.openLabel}
+          </a>
+        </Card>
+        <Card
+          title={copy.sections.publishedWorks.title}
+          description={copy.sections.publishedWorks.description}
+        >
+          <a className="demo-card__link" href="#/works">
             {copy.demoRoutes.openLabel}
           </a>
         </Card>

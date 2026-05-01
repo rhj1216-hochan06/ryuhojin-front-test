@@ -193,6 +193,16 @@ export interface InfiniteTableCopy {
   statusLabels: Record<InfiniteRenderStatus, string>;
 }
 
+export interface PublishedWorksCopy {
+  roleLabel: string;
+  technologiesLabel: string;
+  implementationPointsLabel: string;
+  openLinkLabel: string;
+  unavailableLinkLabel: string;
+  demoRoleLabel: string;
+  publishedRoleLabel: string;
+}
+
 export interface DashboardDictionary {
   appName: string;
   appSubtitle: string;
@@ -241,10 +251,12 @@ export interface DashboardDictionary {
     title: string;
     description: string;
   };
+  publishedWorks: PublishedWorksCopy;
   pages: {
     charts: SectionCopy;
     dataGrid: SectionCopy;
     timeline: SectionCopy;
+    works: SectionCopy;
   };
   demoRoutes: SectionCopy & {
     openLabel: string;
@@ -255,6 +267,7 @@ export interface DashboardDictionary {
     charts: SectionCopy;
     timeline: SectionCopy;
     table: SectionCopy;
+    publishedWorks: SectionCopy;
   };
   tableHeaders: TableHeaders;
   infiniteTable: InfiniteTableCopy;
@@ -543,11 +556,21 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       description:
         'AccordionTable과 RealGrid 경험을 더미 데이터로 재구성한 검색, 정렬, 필터, 선택 예제입니다.',
     },
+    publishedWorks: {
+      roleLabel: '내가 담당한 역할',
+      technologiesLabel: '사용 기술',
+      implementationPointsLabel: '구현 포인트',
+      openLinkLabel: '외부 링크 열기',
+      unavailableLinkLabel: '링크 확인 중',
+      demoRoleLabel: '데모 앱은 역량 시연',
+      publishedRoleLabel: '배포 사이트는 실제 결과물',
+    },
     nav: [
       { id: 'home', label: '홈', href: '#/', path: '/' },
       { id: 'charts', label: '차트', href: '#/charts', path: '/charts' },
       { id: 'data-grid', label: '데이터 그리드', href: '#/data-grid', path: '/data-grid' },
       { id: 'timeline', label: '타임라인', href: '#/timeline', path: '/timeline' },
+      { id: 'works', label: '배포 작업물', href: '#/works', path: '/works' },
     ],
     pages: {
       charts: {
@@ -568,12 +591,18 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         description:
           '왼쪽 편집 패널과 react-calendar-timeline 캔버스를 함께 배치해 이동, 리사이즈, 확대/축소 흐름을 확인합니다.',
       },
+      works: {
+        eyebrow: '배포 작업물 페이지',
+        title: '배포한 작업물을 카드로 정리했습니다',
+        description:
+          '이 데모 앱은 구현 역량을 시연하고, 이 페이지는 실제 공개 결과물과 담당 범위, 기술 스택, 구현 포인트를 분리해서 보여줍니다.',
+      },
     },
     demoRoutes: {
-      eyebrow: '데모 페이지',
-      title: '기능별 데모 페이지',
+      eyebrow: '페이지 진입점',
+      title: '데모와 배포 작업물 페이지',
       description:
-        '메인 페이지는 프로젝트 맥락을 설명하고, 복잡한 UI는 기능별 페이지에서 집중해서 확인할 수 있도록 나눴습니다.',
+        '메인 페이지는 프로젝트 맥락을 설명하고, 기능 데모와 실제 배포 결과물을 별도 페이지로 나눠 확인할 수 있도록 구성했습니다.',
       openLabel: '페이지 열기',
     },
     sections: {
@@ -606,6 +635,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: '커스텀 데이터 그리드',
         description:
           '계층형 데이터, 검색, 필터, 정렬, 선택, 편집 흐름을 포함한 포트폴리오형 더미 데이터 그리드를 보여줍니다.',
+      },
+      publishedWorks: {
+        eyebrow: '실제 결과물',
+        title: '배포 사이트 아카이브',
+        description:
+          '사이트별 설명, 역할 범위 초안, 사용 기술, 구현 포인트, 외부 링크와 스크린샷 상태를 한 카드에서 확인할 수 있습니다.',
       },
     },
     tableHeaders: {
@@ -935,11 +970,21 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       description:
         'A dummy-data reconstruction of AccordionTable and RealGrid patterns with search, sorting, filters, and selection.',
     },
+    publishedWorks: {
+      roleLabel: 'My role',
+      technologiesLabel: 'Technologies',
+      implementationPointsLabel: 'Implementation points',
+      openLinkLabel: 'Open external link',
+      unavailableLinkLabel: 'Link pending',
+      demoRoleLabel: 'Demo app shows capability',
+      publishedRoleLabel: 'Published sites show outcomes',
+    },
     nav: [
       { id: 'home', label: 'Home', href: '#/', path: '/' },
       { id: 'charts', label: 'Charts', href: '#/charts', path: '/charts' },
       { id: 'data-grid', label: 'Data Grid', href: '#/data-grid', path: '/data-grid' },
       { id: 'timeline', label: 'Timeline', href: '#/timeline', path: '/timeline' },
+      { id: 'works', label: 'Works', href: '#/works', path: '/works' },
     ],
     pages: {
       charts: {
@@ -960,12 +1005,18 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         description:
           'The editor panel and react-calendar-timeline canvas sit together so move, resize, and zoom flows are easy to verify.',
       },
+      works: {
+        eyebrow: 'Published Works Page',
+        title: 'Published work cards separate outcomes from demos',
+        description:
+          'The demo app proves implementation capability, while this page collects public outcomes with role scope, technologies, implementation points, links, and screenshot status.',
+      },
     },
     demoRoutes: {
-      eyebrow: 'Demo Routes',
-      title: 'Feature Demo Pages',
+      eyebrow: 'Page Entry Points',
+      title: 'Demo and Published Work Pages',
       description:
-        'The home page explains the project context while complex UI examples live on focused feature pages.',
+        'The home page explains the project context while feature demos and published outcomes live on focused pages.',
       openLabel: 'Open page',
     },
     sections: {
@@ -998,6 +1049,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: 'Custom Data Grid',
         description:
           'A dummy portfolio data grid shows nested rows, search, filters, sorting, selection, and edit-mode flows.',
+      },
+      publishedWorks: {
+        eyebrow: 'Public Outcomes',
+        title: 'Published Site Archive',
+        description:
+          'Each card brings the site summary, role draft, technology stack, implementation points, external link, and screenshot status into one scannable block.',
       },
     },
     tableHeaders: {
