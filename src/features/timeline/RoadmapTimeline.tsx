@@ -20,7 +20,6 @@ import Timeline, {
   type TimelineKeys,
   type Unit,
 } from 'react-calendar-timeline';
-import 'react-calendar-timeline/lib/Timeline.css';
 import moment, { type Moment } from 'moment';
 import 'moment/locale/ko';
 import styled from 'styled-components';
@@ -34,6 +33,7 @@ import {
   hourMs,
   toDateTimeInputValue,
 } from './timelineDate';
+import './Timeline.css';
 
 interface RoadmapTimelineProps {
   groups: RoadmapGroup[];
@@ -54,8 +54,24 @@ type CalendarItem = TimelineItem<CalendarItemFields, number>;
 type CalendarGroup = TimelineGroup<CalendarGroupFields>;
 type EditableRoadmapItem = RoadmapItem & { isVisible: boolean };
 
+interface AxisHeaderData {
+  groupLabel: string;
+  timeLabel: string;
+  ariaLabel: string;
+}
+
 const minZoom = 6 * hourMs;
 const maxZoom = 365 * dayMs;
+const editorScrollGap = 12;
+const sparseTimeLabelWidth = 24;
+const compactTimeLabelWidth = 40;
+const comfortableTimeLabelWidth = 56;
+const sparseDayLabelWidth = 24;
+const compactDayLabelWidth = 40;
+const comfortableDayLabelWidth = 56;
+const wideDayLabelSpan = 45 * dayMs;
+const veryWideDayLabelSpan = 90 * dayMs;
+const nowMarkerVisibleSpan = 3 * dayMs;
 
 const statusColor: Record<RoadmapStatus, string> = {
   done: '#0f766e',
@@ -77,6 +93,30 @@ const timelineKeys: TimelineKeys = {
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+const formatNarrowDateLabel = (value: Moment) => value.format('D');
+const formatHourLabel = (value: Moment, locale: string) =>
+  locale === 'ko' ? `${value.format('H')}시` : value.format('H');
+const formatMinuteLabel = (value: Moment, locale: string) => {
+  if (locale === 'ko' && value.minute() === 0) {
+    return formatHourLabel(value, locale);
+  }
+
+  return value.format('H:mm');
+};
+
+const buildAxisHeaderData = (copy: TimelineCopy): AxisHeaderData => {
+  const [groupLabel, timeLabel] = copy.axisHeaderLabel
+    .split('\\')
+    .map((label) => label.trim());
+  const fallbackTimeLabel = copy.momentLocale === 'ko' ? '시간' : 'Time';
+
+  return {
+    groupLabel: groupLabel || copy.sidebarLabel,
+    timeLabel: timeLabel || fallbackTimeLabel,
+    ariaLabel: `${groupLabel || copy.sidebarLabel} / ${timeLabel || fallbackTimeLabel}`,
+  };
+};
 
 const normalizeItems = (items: RoadmapItem[]): EditableRoadmapItem[] =>
   items.map((item) => ({
@@ -117,6 +157,7 @@ const EditorPanel = styled.aside`
   max-height: 620px;
   min-width: 0;
   overflow: auto;
+  scroll-padding: 88px 12px 12px;
   border: 1px solid #d7dee6;
   border-radius: 8px;
   background: #ffffff;
@@ -151,6 +192,7 @@ const EditorPanel = styled.aside`
   .timeline-editor__item {
     display: grid;
     gap: 10px;
+    scroll-margin-top: 88px;
     padding: 12px;
     border: 1px solid #d7dee6;
     border-left: 4px solid #0f766e;
@@ -229,227 +271,16 @@ const EditorPanel = styled.aside`
   }
 `;
 
-const TimelineShell = styled.div`
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid #d7dee6;
-  border-radius: 8px;
-  background: #ffffff;
-
-  .timeline-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    border-bottom: 1px solid #d7dee6;
-    background: linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
-  }
-
-  .timeline-toolbar__summary {
-    color: #41515d;
-    font-size: 0.86rem;
-    font-weight: 800;
-  }
-
-  .timeline-toolbar__actions {
-    display: inline-flex;
-    gap: 6px;
-  }
-
-  .timeline-toolbar button {
-    min-height: 34px;
-    border: 1px solid #d7dee6;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #27323a;
-    padding: 6px 10px;
-    font-size: 0.82rem;
-    font-weight: 800;
-  }
-
-  .timeline-toolbar button:hover {
-    border-color: #0f766e;
-    color: #0f766e;
-  }
-
-  .timeline-canvas {
-    min-width: 0;
-    overflow-x: auto;
-  }
-
-  .react-calendar-timeline {
-    min-width: 760px;
-    border: 0;
-    font-family: inherit;
-  }
-
-  .rct-header-root {
-    border-bottom: 1px solid #d7dee6;
-    background: #f7f9fb;
-  }
-
-  .rct-sidebar-header {
-    border-right: 1px solid #d7dee6;
-    background: #f7f9fb;
-  }
-
-  .rct-sidebar {
-    border-right: 1px solid #d7dee6;
-    background: #ffffff;
-  }
-
-  .rct-sidebar-row {
-    color: #27323a;
-    font-weight: 800;
-  }
-
-  .rct-dateHeader {
-    border-left: 1px solid #e4eaf0;
-    color: #64717f;
-    font-size: 0.78rem;
-    font-weight: 800;
-  }
-
-  .timeline-axis-header {
-    display: flex;
-    height: 100%;
-    align-items: center;
-    padding: 0 12px;
-    color: #27323a;
-    font-size: 0.82rem;
-    font-weight: 900;
-  }
-
-  .rct-item {
-    border-radius: 8px;
-    overflow: visible !important;
-  }
-
-  .timeline-group-label {
-    display: grid;
-    gap: 2px;
-    padding: 6px 10px;
-    line-height: 1.2;
-  }
-
-  .timeline-group-label span {
-    color: #64717f;
-    font-size: 0.72rem;
-  }
-
-  .timeline-item {
-    position: relative;
-    display: block;
-    height: 100%;
-    overflow: visible;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    padding: 0;
-  }
-
-  .timeline-item__content {
-    position: absolute;
-    top: 50%;
-    left: 8px;
-    z-index: 2;
-    display: inline-flex;
-    gap: 6px;
-    align-items: center;
-    width: max-content;
-    max-width: 260px;
-    color: #172026;
-    pointer-events: none;
-    transform: translateY(-50%);
-  }
-
-  .timeline-item__title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #172026;
-    font-size: 0.78rem;
-    font-weight: 900;
-  }
-
-  .timeline-item__progress {
-    color: #27323a;
-    font-size: 0.72rem;
-    font-weight: 900;
-    white-space: nowrap;
-  }
-
-  .timeline-item__resize {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 4;
-    width: 10px;
-    height: 100%;
-    border-radius: 0;
-    background: transparent;
-    cursor: ew-resize;
-  }
-
-  .timeline-item__resize.rct-item-handler-left {
-    left: -5px !important;
-  }
-
-  .timeline-item__resize.rct-item-handler-right {
-    right: -5px !important;
-  }
-
-  .timeline-item__resize:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.82);
-    outline-offset: -2px;
-  }
-
-  .timeline-today-marker {
-    z-index: 60 !important;
-    overflow: visible;
-    background: transparent !important;
-    background-color: transparent !important;
-    pointer-events: none;
-  }
-
-  .timeline-today-marker__line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -1px;
-    width: 2px;
-    background: #be123c;
-    box-shadow: 0 0 0 1px rgba(190, 18, 60, 0.16);
-  }
-
-  .timeline-today-marker__label {
-    position: absolute;
-    top: 7px;
-    left: 0;
-    display: inline-flex;
-    align-items: center;
-    min-height: 22px;
-    border-radius: 999px;
-    background: #be123c;
-    color: #ffffff;
-    padding: 3px 8px;
-    font-size: 0.72rem;
-    font-weight: 900;
-    line-height: 1;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(190, 18, 60, 0.24);
-    transform: translateX(-50%);
-  }
-`;
-
 export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) => {
   const initialRange = useMemo(() => buildInitialRange(items), [items]);
   const [editableItems, setEditableItems] = useState<EditableRoadmapItem[]>(
     () => normalizeItems(items),
   );
   const [activeItemId, setActiveItemId] = useState<number | null>(items[0]?.id ?? null);
+  const [editorScrollRequest, setEditorScrollRequest] = useState(0);
   const [visibleTime, setVisibleTime] = useState(initialRange);
+  const editorPanelRef = useRef<HTMLElement | null>(null);
+  const editorHeaderRef = useRef<HTMLDivElement | null>(null);
   const editorItemRefs = useRef<Record<number, HTMLElement | null>>({});
 
   useEffect(() => {
@@ -465,16 +296,47 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
     setVisibleTime(initialRange);
   }, [initialRange]);
 
+  const scrollEditorItemIntoView = useCallback((itemId: number) => {
+    const panel = editorPanelRef.current;
+    const header = editorHeaderRef.current;
+    const item = editorItemRefs.current[itemId];
+
+    if (!panel || !item) {
+      return;
+    }
+
+    const panelRect = panel.getBoundingClientRect();
+    const itemRect = item.getBoundingClientRect();
+    const headerHeight = header?.offsetHeight ?? 0;
+    const itemTop = itemRect.top - panelRect.top + panel.scrollTop;
+    const itemBottom = itemTop + itemRect.height;
+    const visibleTop = panel.scrollTop + headerHeight + editorScrollGap;
+    const visibleBottom = panel.scrollTop + panel.clientHeight - editorScrollGap;
+    let nextScrollTop = panel.scrollTop;
+
+    if (itemTop < visibleTop) {
+      nextScrollTop = itemTop - headerHeight - editorScrollGap;
+    } else if (itemBottom > visibleBottom) {
+      nextScrollTop = itemBottom - panel.clientHeight + editorScrollGap;
+    }
+
+    if (Math.abs(nextScrollTop - panel.scrollTop) < 1) {
+      return;
+    }
+
+    panel.scrollTo({
+      top: Math.max(0, nextScrollTop),
+      behavior: 'smooth',
+    });
+  }, []);
+
   useEffect(() => {
     if (activeItemId === null) {
       return;
     }
 
-    editorItemRefs.current[activeItemId]?.scrollIntoView({
-      block: 'nearest',
-      behavior: 'smooth',
-    });
-  }, [activeItemId]);
+    window.requestAnimationFrame(() => scrollEditorItemIntoView(activeItemId));
+  }, [activeItemId, editorScrollRequest, scrollEditorItemIntoView]);
 
   const calendarGroups: CalendarGroup[] = useMemo(
     () =>
@@ -539,6 +401,7 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
   const selectTimelineItem = useCallback(
     (itemId: number, shouldFocusTimeline = false) => {
       setActiveItemId(itemId);
+      setEditorScrollRequest((current) => current + 1);
 
       if (shouldFocusTimeline) {
         focusTimelineItem(itemId);
@@ -684,6 +547,12 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
     [],
   );
 
+  const visibleCount = editableItems.filter((item) => item.isVisible).length;
+  const currentVisibleSpan = visibleTime.end - visibleTime.start;
+  const shouldUseNowMarker = currentVisibleSpan <= nowMarkerVisibleSpan;
+  const markerLabel = shouldUseNowMarker ? copy.markerLabels.now : copy.markerLabels.today;
+  const axisHeaderData = useMemo(() => buildAxisHeaderData(copy), [copy]);
+
   const formatPrimaryHeader = useCallback(
     ([startTime]: [Moment, Moment], unit: Unit) => {
       const start = startTime.clone().locale(copy.momentLocale);
@@ -706,14 +575,86 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
   );
 
   const formatDateHeader = useCallback(
-    ([startTime]: [Moment, Moment], unit: Unit) => {
+    ([startTime]: [Moment, Moment], unit: Unit, labelWidth: number) => {
       const start = startTime.clone().locale(copy.momentLocale);
 
-      if (unit === 'hour' || unit === 'minute') {
-        return start.format('HH:mm');
+      if (unit === 'minute') {
+        const minute = start.minute();
+        const isHourStart = minute === 0;
+        const isHalfHour = minute === 30;
+
+        if (labelWidth < sparseTimeLabelWidth) {
+          return isHourStart ? formatHourLabel(start, copy.momentLocale) : '';
+        }
+
+        if (labelWidth < compactTimeLabelWidth) {
+          return isHourStart || isHalfHour
+            ? formatMinuteLabel(start, copy.momentLocale)
+            : '';
+        }
+
+        return formatMinuteLabel(start, copy.momentLocale);
+      }
+
+      if (unit === 'hour') {
+        const hour = start.hour();
+        const isSixHourMark = hour % 6 === 0;
+        const isThreeHourMark = hour % 3 === 0;
+
+        if (labelWidth < sparseTimeLabelWidth) {
+          return isSixHourMark ? formatHourLabel(start, copy.momentLocale) : '';
+        }
+
+        if (labelWidth < compactTimeLabelWidth) {
+          return isThreeHourMark ? formatHourLabel(start, copy.momentLocale) : '';
+        }
+
+        if (labelWidth < comfortableTimeLabelWidth) {
+          return formatHourLabel(start, copy.momentLocale);
+        }
+
+        return formatMinuteLabel(start, copy.momentLocale);
       }
 
       if (unit === 'day') {
+        const dayOfMonth = start.date();
+        const isMonthStart = dayOfMonth === 1;
+        const isFiveDayMark = dayOfMonth % 5 === 0;
+        const isMidMonth = dayOfMonth === 15;
+        const isMonday = start.isoWeekday() === 1;
+
+        if (currentVisibleSpan >= veryWideDayLabelSpan) {
+          return isMonthStart ? formatNarrowDateLabel(start) : '';
+        }
+
+        if (currentVisibleSpan >= wideDayLabelSpan) {
+          return isMonthStart || isMidMonth
+            ? isMonthStart
+              ? formatNarrowDateLabel(start)
+              : start.format('D')
+            : '';
+        }
+
+        if (labelWidth < sparseDayLabelWidth) {
+          return isMonthStart || isFiveDayMark
+            ? isMonthStart
+              ? formatNarrowDateLabel(start)
+              : start.format('D')
+            : '';
+        }
+
+        if (labelWidth < compactDayLabelWidth) {
+          return isMonthStart || isMonday
+            ? isMonthStart
+              ? formatNarrowDateLabel(start)
+              : start.format('D')
+            : '';
+        }
+
+        if (labelWidth < comfortableDayLabelWidth) {
+          return start.format('D');
+        }
+
         return start.format(copy.momentLocale === 'ko' ? 'D일 ddd' : 'ddd D');
       }
 
@@ -723,18 +664,13 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
 
       return start.format('ll');
     },
-    [copy.momentLocale],
+    [copy.momentLocale, currentVisibleSpan],
   );
-
-  const visibleCount = editableItems.filter((item) => item.isVisible).length;
-  const currentVisibleSpan = visibleTime.end - visibleTime.start;
-  const isMaxZoomedIn = currentVisibleSpan <= minZoom * 1.02;
-  const markerLabel = isMaxZoomedIn ? copy.markerLabels.now : copy.markerLabels.today;
 
   return (
     <TimelineWorkbench>
-      <EditorPanel aria-label={copy.editorLabel}>
-        <div className="timeline-editor__header">
+      <EditorPanel ref={editorPanelRef} aria-label={copy.editorLabel}>
+        <div ref={editorHeaderRef} className="timeline-editor__header">
           <strong>{copy.editorTitle}</strong>
           <span>{copy.editorDescription}</span>
         </div>
@@ -854,7 +790,7 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
           ))}
         </div>
       </EditorPanel>
-      <TimelineShell aria-label={copy.shellLabel}>
+      <div className="timeline-shell" aria-label={copy.shellLabel}>
         <div className="timeline-toolbar">
           <span className="timeline-toolbar__summary">
             {copy.summary(visibleCount, groups.length)}
@@ -905,10 +841,15 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
             groupRenderer={groupRenderer}
           >
             <TimelineHeaders>
-              <SidebarHeader<{ label: string }> headerData={{ label: copy.axisHeaderLabel }}>
+              <SidebarHeader<AxisHeaderData> headerData={axisHeaderData}>
                 {({ getRootProps, data }) => (
-                  <div {...getRootProps()}>
-                    <strong className="timeline-axis-header">{data.label}</strong>
+                  <div
+                    {...getRootProps()}
+                    className="timeline-axis-header"
+                    aria-label={data.ariaLabel}
+                  >
+                    <span className="timeline-axis-header__group">{data.groupLabel}</span>
+                    <span className="timeline-axis-header__time">{data.timeLabel}</span>
                   </div>
                 )}
               </SidebarHeader>
@@ -930,7 +871,7 @@ export const RoadmapTimeline = ({ groups, items, copy }: RoadmapTimelineProps) =
             </TimelineMarkers>
           </Timeline>
         </div>
-      </TimelineShell>
+      </div>
     </TimelineWorkbench>
   );
 };

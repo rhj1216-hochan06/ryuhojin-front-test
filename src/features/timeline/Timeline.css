@@ -1,0 +1,422 @@
+.react-calendar-timeline * {
+  box-sizing: border-box;
+}
+
+.react-calendar-timeline .rct-outer {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.react-calendar-timeline .rct-scroll {
+  display: inline-block;
+  white-space: normal;
+  vertical-align: top;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  -ms-touch-action: none;
+  touch-action: none;
+}
+
+.react-calendar-timeline .rct-item:hover {
+  z-index: 88;
+}
+
+.react-calendar-timeline .rct-item .rct-item-content {
+  position: sticky;
+  position: -webkit-sticky;
+  left: 0px;
+  overflow: hidden;
+  display: inline-block;
+  border-radius: 2px;
+  padding: 0 6px;
+  height: 100%;
+}
+
+.react-calendar-timeline .rct-sidebar {
+  overflow: hidden;
+  white-space: normal;
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  box-sizing: border-box;
+  border-right: 1px solid #bbb;
+}
+.react-calendar-timeline .rct-sidebar.rct-sidebar-right {
+  border-right: 0;
+  border-left: 1px solid #bbb;
+}
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row {
+  padding: 0 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  margin: 0;
+  border-bottom: 1px solid #bbb;
+}
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-odd {
+  background: rgba(0, 0, 0, 0.05);
+}
+.react-calendar-timeline .rct-sidebar .rct-sidebar-row.rct-sidebar-row-even {
+  background: transparent;
+}
+
+.react-calendar-timeline .rct-vertical-lines .rct-vl {
+  position: absolute;
+  border-left: 1px solid #bbb;
+  z-index: 30;
+}
+.react-calendar-timeline .rct-vertical-lines .rct-vl.rct-vl-first {
+  border-left-width: 2px;
+}
+.react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-6,
+.react-calendar-timeline .rct-vertical-lines .rct-vl.rct-day-0 {
+  background: rgba(250, 246, 225, 0.5);
+}
+
+.react-calendar-timeline .rct-horizontal-lines {
+  -webkit-user-select: none;
+  -moz-user-select: -moz-none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-even,
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
+  border-bottom: 1px solid #bbb;
+  box-sizing: border-box;
+  z-index: 40;
+}
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-odd {
+  background: rgba(0, 0, 0, 0.05);
+}
+.react-calendar-timeline .rct-horizontal-lines .rct-hl-even {
+  background: transparent;
+}
+
+.react-calendar-timeline .rct-cursor-line {
+  position: absolute;
+  width: 2px;
+  background: #2196f3;
+  z-index: 51;
+}
+
+.react-calendar-timeline .rct-dateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-bottom: 1px solid #bbb;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #f0f0f0;
+  border-left: 2px solid #bbb;
+}
+
+.react-calendar-timeline .rct-dateHeader-primary {
+  background-color: initial;
+  border-left: 1px solid #bbb;
+  border-right: 1px solid #bbb;
+  color: #fff;
+}
+
+.react-calendar-timeline .rct-header-root {
+  background: #c52020;
+  border-bottom: 1px solid #bbb;
+}
+
+.react-calendar-timeline .rct-calendar-header {
+  border: 1px solid #bbb;
+}
+
+.timeline-shell {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #d7dee6;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.timeline-shell .timeline-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid #d7dee6;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
+}
+
+.timeline-shell .timeline-toolbar__summary {
+  color: #41515d;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.timeline-shell .timeline-toolbar__actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.timeline-shell .timeline-toolbar button {
+  min-height: 34px;
+  border: 1px solid #d7dee6;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #27323a;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.timeline-shell .timeline-toolbar button:hover {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.timeline-shell .timeline-canvas {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.timeline-shell .react-calendar-timeline {
+  min-width: 760px;
+  border: 0;
+  font-family: inherit;
+}
+
+.timeline-shell .rct-header-root {
+  border-bottom: 1px solid #c8dff1;
+  background: #eaf6ff;
+}
+
+.timeline-shell .rct-calendar-header {
+  border-color: #c8dff1;
+  background: #ffffff;
+}
+
+.timeline-shell .rct-sidebar-header {
+  overflow: hidden;
+  border-right: 1px solid #c8dff1;
+  background: #eaf6ff;
+}
+
+.timeline-shell .rct-sidebar {
+  border-right: 1px solid #d7dee6;
+  background: #ffffff;
+}
+
+.timeline-shell .rct-sidebar-row {
+  color: #27323a;
+  font-weight: 800;
+}
+
+.timeline-shell .rct-dateHeader {
+  min-width: 0;
+  overflow: hidden;
+  border-bottom: 1px solid #d8eaf7;
+  border-left: 1px solid #d8eaf7;
+  background: #ffffff;
+  color: #3c6178;
+  padding: 0 2px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.timeline-shell .rct-dateHeader span {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.timeline-shell .rct-dateHeader-primary {
+  border-color: #c8dff1;
+  background: #eaf6ff;
+  color: #1f3d56;
+  font-size: 0.82rem;
+  line-height: 1.15;
+}
+
+.timeline-shell .timeline-axis-header {
+  position: relative;
+  display: block;
+  height: 60px;
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid #c8dff1;
+  background: linear-gradient(
+    to top right,
+    #ffffff 0%,
+    #ffffff 49.4%,
+    #a9cde8 50%,
+    #eaf6ff 50.6%,
+    #eaf6ff 100%
+  );
+  color: #27323a;
+  font-weight: 900;
+}
+
+.timeline-shell .timeline-axis-header::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.5px),
+    #a9cde8 50%,
+    transparent calc(50% + 0.5px)
+  );
+  content: '';
+  pointer-events: none;
+}
+
+.timeline-shell .timeline-axis-header span {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-shell .timeline-axis-header__group {
+  bottom: 9px;
+  left: 12px;
+  color: #27323a;
+  font-size: 0.82rem;
+}
+
+.timeline-shell .timeline-axis-header__time {
+  top: 8px;
+  right: 12px;
+  color: #3c6178;
+  font-size: 0.74rem;
+  text-align: right;
+}
+
+.timeline-shell .rct-item {
+  overflow: visible !important;
+  border-radius: 8px;
+}
+
+.timeline-shell .timeline-group-label {
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  line-height: 1.2;
+}
+
+.timeline-shell .timeline-group-label span {
+  color: #64717f;
+  font-size: 0.72rem;
+}
+
+.timeline-shell .timeline-item {
+  position: relative;
+  display: block;
+  height: 100%;
+  overflow: visible;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.timeline-shell .timeline-item__content {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  z-index: 2;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  width: max-content;
+  max-width: 260px;
+  color: #172026;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.timeline-shell .timeline-item__title {
+  overflow: hidden;
+  color: #172026;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline-shell .timeline-item__progress {
+  color: #27323a;
+  font-size: 0.72rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.timeline-shell .timeline-item__resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 4;
+  width: 10px;
+  height: 100%;
+  border-radius: 0;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+.timeline-shell .timeline-item__resize.rct-item-handler-left {
+  left: -5px !important;
+}
+
+.timeline-shell .timeline-item__resize.rct-item-handler-right {
+  right: -5px !important;
+}
+
+.timeline-shell .timeline-item__resize:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.82);
+  outline-offset: -2px;
+}
+
+.timeline-shell .timeline-today-marker {
+  z-index: 60 !important;
+  overflow: visible;
+  background: transparent !important;
+  background-color: transparent !important;
+  pointer-events: none;
+}
+
+.timeline-shell .timeline-today-marker__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  background: #111827;
+  box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.18);
+}
+
+.timeline-shell .timeline-today-marker__label {
+  position: absolute;
+  top: 7px;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.24);
+  transform: translateX(-50%);
+}

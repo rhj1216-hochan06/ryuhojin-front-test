@@ -489,7 +489,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       axisHeaderLabel: '구분 \\ 시간',
       momentLocale: 'ko',
       markerLabels: {
-        now: '현재',
+        now: '지금',
         today: '오늘',
       },
       statusLabels: {
