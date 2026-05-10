@@ -1,4 +1,4 @@
-import { dashboardPayload } from './dashboardData';
+import { buildRoadmapItems, dashboardPayload } from './dashboardData';
 import { infiniteRenderRows } from './infiniteRenderRows';
 import type {
   ApiResponse,
@@ -19,6 +19,7 @@ const buildPayloadSnapshot = (): DashboardPayload => {
       activeUsers: metric.activeUsers + ((index + minuteOffset) % 3),
       conversionRate: Number((metric.conversionRate + minuteOffset * 0.1).toFixed(1)),
     })),
+    roadmapItems: buildRoadmapItems(),
   };
 };
 
