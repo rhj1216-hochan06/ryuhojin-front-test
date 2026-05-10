@@ -221,11 +221,22 @@ const EditorPanel = styled.aside`
 
   .timeline-editor__visible {
     display: inline-flex;
+    flex: 0 0 auto;
     gap: 6px;
     align-items: center;
     color: #41515d;
     font-size: 0.8rem;
     font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .timeline-editor__visible input[type='checkbox'] {
+    flex: 0 0 auto;
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
+    min-height: 16px;
+    padding: 0;
   }
 
   .timeline-editor__fields {
