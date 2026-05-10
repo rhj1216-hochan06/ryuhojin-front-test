@@ -36,6 +36,7 @@ export interface PublishedWork {
   id: string;
   siteName: string;
   shortDescription: string;
+  roleTitle?: string;
   myRole: string;
   technologies: string[];
   implementationPoints: string[];

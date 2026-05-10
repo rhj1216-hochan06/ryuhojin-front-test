@@ -48,8 +48,9 @@ export const publishedWorksByLocale: Record<Locale, PublishedWork[]> = {
       siteName: '씨플러스솔루션',
       shortDescription:
         '씨플러스솔루션의 회사 소개, 주요 고객, 오시는 길, Canon 사무기기 제품 카탈로그와 제품 상세 정보를 제공하는 React 기반 기업 소개형 SPA입니다.',
+      roleTitle: '제품 탐색 흐름 구현',
       myRole:
-        'React SPA 프론트엔드 구현을 A부터 Z까지 전부 담당했습니다. 라우팅 구성, 제품 카탈로그/검색/상세 페이지, Kakao Maps 오시는 길, 반응형 화면, 배포 구조까지 모든 화면 기능과 사용자 흐름을 직접 구현했습니다.',
+        '제품 탐색과 방문 전환을 위한 React SPA 프론트엔드를 전담 구현했습니다. 카탈로그, 검색, 상세 페이지, Kakao Maps 오시는 길, 반응형 레이아웃, 배포 구조까지 사용자 탐색 흐름 전체를 구성했습니다.',
       technologies: [
         'React 18',
         'Create React App / react-scripts',
@@ -89,11 +90,12 @@ export const publishedWorksByLocale: Record<Locale, PublishedWork[]> = {
     },
     {
       id: 'random-bomb',
+      roleTitle: '게임 플레이 흐름 구현',
       siteName: 'Random Bomb',
       shortDescription:
         '모임이나 자리에서 랜덤 타이밍 알람, 랜덤 질문 카드, 밸런스 게임을 활용해 분위기를 만드는 React 기반 모바일 친화형 미니 게임 SPA입니다.',
       myRole:
-        'React SPA 프론트엔드 구현을 A부터 Z까지 전부 담당했습니다. 게임 로직, 라우팅, 랜덤 질문/밸런스 게임 페이지, localStorage 기반 사용자 설정 저장, 알람 사운드 흐름, 모바일 중심 UI까지 모든 기능을 직접 구현했습니다.',
+        '모바일에서 바로 즐길 수 있는 React 기반 미니게임 SPA를 구현했습니다. 랜덤 질문, 밸런스 게임, 알람 사운드, localStorage 설정 저장, 모바일 중심 화면 흐름까지 게임 플레이 경험 전반을 설계하고 개발했습니다.',
       technologies: [
         'React 19',
         'TypeScript',
@@ -144,8 +146,9 @@ export const publishedWorksByLocale: Record<Locale, PublishedWork[]> = {
       siteName: 'C Plus Solution',
       shortDescription:
         'A React-based corporate SPA for C Plus Solution that presents the company profile, key customers, location information, and Canon office equipment catalog with product detail pages.',
+      roleTitle: 'Product Discovery Flow',
       myRole:
-        'I owned the full React SPA frontend implementation from A to Z, including routing, product catalog/search/detail pages, Kakao Maps location flow, responsive screens, deployment structure, and every user-facing feature.',
+        'I implemented the React SPA frontend for product discovery and visitor conversion. The work covered the catalog, search, detail pages, Kakao Maps location flow, responsive layouts, deployment structure, and the full user browsing path.',
       technologies: [
         'React 18',
         'Create React App / react-scripts',
@@ -188,8 +191,9 @@ export const publishedWorksByLocale: Record<Locale, PublishedWork[]> = {
       siteName: 'Random Bomb',
       shortDescription:
         'A mobile-friendly React mini game SPA that uses random alarm timing, random question cards, and balance games to make meetups more lively.',
+      roleTitle: 'Gameplay Flow',
       myRole:
-        'I owned the full React SPA frontend implementation from A to Z, including game logic, routing, random question and balance game pages, localStorage-based settings, alarm audio flow, and every mobile-focused UI feature.',
+        'I built a React mini game SPA designed for quick mobile play. The work covered random questions, balance-game flows, alarm audio, localStorage-based settings, and the end-to-end mobile gameplay experience.',
       technologies: [
         'React 19',
         'TypeScript',

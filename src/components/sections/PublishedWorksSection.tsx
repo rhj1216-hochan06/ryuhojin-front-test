@@ -121,7 +121,7 @@ const PublishedWorkCard = ({ copy, work }: PublishedWorkCardProps) => {
         </div>
 
         <div className="published-work-card__block">
-          <h4>{copy.roleLabel}</h4>
+          <h4>{work.roleTitle ?? copy.roleLabel}</h4>
           <p>{work.myRole}</p>
         </div>
 
