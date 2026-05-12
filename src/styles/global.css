@@ -1363,9 +1363,7 @@ main {
 
 .custom-grid__toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
-  align-items: end;
+  gap: 12px;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--line);
 }
@@ -1378,8 +1376,15 @@ main {
   min-width: 0;
 }
 
-.custom-grid__toolbar-group--right {
-  justify-content: flex-end;
+.custom-grid__filters {
+  align-items: end;
+}
+
+.custom-grid__action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
 }
 
 .custom-grid__toolbar label {
@@ -2069,8 +2074,9 @@ main {
     justify-content: flex-start;
   }
 
-  .custom-grid__toolbar-group--right,
+  .custom-grid__action-row,
   .custom-grid__actions--edit {
+    grid-template-columns: 1fr;
     justify-content: flex-start;
   }
 

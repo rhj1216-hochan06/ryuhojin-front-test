@@ -330,7 +330,7 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
   return (
     <div className="custom-grid" aria-label={copy.ariaLabel}>
       <div className="custom-grid__toolbar">
-        <div className="custom-grid__toolbar-group custom-grid__toolbar-group--left">
+        <div className="custom-grid__toolbar-group custom-grid__filters">
           <label className="custom-grid__field custom-grid__field--search">
             {copy.searchLabel}
             <input
@@ -357,6 +357,8 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
               ))}
             </select>
           </label>
+        </div>
+        <div className="custom-grid__action-row">
           <div className="custom-grid__actions custom-grid__actions--expand">
             <button
               type="button"
@@ -367,11 +369,11 @@ export const CustomDataGrid = ({ rows, copy }: CustomDataGridProps) => {
             <button type="button" onClick={() => setExpandedRows(new Set())}>
               {copy.collapseLabel}
             </button>
+            {isEditMode && (
+              <span aria-live="polite">{copy.selectedLabel(selectedCount)}</span>
+            )}
           </div>
-        </div>
-        <div className="custom-grid__toolbar-group custom-grid__toolbar-group--right">
           <div className="custom-grid__actions custom-grid__actions--edit">
-            {isEditMode && <span aria-live="polite">{copy.selectedLabel(selectedCount)}</span>}
             {!isEditMode ? (
               <button
                 type="button"
