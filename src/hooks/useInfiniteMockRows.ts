@@ -10,6 +10,7 @@ interface UseInfiniteMockRowsResult {
   isInitialLoading: boolean;
   isLoadingMore: boolean;
   hasNextPage: boolean;
+  loadMore: () => void;
   viewportRef: (node: HTMLDivElement | null) => void;
   sentinelRef: (node: HTMLDivElement | null) => void;
 }
@@ -138,6 +139,7 @@ export const useInfiniteMockRows = (pageSize = 10): UseInfiniteMockRowsResult =>
     isInitialLoading,
     isLoadingMore,
     hasNextPage,
+    loadMore,
     viewportRef: setViewportRef,
     sentinelRef,
   };

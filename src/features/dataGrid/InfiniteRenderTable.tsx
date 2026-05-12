@@ -12,6 +12,7 @@ export const InfiniteRenderTable = ({ copy }: InfiniteRenderTableProps) => {
     isInitialLoading,
     isLoadingMore,
     hasNextPage,
+    loadMore,
     viewportRef,
     sentinelRef,
   } = useInfiniteMockRows();
@@ -65,6 +66,16 @@ export const InfiniteRenderTable = ({ copy }: InfiniteRenderTableProps) => {
         <p className="infinite-table__state" aria-live="polite">
           {copy.loadingMoreLabel}
         </p>
+      )}
+      {!isInitialLoading && hasNextPage && (
+        <button
+          type="button"
+          className="infinite-table__load-more"
+          disabled={isLoadingMore}
+          onClick={loadMore}
+        >
+          {isLoadingMore ? copy.loadingMoreLabel : copy.loadMoreLabel}
+        </button>
       )}
       {!hasNextPage && rows.length > 0 && (
         <p className="infinite-table__state">{copy.endLabel}</p>

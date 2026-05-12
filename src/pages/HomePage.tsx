@@ -40,7 +40,7 @@ export const HomePage = ({
         <p>{copy.heroBody}</p>
 
         <div className="profile-hero__actions">
-          <a className="button" href="#/charts">
+          <a className="button" href="#demo-routes">
             {copy.heroCtaLabel}
           </a>
           <a
@@ -51,14 +51,6 @@ export const HomePage = ({
           >
             {copy.portfolioLinkLabel}
           </a>
-          <button
-            className="button button--ghost"
-            type="button"
-            aria-label={copy.refreshLabel}
-            onClick={onRefresh}
-          >
-            {copy.refreshLabel}
-          </button>
         </div>
 
         <ul className="profile-hero__focus" aria-label={copy.portfolioFocusLabel}>
@@ -74,9 +66,24 @@ export const HomePage = ({
         <div className="profile-hero__preview-card">
           <div className="profile-hero__preview-head">
             <span>{copy.previewTechLabel}</span>
-            {generatedAtLabel && (
-              <small>{`${copy.updatedLabel} ${generatedAtLabel}`}</small>
-            )}
+            <div className="profile-hero__preview-update">
+              {generatedAtLabel && (
+                <small>{`${copy.updatedLabel} ${generatedAtLabel}`}</small>
+              )}
+              <button
+                type="button"
+                aria-label={copy.heroRefreshLabel}
+                title={copy.heroRefreshLabel}
+                onClick={onRefresh}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M20 11a8.1 8.1 0 0 0-14.9-4.2L3 9" />
+                  <path d="M3 4v5h5" />
+                  <path d="M4 13a8.1 8.1 0 0 0 14.9 4.2L21 15" />
+                  <path d="M16 15h5v5" />
+                </svg>
+              </button>
+            </div>
           </div>
           <div className="profile-hero__preview-body">
             <div className="profile-hero__bars" aria-hidden="true">

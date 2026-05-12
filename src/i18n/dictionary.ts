@@ -213,6 +213,7 @@ export interface DashboardDictionary {
   heroTitle: string;
   heroBody: string;
   heroCtaLabel: string;
+  heroRefreshLabel: string;
   portfolioLinkLabel: string;
   portfolioFocusLabel: string;
   portfolioFocus: string[];
@@ -283,7 +284,8 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
     heroTitle: "실무에서 자주 만나는 데이터 UI를 직접 구현했습니다",
     heroBody:
       "차트, 일정, 그리드가 섞인 운영형 UI를 React와 TypeScript로 재구성했습니다. 실제 데이터 없이도 화면 설계와 컴포넌트 책임이 보이도록 만든 포트폴리오 데모입니다.",
-    heroCtaLabel: "구현 화면 보기",
+    heroCtaLabel: "기능별 데모 보기",
+    heroRefreshLabel: "데모 데이터 다시 불러오기",
     portfolioLinkLabel: "Notion 포트폴리오",
     portfolioFocusLabel: "포트폴리오 구현 포커스",
     portfolioFocus: [
@@ -606,34 +608,34 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
     pages: {
       charts: {
         eyebrow: "차트 페이지",
-        title: "차트 구현 사례를 한 페이지에서 검증합니다",
+        title: "차트 구현 패턴을 한곳에 모았습니다",
         description:
           "ECharts 래퍼, 옵션 생성 함수, 다국어 문구, 범례 상태, 크기 변경 처리를 차트 예제별로 분리해 보여줍니다.",
       },
       dataGrid: {
         eyebrow: "데이터 그리드 페이지",
-        title: "운영형 그리드 상호작용을 따로 검증합니다",
+        title: "그리드의 상호작용을 보여줍니다",
         description:
           "검색, 필터, 정렬, 부모/자식 선택, 편집 모드 흐름을 분리된 페이지에서 확인할 수 있습니다.",
       },
       timeline: {
         eyebrow: "타임라인 페이지",
-        title: "일정 편집과 타임라인 조작을 분리해 보여줍니다",
+        title: "일정 편집과 타임라인 흐름을 함께 보여줍니다",
         description:
           "왼쪽 편집 패널과 react-calendar-timeline 캔버스를 함께 배치해 이동, 리사이즈, 확대/축소 흐름을 확인합니다.",
       },
       works: {
         eyebrow: "배포 작업물 페이지",
-        title: "배포한 작업물을 카드로 정리했습니다",
+        title: "배포한 작업물을 정리했습니다",
         description:
-          "이 데모 앱은 구현 역량을 시연하고, 이 페이지는 실제 공개 결과물과 담당 범위, 기술 스택, 구현 포인트를 분리해서 보여줍니다.",
+          "이 페이지는 실제 공개 결과물과 담당 범위, 기술 스택, 구현 포인트를 분리해서 보여줍니다.",
       },
     },
     demoRoutes: {
-      eyebrow: "페이지 진입점",
-      title: "데모와 배포 작업물 페이지",
+      eyebrow: "바로가기",
+      title: "데모와 실제 결과물",
       description:
-        "메인 페이지는 프로젝트 맥락을 설명하고, 기능 데모와 실제 배포 결과물을 별도 페이지로 나눠 확인할 수 있도록 구성했습니다.",
+        "차트, 그리드, 타임라인 데모와 배포 작업물을 바로 열어볼 수 있습니다.",
       openLabel: "페이지 열기",
     },
     sections: {
@@ -657,7 +659,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       },
       timeline: {
         eyebrow: "로드맵",
-        title: "react-calendar-timeline 편집 예제",
+        title: "react-calendar-timeline 예제",
         description:
           "왼쪽 리스트에서 타임라인 항목을 수정하고, 확대/축소와 항목 이동/리사이즈 흐름을 확인할 수 있습니다.",
       },
@@ -725,6 +727,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
     heroBody:
       "A React and TypeScript portfolio demo for chart-heavy operations screens, timelines, and custom grids, rebuilt with dummy data and clear component boundaries.",
     heroCtaLabel: "View demos",
+    heroRefreshLabel: "Reload demo data",
     portfolioLinkLabel: "Notion Portfolio",
     portfolioFocusLabel: "Portfolio focus",
     portfolioFocus: [
@@ -1077,16 +1080,16 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       },
       works: {
         eyebrow: "Published Works Page",
-        title: "Published work cards separate outcomes from demos",
+        title: "Published work examples in one place",
         description:
-          "The demo app proves implementation capability, while this page collects public outcomes with role scope, technologies, implementation points, links, and screenshot status.",
+          "This page shows public work examples with role scope, tech stack, and implementation points.",
       },
     },
     demoRoutes: {
-      eyebrow: "Page Entry Points",
-      title: "Demo and Published Work Pages",
+      eyebrow: "Quick Links",
+      title: "Demos and Real Outcomes",
       description:
-        "The home page explains the project context while feature demos and published outcomes live on focused pages.",
+        "Open chart, grid, timeline demos and published work examples from here.",
       openLabel: "Open page",
     },
     sections: {
@@ -1121,10 +1124,10 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
           "A dummy portfolio data grid shows nested rows, search, filters, sorting, selection, and edit-mode flows.",
       },
       publishedWorks: {
-        eyebrow: "Public Outcomes",
+        eyebrow: "Real Outcomes",
         title: "Published Site Archive",
         description:
-          "Each card brings the site summary, role draft, technology stack, implementation points, external link, and screenshot status into one scannable block.",
+          "Each card shows the site summary, role scope, tech stack, implementation points, external link, and screenshot status.",
       },
     },
     tableHeaders: {

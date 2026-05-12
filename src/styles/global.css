@@ -384,10 +384,48 @@ main {
   font-weight: 900;
 }
 
+.profile-hero__preview-update {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
 .profile-hero__preview-head small {
   color: #8b95a1;
   font-size: 0.78rem;
   font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.profile-hero__preview-update button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #d9e2ec;
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: var(--blue);
+  padding: 0;
+}
+
+.profile-hero__preview-update button:hover,
+.profile-hero__preview-update button:focus-visible {
+  border-color: #b5c9e2;
+  background: #f7fbff;
+}
+
+.profile-hero__preview-update svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
 }
 
 .profile-hero__preview-body {
@@ -505,6 +543,7 @@ main {
 
 .section {
   width: min(1180px, calc(100% - 32px));
+  scroll-margin-top: 92px;
   margin: 0 auto;
   padding: 92px 0;
 }
@@ -760,13 +799,24 @@ main {
   transform: translate(6px, -50%);
 }
 
+#demo-routes .card {
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
+}
+
+#demo-routes .card__header {
+  flex: 1;
+}
+
 .demo-card__link {
   display: inline-flex;
   align-items: center;
+  align-self: flex-end;
   justify-content: center;
   width: fit-content;
   min-height: 38px;
-  margin-top: 6px;
+  margin-top: auto;
   padding: 8px 12px;
   border: 1px solid var(--blue);
   border-radius: var(--radius);
@@ -1742,6 +1792,28 @@ main {
   color: var(--text-muted);
   font-size: 0.86rem;
   font-weight: 800;
+}
+
+.infinite-table__load-more {
+  justify-self: start;
+  min-height: 38px;
+  border: 1px solid var(--blue);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: var(--blue);
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.infinite-table__load-more:hover,
+.infinite-table__load-more:focus-visible {
+  background: #f2f7ff;
+}
+
+.infinite-table__load-more:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
 }
 
 .infinite-table__viewport {
