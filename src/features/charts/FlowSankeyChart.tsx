@@ -22,6 +22,7 @@ const sumBy = (links: SankeyLink[], key: 'source' | 'target', value: string) =>
 
 const defaultFlowHeight = 214;
 const defaultFlowGap = 7.5;
+const minimumValueLabelGap = 16;
 
 const sortLinks = (links: SankeyLink[]) =>
   [...links].sort((first, second) => {
@@ -89,6 +90,45 @@ const buildHeightStyle = (height: number): CSSProperties => ({
   height,
 });
 
+const getAdjustedLabelCenters = (
+  centers: number[],
+  minGap: number,
+  minY: number,
+  maxY: number,
+) => {
+  if (centers.length <= 1) {
+    return centers;
+  }
+
+  const availableSpan = Math.max(maxY - minY, 0);
+  const requiredSpan = (centers.length - 1) * minGap;
+  const effectiveGap =
+    requiredSpan > availableSpan ? availableSpan / (centers.length - 1) : minGap;
+  const adjusted = [...centers];
+
+  for (let index = 1; index < adjusted.length; index += 1) {
+    adjusted[index] = Math.max(adjusted[index], adjusted[index - 1] + effectiveGap);
+  }
+
+  const overflow = adjusted[adjusted.length - 1] - maxY;
+
+  if (overflow > 0) {
+    for (let index = 0; index < adjusted.length; index += 1) {
+      adjusted[index] -= overflow;
+    }
+  }
+
+  const underflow = minY - adjusted[0];
+
+  if (underflow > 0) {
+    for (let index = 0; index < adjusted.length; index += 1) {
+      adjusted[index] += underflow;
+    }
+  }
+
+  return adjusted;
+};
+
 export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [flowSize, setFlowSize] = useState({
@@ -131,6 +171,46 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
     flowSize.gap,
     targetTotals.map((node) => node.value),
   );
+  const valueLabelDrafts = linksByTarget
+    .filter(({ targetKey }) => targetValueByKey[targetKey] > 0)
+    .flatMap(({ targetKey, links }, targetIndex) => {
+      const groupTop = linksByTarget
+        .filter(({ targetKey: previousTargetKey }) => targetValueByKey[previousTargetKey] > 0)
+        .slice(0, targetIndex)
+        .reduce(
+          (top, { targetKey: previousTargetKey }) =>
+            top +
+            getProportionalHeight(targetValueByKey[previousTargetKey], targetMetrics) +
+            flowSize.gap,
+          0,
+        );
+      const targetValue = targetValueByKey[targetKey];
+      const groupHeight = getProportionalHeight(targetValue, targetMetrics);
+      let linkTop = 0;
+
+      return links.map((link) => {
+        const linkHeight =
+          targetValue > 0 ? (link.value / targetValue) * groupHeight : 0;
+        const centerY = groupTop + linkTop + linkHeight / 2;
+
+        linkTop += linkHeight;
+
+        return {
+          centerY,
+          link,
+        };
+      });
+    });
+  const adjustedValueLabelCenters = getAdjustedLabelCenters(
+    valueLabelDrafts.map((label) => label.centerY),
+    minimumValueLabelGap,
+    minimumValueLabelGap / 2,
+    flowSize.height - minimumValueLabelGap / 2,
+  );
+  const valueLabels = valueLabelDrafts.map((label, index) => ({
+    ...label,
+    centerY: adjustedValueLabelCenters[index] ?? label.centerY,
+  }));
 
   useEffect(() => {
     if (!rootRef.current) {
@@ -216,28 +296,18 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
               ))}
             </div>
             <div className="flow-sankey__values">
-              {linksByTarget
-                .filter(({ targetKey }) => targetValueByKey[targetKey] > 0)
-                .map(({ targetKey, links }) => (
-                  <div
-                    key={targetKey}
-                    className="flow-sankey__value-group"
-                    style={buildHeightStyle(
-                      getProportionalHeight(targetValueByKey[targetKey], targetMetrics),
-                    )}
-                  >
-                    {links.map((link) => (
-                      <span
-                        key={`${link.source}-${link.target}`}
-                        style={{
-                          color: getWorkflowLinkColor(link.source, link.target),
-                        }}
-                      >
-                        {numberFormatter.format(link.value)}
-                      </span>
-                    ))}
-                  </div>
-                ))}
+              {valueLabels.map(({ centerY, link }) => (
+                <span
+                  key={`${link.source}-${link.target}`}
+                  className="flow-sankey__value-label"
+                  style={{
+                    color: getWorkflowLinkColor(link.source, link.target),
+                    top: centerY,
+                  }}
+                >
+                  {numberFormatter.format(link.value)}
+                </span>
+              ))}
             </div>
           </div>
         </div>

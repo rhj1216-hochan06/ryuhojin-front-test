@@ -1210,9 +1210,7 @@ main {
 }
 
 .flow-sankey__values {
-  display: flex;
-  flex-direction: column;
-  gap: var(--flow-sankey-gap);
+  position: relative;
   height: var(--flow-sankey-height);
   padding-left: 10px;
   font-size: 0.72rem;
@@ -1221,18 +1219,13 @@ main {
   overflow: visible;
 }
 
-.flow-sankey__value-group {
-  display: grid;
-  min-height: 0;
-  align-content: space-between;
-}
-
-.flow-sankey__values span {
-  display: flex;
-  align-items: center;
-  min-height: 0;
+.flow-sankey__value-label {
+  position: absolute;
+  left: 10px;
+  display: block;
   line-height: 1.2;
   white-space: nowrap;
+  transform: translateY(-50%);
 }
 
 .sr-only {
