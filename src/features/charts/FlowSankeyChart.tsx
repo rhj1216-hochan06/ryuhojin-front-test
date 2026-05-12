@@ -55,12 +55,14 @@ const getStackMetrics = (
   totalHeight: number,
   gap: number,
   values: number[],
+  stackSlotCount?: number,
 ) => {
   const visibleValues = values.filter((value) => value > 0);
   const totalValue = visibleValues.reduce((total, value) => total + value, 0);
+  const visibleSlotCount = stackSlotCount ?? visibleValues.length;
   const availableHeight = Math.max(
     0,
-    totalHeight - Math.max(visibleValues.length - 1, 0) * gap,
+    totalHeight - Math.max(visibleSlotCount - 1, 0) * gap,
   );
 
   return {
@@ -157,6 +159,10 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
   const sortedLinks = sortLinks(workflow.links).filter((link) => link.value > 0);
   const visibleSourceTotals = sourceTotals.filter((node) => node.value > 0);
   const visibleTargetTotals = targetTotals.filter((node) => node.value > 0);
+  const sharedStackSlotCount = Math.max(
+    visibleSourceTotals.length,
+    visibleTargetTotals.length,
+  );
   const linksByTarget = workflowTargetOrder.map((targetKey) => ({
     targetKey,
     links: sortedLinks.filter((link) => link.target === targetKey),
@@ -165,11 +171,13 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
     flowSize.height,
     flowSize.gap,
     sourceTotals.map((node) => node.value),
+    sharedStackSlotCount,
   );
   const targetMetrics = getStackMetrics(
     flowSize.height,
     flowSize.gap,
     targetTotals.map((node) => node.value),
+    sharedStackSlotCount,
   );
   const valueLabelDrafts = linksByTarget
     .filter(({ targetKey }) => targetValueByKey[targetKey] > 0)
@@ -211,6 +219,8 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
     ...label,
     centerY: adjustedValueLabelCenters[index] ?? label.centerY,
   }));
+  const hasVisibleWorkflow =
+    workflow.nodes.length > 0 && workflow.links.some((link) => link.value > 0);
 
   useEffect(() => {
     if (!rootRef.current) {
@@ -236,6 +246,22 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
 
     return () => resizeObserver.disconnect();
   }, []);
+
+  if (!hasVisibleWorkflow) {
+    return (
+      <div ref={rootRef} className="flow-sankey-empty" aria-label={copy.ariaLabel}>
+        <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <path d="M14 20h10c6 0 8 8 14 8h12" />
+          <path d="M14 44h10c6 0 8-8 14-8h12" />
+          <path d="M12 16h4v8h-4z" />
+          <path d="M48 24h4v8h-4z" />
+          <path d="M48 32h4v8h-4z" />
+        </svg>
+        <strong>{copy.emptyTitle}</strong>
+        <p>{copy.emptyDescription}</p>
+      </div>
+    );
+  }
 
   return (
     <div ref={rootRef} className="flow-sankey" aria-label={copy.ariaLabel}>
