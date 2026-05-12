@@ -641,6 +641,9 @@ export const buildGenderBoxPlotOption = (
       type: 'value',
       name: labels.valueAxis,
       axisLabel: { color: axisTextColor },
+      nameTextStyle: {
+        padding: [0, 0, 0, -30],
+      },
       splitLine: { lineStyle: { color: splitLineColor } },
     },
     series: [
