@@ -604,6 +604,48 @@ main {
   line-height: 1.6;
 }
 
+.section__actions {
+  flex: 0 0 min(460px, 100%);
+}
+
+.chart-scenario-control {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+  min-width: 0;
+}
+
+.chart-scenario-control label {
+  display: grid;
+  gap: 6px;
+  width: min(320px, 100%);
+  color: #41515d;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.chart-scenario-control select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: #27323a;
+  padding: 7px 10px;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.chart-scenario-control p {
+  max-width: 460px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: right;
+  white-space: nowrap;
+}
+
 .eyebrow {
   color: var(--blue);
   font-size: 0.78rem;
@@ -641,6 +683,10 @@ main {
   margin-bottom: 18px;
 }
 
+.card__header > div {
+  min-width: 0;
+}
+
 .card__header h3 {
   margin: 0;
   font-size: 1rem;
@@ -651,6 +697,32 @@ main {
   color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.55;
+}
+
+.card__aside {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chart-card-scenario-control {
+  display: grid;
+  gap: 4px;
+  min-width: 138px;
+  color: #41515d;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.chart-card-scenario-control select {
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: #27323a;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .metric-card {
@@ -1099,6 +1171,43 @@ main {
   --flow-sankey-height: 214px;
 }
 
+.flow-sankey-empty {
+  display: grid;
+  min-height: 268px;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius);
+  background: #f8fafc;
+  color: #41515d;
+  padding: 28px;
+  text-align: center;
+}
+
+.flow-sankey-empty svg {
+  width: 58px;
+  height: 58px;
+  fill: none;
+  stroke: #94a3b8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.flow-sankey-empty strong {
+  color: #27323a;
+  font-size: 0.98rem;
+}
+
+.flow-sankey-empty p {
+  max-width: 360px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
 .flow-sankey__legend {
   display: flex;
   flex-wrap: wrap;
@@ -1184,12 +1293,16 @@ main {
   display: grid;
   min-height: 0;
   place-items: center;
+  padding: 0 4px;
   border-radius: 4px;
   background: #e1e6ed;
   color: #596571;
   font-size: 0.9rem;
   font-weight: 800;
+  line-height: 1;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .flow-sankey__side--left .flow-sankey__node {
@@ -1936,6 +2049,17 @@ main {
     display: grid;
   }
 
+  .section__actions,
+  .chart-scenario-control,
+  .chart-scenario-control label,
+  .chart-scenario-control p {
+    width: 100%;
+    max-width: none;
+    justify-items: stretch;
+    text-align: left;
+    white-space: normal;
+  }
+
   .section__header h2,
   .page-intro h1 {
     font-size: 2.35rem;
@@ -2067,6 +2191,12 @@ main {
 
   .card__header {
     display: grid;
+  }
+
+  .card__aside,
+  .chart-card-scenario-control,
+  .chart-card-scenario-control select {
+    width: 100%;
   }
 
   .published-work-card__header {

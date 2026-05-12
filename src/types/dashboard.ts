@@ -59,6 +59,46 @@ export interface ChartImplementationMetric {
   reviewScore: number;
 }
 
+export type GlobalChartScenarioId = 'normal' | 'empty';
+
+export type ChartEdgeCaseScenarioId =
+  | 'missingXAxis'
+  | 'zeroValues'
+  | 'singleSlice'
+  | 'smallSankeyValues'
+  | 'outlierHeavyBoxplot';
+
+export type ChartCardScenarioId = 'normal' | ChartEdgeCaseScenarioId;
+
+export type ChartShowcaseCardKey =
+  | 'businessTrend'
+  | 'implementationTrend'
+  | 'qualityScatter'
+  | 'genderBoxPlot'
+  | 'capabilityTreemap'
+  | 'categoryShare'
+  | 'sankey';
+
+export type ChartCardScenarioMap = Partial<
+  Record<ChartShowcaseCardKey, ChartCardScenarioId>
+>;
+
+export type ChartMetricValue = number | null;
+
+export interface ChartBusinessTrendMetric {
+  month: string;
+  revenue: ChartMetricValue;
+  activeUsers: ChartMetricValue;
+  conversionRate: ChartMetricValue;
+}
+
+export interface ChartImplementationTrendMetric {
+  month: string;
+  current: ChartMetricValue;
+  previous: ChartMetricValue;
+  reviewScore: ChartMetricValue;
+}
+
 export interface ChartCapabilityNode {
   name: string;
   value: number;

@@ -1,12 +1,13 @@
 import type { EChartsOption, LabelLayoutOptionCallbackParams } from 'echarts';
 import type { ChartOptionLabels } from '../../i18n/dictionary';
 import type {
+  ChartBusinessTrendMetric,
   ChartCapabilityNode,
   ChartCategoryShare,
-  ChartImplementationMetric,
+  ChartImplementationTrendMetric,
+  ChartMetricValue,
   GenderBoxPlotGender,
   GenderBoxPlotMetric,
-  MonthlyBusinessMetric,
   QualityScatterPoint,
   WorkflowSankeyData,
 } from '../../types/dashboard';
@@ -31,7 +32,7 @@ export type ChartLegendSelection = Record<string, boolean>;
 
 interface StackedBarSeries {
   name: string;
-  values: number[];
+  values: ChartMetricValue[];
 }
 
 interface ChartSize {
@@ -75,6 +76,21 @@ const isLegendItemVisible = (
   name: string,
 ) => legendSelection?.[name] !== false;
 
+const buildNoDataGraphic = (text: string): EChartsOption['graphic'] => ({
+  type: 'text',
+  left: 'center',
+  top: 'middle',
+  z: 20,
+  silent: true,
+  style: {
+    text,
+    align: 'center',
+    fill: axisTextColor,
+    fontSize: 13,
+    fontWeight: 800,
+  },
+});
+
 const isVisibleStackTop = (
   stack: StackedBarSeries[],
   seriesIndex: number,
@@ -84,6 +100,7 @@ const isVisibleStackTop = (
   const currentSeries = stack[seriesIndex];
 
   if (
+    currentSeries.values[dataIndex] === null ||
     currentSeries.values[dataIndex] === 0 ||
     !isLegendItemVisible(legendSelection, currentSeries.name)
   ) {
@@ -95,6 +112,7 @@ const isVisibleStackTop = (
     .every(
       (series) =>
         series.values[dataIndex] === 0 ||
+        series.values[dataIndex] === null ||
         !isLegendItemVisible(legendSelection, series.name),
     );
 };
@@ -245,7 +263,7 @@ const createCenteredPieLabelLayout =
   };
 
 export const buildBusinessTrendOption = (
-  metrics: MonthlyBusinessMetric[],
+  metrics: ChartBusinessTrendMetric[],
   labels: ChartOptionLabels['businessTrend'],
   legendSelection?: ChartLegendSelection,
 ): EChartsOption => {
@@ -262,6 +280,7 @@ export const buildBusinessTrendOption = (
 
   return {
     aria: { enabled: true },
+    graphic: metrics.length === 0 ? buildNoDataGraphic(labels.emptyLabel) : undefined,
     color: ['#2563eb', '#0f766e', '#b45309'],
     tooltip: { trigger: 'axis' },
     legend: {
@@ -329,105 +348,116 @@ export const buildBusinessTrendOption = (
 };
 
 export const buildImplementationTrendOption = (
-  metrics: ChartImplementationMetric[],
+  metrics: ChartImplementationTrendMetric[],
   labels: ChartOptionLabels['implementationTrend'],
-): EChartsOption => ({
-  aria: { enabled: true },
-  color: ['rgba(37, 99, 235, 0.18)', '#0f766e', '#be123c'],
-  tooltip: { trigger: 'axis' },
-  legend: {
-    top: 0,
-    textStyle: { color: axisTextColor },
-  },
-  grid: {
-    left: 44,
-    right: 52,
-    top: 52,
-    bottom: 58,
-  },
-  dataZoom: [
-    {
-      type: 'inside',
-      xAxisIndex: 0,
-      start: 0,
-      end: 50,
-      zoomOnMouseWheel: false,
-      moveOnMouseWheel: true,
-      moveOnMouseMove: false,
-      preventDefaultMouseMove: true,
+): EChartsOption => {
+  const isEmpty = metrics.length === 0;
+
+  return {
+    aria: { enabled: true },
+    graphic: isEmpty ? buildNoDataGraphic(labels.emptyLabel) : undefined,
+    color: ['rgba(37, 99, 235, 0.18)', '#0f766e', '#be123c'],
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
     },
-    {
-      type: 'slider',
-      xAxisIndex: 0,
-      start: 0,
-      end: 50,
-      height: 18,
-      bottom: 8,
-      zoomLock: true,
-      brushSelect: false,
+    legend: {
+      top: 0,
+      textStyle: { color: axisTextColor },
     },
-  ],
-  xAxis: {
-    type: 'category',
-    data: metrics.map((metric) => metric.month),
-    axisLabel: { color: axisTextColor },
-    axisLine: { lineStyle: { color: splitLineColor } },
-  },
-  yAxis: [
-    {
-      type: 'value',
-      name: labels.casesAxis,
+    grid: {
+      left: 44,
+      right: 52,
+      top: 52,
+      bottom: isEmpty ? 34 : 58,
+    },
+    dataZoom: isEmpty
+      ? undefined
+      : [
+          {
+            type: 'inside',
+            xAxisIndex: 0,
+            start: 0,
+            end: 50,
+            zoomOnMouseWheel: false,
+            moveOnMouseWheel: true,
+            moveOnMouseMove: false,
+            preventDefaultMouseMove: true,
+          },
+          {
+            type: 'slider',
+            xAxisIndex: 0,
+            start: 0,
+            end: 50,
+            height: 18,
+            bottom: 8,
+            zoomLock: true,
+            brushSelect: false,
+          },
+        ],
+    xAxis: {
+      type: 'category',
+      data: metrics.map((metric) => metric.month),
       axisLabel: { color: axisTextColor },
-      splitLine: { lineStyle: { color: splitLineColor } },
+      axisLine: { lineStyle: { color: splitLineColor } },
     },
-    {
-      type: 'value',
-      name: labels.reviewAxis,
-      min: 60,
-      max: 100,
-      axisLabel: { color: axisTextColor },
-      splitLine: { show: false },
-    },
-  ],
-  series: [
-    {
-      name: labels.previous,
-      type: 'bar',
-      barWidth: 16,
-      itemStyle: {
-        borderColor: '#2563eb',
-        borderType: 'dashed',
-        borderWidth: 1,
-        borderRadius: roundedBarTopRadius,
+    yAxis: [
+      {
+        type: 'value',
+        name: labels.casesAxis,
+        axisLabel: { color: axisTextColor },
+        splitLine: { lineStyle: { color: splitLineColor } },
       },
-      data: metrics.map((metric) => metric.previous),
-    },
-    {
-      name: labels.current,
-      type: 'bar',
-      barWidth: 16,
-      itemStyle: {
-        borderRadius: roundedBarTopRadius,
+      {
+        type: 'value',
+        name: labels.reviewAxis,
+        min: 60,
+        max: 100,
+        axisLabel: { color: axisTextColor },
+        splitLine: { show: false },
       },
-      data: metrics.map((metric) => metric.current),
-    },
-    {
-      name: labels.reviewScore,
-      type: 'line',
-      yAxisIndex: 1,
-      smooth: true,
-      symbol: 'emptyCircle',
-      symbolSize: 8,
-      data: metrics.map((metric) => metric.reviewScore),
-    },
-  ],
-});
+    ],
+    series: [
+      {
+        name: labels.previous,
+        type: 'bar',
+        barWidth: 16,
+        itemStyle: {
+          borderColor: '#2563eb',
+          borderType: 'dashed',
+          borderWidth: 1,
+          borderRadius: roundedBarTopRadius,
+        },
+        data: metrics.map((metric) => metric.previous),
+      },
+      {
+        name: labels.current,
+        type: 'bar',
+        barWidth: 16,
+        itemStyle: {
+          borderRadius: roundedBarTopRadius,
+        },
+        data: metrics.map((metric) => metric.current),
+      },
+      {
+        name: labels.reviewScore,
+        type: 'line',
+        yAxisIndex: 1,
+        smooth: true,
+        symbol: 'emptyCircle',
+        symbolSize: 8,
+        data: metrics.map((metric) => metric.reviewScore),
+      },
+    ],
+  };
+};
 
 export const buildQualityScatterOption = (
   points: QualityScatterPoint[],
   labels: ChartOptionLabels['qualityScatter'],
 ): EChartsOption => ({
   aria: { enabled: true },
+  graphic: points.length === 0 ? buildNoDataGraphic(labels.emptyLabel) : undefined,
   color: ['#be123c'],
   tooltip: { trigger: 'item' },
   grid: {
@@ -600,6 +630,7 @@ export const buildGenderBoxPlotOption = (
 
   return {
     aria: { enabled: true },
+    graphic: metrics.length === 0 ? buildNoDataGraphic(labels.emptyLabel) : undefined,
     color: genderBoxPlotOrder.map((gender) => genderBoxPlotColors[gender]),
     tooltip: {
       trigger: 'item',
@@ -672,94 +703,105 @@ const sortCapabilityNodes = (
 
 export const buildCapabilityTreemapOption = (
   nodes: ChartCapabilityNode[],
-): EChartsOption => ({
-  aria: { enabled: true },
-  tooltip: { trigger: 'item' },
-  series: [
-    {
-      type: 'treemap',
-      roam: false,
-      nodeClick: 'zoomToNode',
-      breadcrumb: {
-        show: true,
-        height: 22,
-        bottom: 0,
-        itemStyle: {
-          color: '#e0f2fe',
-          borderColor: '#93c5fd',
-          textStyle: {
-            color: '#075985',
-            fontWeight: 800,
-          },
-        },
-        emphasis: {
+  emptyLabel = 'No chart data to display.',
+): EChartsOption => {
+  const isEmpty = nodes.length === 0;
+
+  return {
+    aria: { enabled: true },
+    graphic: isEmpty ? buildNoDataGraphic(emptyLabel) : undefined,
+    tooltip: {
+      show: !isEmpty,
+      trigger: 'item',
+    },
+    series: [
+      {
+        type: 'treemap',
+        roam: false,
+        silent: isEmpty,
+        nodeClick: isEmpty ? false : 'zoomToNode',
+        breadcrumb: {
+          show: !isEmpty,
+          height: 22,
+          bottom: 0,
           itemStyle: {
-            color: '#bfdbfe',
-            borderColor: '#2563eb',
+            color: '#e0f2fe',
+            borderColor: '#93c5fd',
             textStyle: {
-              color: '#0f172a',
-              fontWeight: 900,
+              color: '#075985',
+              fontWeight: 800,
+            },
+          },
+          emphasis: {
+            itemStyle: {
+              color: '#bfdbfe',
+              borderColor: '#2563eb',
+              textStyle: {
+                color: '#0f172a',
+                fontWeight: 900,
+              },
             },
           },
         },
-      },
-      leafDepth: 1,
-      top: 8,
-      left: 8,
-      right: 8,
-      bottom: 34,
-      label: {
-        show: true,
-        color: '#ffffff',
-        fontWeight: 800,
-      },
-      upperLabel: {
-        show: true,
-        height: 24,
-        color: '#27323a',
-        fontWeight: 800,
-      },
-      itemStyle: {
-        borderColor: '#ffffff',
-        borderWidth: 4,
-        borderRadius: 6,
-        gapWidth: 6,
-      },
-      levels: [
-        {
-          color: ['#0f766e', '#2563eb', '#b45309'],
-          itemStyle: {
-            borderColor: '#ffffff',
-            borderWidth: 5,
-            gapWidth: 7,
-          },
+        leafDepth: 1,
+        top: 8,
+        left: 8,
+        right: 8,
+        bottom: 34,
+        label: {
+          show: !isEmpty,
+          color: '#ffffff',
+          fontWeight: 800,
         },
-        {
-          colorSaturation: [0.45, 0.75],
-          itemStyle: {
-            borderColor: '#ffffff',
-            borderWidth: 4,
-            gapWidth: 5,
-          },
+        upperLabel: {
+          show: !isEmpty,
+          height: 24,
+          color: '#27323a',
+          fontWeight: 800,
         },
-        {
-          itemStyle: {
-            borderColor: '#ffffff',
-            borderWidth: 3,
-            gapWidth: 4,
-          },
+        itemStyle: {
+          borderColor: '#ffffff',
+          borderWidth: 4,
+          borderRadius: 6,
+          gapWidth: 6,
         },
-      ],
-      data: sortCapabilityNodes(nodes),
-    },
-  ],
-});
+        levels: [
+          {
+            color: ['#0f766e', '#2563eb', '#b45309'],
+            itemStyle: {
+              borderColor: '#ffffff',
+              borderWidth: 5,
+              gapWidth: 7,
+            },
+          },
+          {
+            colorSaturation: [0.45, 0.75],
+            itemStyle: {
+              borderColor: '#ffffff',
+              borderWidth: 4,
+              gapWidth: 5,
+            },
+          },
+          {
+            itemStyle: {
+              borderColor: '#ffffff',
+              borderWidth: 3,
+              gapWidth: 4,
+            },
+          },
+        ],
+        data: isEmpty ? [] : sortCapabilityNodes(nodes),
+      },
+    ],
+  };
+};
 
 export const buildCategoryShareOption = (
   shares: ChartCategoryShare[],
   labels: ChartOptionLabels['categoryShare'],
   chartSize?: ChartSize,
 ): EChartsOption => {
+  const isEmpty = shares.length === 0;
   const activeSliceCount = shares.filter((share) => Number(share.value) > 0).length;
   const numberFormatter = new Intl.NumberFormat(labels.numberLocale);
   const shareValueByName = new Map(
@@ -770,10 +812,12 @@ export const buildCategoryShareOption = (
     aria: { enabled: true },
     color: ['#4f8df7', '#e4499a', '#0f766e', '#b45309'],
     tooltip: {
+      show: !isEmpty,
       trigger: 'item',
       formatter: formatPieTooltip,
     },
     legend: {
+      show: !isEmpty,
       top: 0,
       left: 'center',
       icon: 'circle',
@@ -802,67 +846,71 @@ export const buildCategoryShareOption = (
         },
       },
     },
-    graphic: {
-      type: 'text',
-      left: 'center',
-      top: '55%',
-      z: 10,
-      silent: true,
-      style: {
-        text: labels.centerLabel,
-        align: 'center',
-        fill: '#27323a',
-        fontSize: 20,
-        fontWeight: 600,
-      },
-    },
-    series: [
-      {
-        name: labels.seriesName,
-        type: 'pie',
-        radius: ['38%', '72%'],
-        center: ['50%', '58%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 1,
-          borderColor: '#ffffff',
-          borderWidth: activeSliceCount === 1 ? 0 : 2,
-        },
-        label: {
-          show: true,
-          position: 'inside',
-          formatter: ({ percent }: { percent?: number }) =>
-            Number(percent) >= 3 ? `${Math.round(Number(percent))}%` : '',
-          color: '#ffffff',
-          align: 'center',
-          fontSize: 14,
-          fontWeight: 400,
-        },
-        labelLayout: createCenteredPieLabelLayout(chartSize),
-        labelLine: {
-          show: false,
-        },
-        emphasis: {
-          scale: false,
-          focus: 'self',
-          itemStyle: {
-            opacity: 1,
-          },
-          label: {
-            show: true,
-          },
-          labelLine: {
-            show: false,
+    graphic: isEmpty
+      ? buildNoDataGraphic(labels.emptyLabel)
+      : {
+          type: 'text',
+          left: 'center',
+          top: '55%',
+          z: 10,
+          silent: true,
+          style: {
+            text: labels.centerLabel,
+            align: 'center',
+            fill: '#27323a',
+            fontSize: 20,
+            fontWeight: 600,
           },
         },
-        blur: {
-          itemStyle: {
-            opacity: 0.4,
+    series: isEmpty
+      ? []
+      : [
+          {
+            name: labels.seriesName,
+            type: 'pie',
+            radius: ['38%', '72%'],
+            center: ['50%', '58%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+              borderRadius: 1,
+              borderColor: '#ffffff',
+              borderWidth: activeSliceCount === 1 ? 0 : 2,
+            },
+            label: {
+              show: true,
+              position: 'inside',
+              formatter: ({ percent }: { percent?: number }) =>
+                Number(percent) >= 3 ? `${Math.round(Number(percent))}%` : '',
+              color: '#ffffff',
+              align: 'center',
+              fontSize: 14,
+              fontWeight: 400,
+            },
+            labelLayout: createCenteredPieLabelLayout(chartSize),
+            labelLine: {
+              show: false,
+            },
+            emphasis: {
+              scale: false,
+              focus: 'self',
+              itemStyle: {
+                opacity: 1,
+              },
+              label: {
+                show: true,
+              },
+              labelLine: {
+                show: false,
+              },
+            },
+            blur: {
+              itemStyle: {
+                opacity: 0.4,
+              },
+            },
+            data: shares,
           },
-        },
-        data: shares,
-      },
-    ],
+        ],
   };
 };
 

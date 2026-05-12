@@ -1,5 +1,7 @@
 import type {
   CapabilitySummary,
+  ChartCardScenarioId,
+  GlobalChartScenarioId,
   GenderBoxPlotGender,
   InfiniteRenderStatus,
   Locale,
@@ -29,6 +31,8 @@ export interface SankeyCopy {
   ariaLabel: string;
   legendLabel: string;
   fallbackDescription: string;
+  emptyTitle: string;
+  emptyDescription: string;
   previousYear: string;
   currentYear: string;
   unitLabel: string;
@@ -44,29 +48,33 @@ export interface SankeyCopy {
   };
 }
 
+interface ChartEmptyLabelCopy {
+  emptyLabel: string;
+}
+
 export interface ChartOptionLabels {
-  businessTrend: {
+  businessTrend: ChartEmptyLabelCopy & {
     revenueIndex: string;
     activeUsers: string;
     conversionRate: string;
     revenueAxis: string;
     conversionAxis: string;
   };
-  implementationTrend: {
+  implementationTrend: ChartEmptyLabelCopy & {
     previous: string;
     current: string;
     reviewScore: string;
     casesAxis: string;
     reviewAxis: string;
   };
-  qualityScatter: {
+  qualityScatter: ChartEmptyLabelCopy & {
     cycleTimeAxis: string;
     defectRateAxis: string;
     complexityHigh: string;
     complexityLow: string;
     seriesName: string;
   };
-  genderBoxPlot: {
+  genderBoxPlot: ChartEmptyLabelCopy & {
     valueAxis: string;
     seriesName: string;
     numberLocale: string;
@@ -80,11 +88,30 @@ export interface ChartOptionLabels {
       outlier: string;
     };
   };
-  categoryShare: {
+  categoryShare: ChartEmptyLabelCopy & {
     centerLabel: string;
     seriesName: string;
     numberLocale: string;
   };
+}
+
+export interface ChartScenarioCopy {
+  label: string;
+  cardLabel: string;
+  options: Record<
+    GlobalChartScenarioId,
+    {
+      label: string;
+      description: string;
+    }
+  >;
+  edgeCaseOptions: Record<
+    ChartCardScenarioId,
+    {
+      label: string;
+      description: string;
+    }
+  >;
 }
 
 export interface TimelineCopy {
@@ -245,6 +272,7 @@ export interface DashboardDictionary {
     };
   };
   chartOptions: ChartOptionLabels;
+  chartScenarios: ChartScenarioCopy;
   sankey: SankeyCopy;
   timeline: TimelineCopy;
   customGrid: CustomGridCopy;
@@ -420,6 +448,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
     },
     chartOptions: {
       businessTrend: {
+        emptyLabel: "표시할 차트 데이터가 없습니다.",
         revenueIndex: "매출 지수",
         activeUsers: "활성 사용자",
         conversionRate: "전환율",
@@ -427,6 +456,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         conversionAxis: "전환",
       },
       implementationTrend: {
+        emptyLabel: "표시할 차트 데이터가 없습니다.",
         previous: "이전",
         current: "현재",
         reviewScore: "리뷰 점수",
@@ -434,6 +464,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         reviewAxis: "리뷰",
       },
       qualityScatter: {
+        emptyLabel: "표시할 차트 데이터가 없습니다.",
         cycleTimeAxis: "처리 기간",
         defectRateAxis: "결함률",
         complexityHigh: "높은 복잡도",
@@ -441,6 +472,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         seriesName: "기능 품질",
       },
       genderBoxPlot: {
+        emptyLabel: "표시할 차트 데이터가 없습니다.",
         valueAxis: "지표값",
         seriesName: "성별 분포",
         numberLocale: "ko-KR",
@@ -458,9 +490,50 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         },
       },
       categoryShare: {
+        emptyLabel: "표시할 차트 데이터가 없습니다.",
         centerLabel: "예제",
         seriesName: "차트 아카이브",
         numberLocale: "ko-KR",
+      },
+    },
+    chartScenarios: {
+      label: "차트 시나리오",
+      cardLabel: "카드별 시나리오",
+      options: {
+        normal: {
+          label: "기본",
+          description: "새로고침할 때마다 더미 데이터가 자연스럽게 달라집니다.",
+        },
+        empty: {
+          label: "빈 데이터",
+          description: "모든 차트의 빈 상태를 한 번에 확인합니다.",
+        },
+      },
+      edgeCaseOptions: {
+        normal: {
+          label: "기본",
+          description: "기본 더미 데이터를 표시합니다.",
+        },
+        missingXAxis: {
+          label: "일부 월 누락",
+          description: "랜덤 월의 값을 비웁니다.",
+        },
+        zeroValues: {
+          label: "0값 포함",
+          description: "랜덤 항목을 0으로 표시합니다.",
+        },
+        singleSlice: {
+          label: "단일 파이 조각",
+          description: "파이 조각 하나만 표시합니다.",
+        },
+        smallSankeyValues: {
+          label: "작은 Sankey 값",
+          description: "작은 흐름값이 몰린 상태를 표시합니다.",
+        },
+        outlierHeavyBoxplot: {
+          label: "이상치 많은 박스플롯",
+          description: "이상치가 많은 분포를 표시합니다.",
+        },
       },
     },
     sankey: {
@@ -468,6 +541,9 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       legendLabel: "Sankey 범례",
       fallbackDescription:
         "2024년 A, C, D2 상태가 2025년 A, C, D2 상태로 이동한 비율을 흐름선으로 표시합니다.",
+      emptyTitle: "표시할 흐름 데이터가 없습니다.",
+      emptyDescription:
+        "선택한 시나리오에서는 Sankey 흐름과 상태 막대를 빈 상태로 표시합니다.",
       previousYear: "2024년",
       currentYear: "2025년",
       unitLabel: "(명)",
@@ -874,6 +950,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
     },
     chartOptions: {
       businessTrend: {
+        emptyLabel: "No chart data to display.",
         revenueIndex: "Revenue index",
         activeUsers: "Active users",
         conversionRate: "Conversion rate",
@@ -881,6 +958,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         conversionAxis: "Conversion",
       },
       implementationTrend: {
+        emptyLabel: "No chart data to display.",
         previous: "Previous",
         current: "Current",
         reviewScore: "Review score",
@@ -888,6 +966,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         reviewAxis: "Review",
       },
       qualityScatter: {
+        emptyLabel: "No chart data to display.",
         cycleTimeAxis: "Cycle time",
         defectRateAxis: "Defect rate",
         complexityHigh: "High complexity",
@@ -895,6 +974,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         seriesName: "Feature quality",
       },
       genderBoxPlot: {
+        emptyLabel: "No chart data to display.",
         valueAxis: "Value",
         seriesName: "Gender distribution",
         numberLocale: "en-US",
@@ -912,9 +992,50 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         },
       },
       categoryShare: {
+        emptyLabel: "No chart data to display.",
         centerLabel: "Example",
         seriesName: "Chart archive",
         numberLocale: "en-US",
+      },
+    },
+    chartScenarios: {
+      label: "Chart scenario",
+      cardLabel: "Card scenario",
+      options: {
+        normal: {
+          label: "Normal",
+          description: "Dummy data changes naturally when the charts refresh.",
+        },
+        empty: {
+          label: "Empty data",
+          description: "Check every chart empty state at once.",
+        },
+      },
+      edgeCaseOptions: {
+        normal: {
+          label: "Normal",
+          description: "Show the default dummy data.",
+        },
+        missingXAxis: {
+          label: "Missing x-axis values",
+          description: "Blank out a random x-axis point.",
+        },
+        zeroValues: {
+          label: "Zero values",
+          description: "Set a random item to zero.",
+        },
+        singleSlice: {
+          label: "Single pie slice",
+          description: "Show one active pie slice.",
+        },
+        smallSankeyValues: {
+          label: "Small Sankey values",
+          description: "Show clustered small flow values.",
+        },
+        outlierHeavyBoxplot: {
+          label: "Outlier-heavy boxplot",
+          description: "Show a heavier outlier distribution.",
+        },
       },
     },
     sankey: {
@@ -922,6 +1043,9 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       legendLabel: "Sankey legend",
       fallbackDescription:
         "A flow chart showing how 2024 A, C, and D2 statuses move into 2025 A, C, and D2 statuses.",
+      emptyTitle: "No flow data to display.",
+      emptyDescription:
+        "This scenario shows the custom Sankey component in its empty state.",
       previousYear: "2024",
       currentYear: "2025",
       unitLabel: "(people)",

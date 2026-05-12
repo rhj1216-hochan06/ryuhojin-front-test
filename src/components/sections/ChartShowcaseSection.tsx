@@ -1,8 +1,15 @@
-import { useState } from 'react';
-import type { DashboardPayload } from '../../types/dashboard';
+import { useState, type ChangeEvent } from 'react';
+import type {
+  ChartCardScenarioId,
+  ChartCardScenarioMap,
+  ChartShowcaseCardKey,
+  DashboardPayload,
+  GlobalChartScenarioId,
+} from '../../types/dashboard';
 import type {
   ChartCardCopy,
   ChartOptionLabels,
+  ChartScenarioCopy,
   SankeyCopy,
   SectionCopy,
 } from '../../i18n/dictionary';
@@ -26,6 +33,7 @@ import { Section } from '../ui/Section';
 interface ChartShowcaseSectionProps {
   section: SectionCopy;
   refreshLabel: string;
+  chartScenarios: ChartScenarioCopy;
   chartCards: {
     businessTrend: ChartCardCopy;
     implementationTrend: ChartCardCopy;
@@ -43,16 +51,41 @@ interface ChartShowcaseSectionProps {
   payload: DashboardPayload;
 }
 
+const globalChartScenarioIds: readonly GlobalChartScenarioId[] = ['normal', 'empty'];
+
+const chartCardScenarioIds: Record<
+  ChartShowcaseCardKey,
+  readonly ChartCardScenarioId[]
+> = {
+  businessTrend: ['normal', 'missingXAxis', 'zeroValues'],
+  implementationTrend: ['normal', 'missingXAxis', 'zeroValues'],
+  capabilityTreemap: ['normal'],
+  qualityScatter: ['normal'],
+  genderBoxPlot: ['normal', 'outlierHeavyBoxplot'],
+  categoryShare: ['normal', 'zeroValues', 'singleSlice'],
+  sankey: ['normal', 'zeroValues', 'smallSankeyValues'],
+};
+
 export const ChartShowcaseSection = ({
   section,
   refreshLabel,
+  chartScenarios,
   chartCards,
   chartOptionLabels,
   sankeyCopy,
   payload,
 }: ChartShowcaseSectionProps) => {
   const [chartRefreshKey, setChartRefreshKey] = useState(0);
-  const chartData = useChartShowcaseData(payload, chartRefreshKey);
+  const [globalChartScenario, setGlobalChartScenario] =
+    useState<GlobalChartScenarioId>('normal');
+  const [chartCardScenarios, setChartCardScenarios] =
+    useState<ChartCardScenarioMap>({});
+  const chartData = useChartShowcaseData(
+    payload,
+    chartRefreshKey,
+    globalChartScenario,
+    chartCardScenarios,
+  );
   const [businessTrendLegendSelection, setBusinessTrendLegendSelection] =
     useState<ChartLegendSelection>({});
   const [genderBoxPlotLegendSelection, setGenderBoxPlotLegendSelection] =
@@ -62,6 +95,47 @@ export const ChartShowcaseSection = ({
   );
   const [categoryShareSize, setCategoryShareSize] = useState<ChartSize>();
   const refreshCharts = () => setChartRefreshKey((current) => current + 1);
+  const selectedScenarioCopy = chartScenarios.options[globalChartScenario];
+  const handleGlobalScenarioChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setGlobalChartScenario(event.target.value as GlobalChartScenarioId);
+  };
+  const handleCardScenarioChange =
+    (cardKey: ChartShowcaseCardKey) =>
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const nextScenario = event.target.value as ChartCardScenarioId;
+
+      setChartCardScenarios((current) => ({
+        ...current,
+        [cardKey]: nextScenario,
+      }));
+    };
+  const renderCardScenarioControl = (cardKey: ChartShowcaseCardKey) => {
+    if (globalChartScenario !== 'normal') {
+      return null;
+    }
+
+    const scenarioIds = chartCardScenarioIds[cardKey];
+
+    if (scenarioIds.length <= 1) {
+      return null;
+    }
+
+    return (
+      <label className="chart-card-scenario-control">
+        <span>{chartScenarios.cardLabel}</span>
+        <select
+          value={chartCardScenarios[cardKey] ?? 'normal'}
+          onChange={handleCardScenarioChange(cardKey)}
+        >
+          {scenarioIds.map((scenarioId) => (
+            <option key={scenarioId} value={scenarioId}>
+              {chartScenarios.edgeCaseOptions[scenarioId].label}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  };
 
   return (
     <>
@@ -71,11 +145,27 @@ export const ChartShowcaseSection = ({
         eyebrow={section.eyebrow}
         title={section.title}
         description={section.description}
+        actions={
+          <div className="chart-scenario-control">
+            <label>
+              <span>{chartScenarios.label}</span>
+              <select value={globalChartScenario} onChange={handleGlobalScenarioChange}>
+                {globalChartScenarioIds.map((scenarioId) => (
+                  <option key={scenarioId} value={scenarioId}>
+                    {chartScenarios.options[scenarioId].label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p>{selectedScenarioCopy.description}</p>
+          </div>
+        }
       >
         <div className="grid grid--2 chart-grid">
           <Card
             title={chartCards.businessTrend.title}
             description={chartCards.businessTrend.description}
+            aside={renderCardScenarioControl('businessTrend')}
           >
             <EChart
               option={buildBusinessTrendOption(
@@ -91,6 +181,7 @@ export const ChartShowcaseSection = ({
           <Card
             title={chartCards.implementationTrend.title}
             description={chartCards.implementationTrend.description}
+            aside={renderCardScenarioControl('implementationTrend')}
           >
             <EChart
               option={buildImplementationTrendOption(
@@ -104,9 +195,13 @@ export const ChartShowcaseSection = ({
           <Card
             title={chartCards.capabilityTreemap.title}
             description={chartCards.capabilityTreemap.description}
+            aside={renderCardScenarioControl('capabilityTreemap')}
           >
             <EChart
-              option={buildCapabilityTreemapOption(chartData.capabilityTree)}
+              option={buildCapabilityTreemapOption(
+                chartData.capabilityTree,
+                chartOptionLabels.categoryShare.emptyLabel,
+              )}
               ariaLabel={chartCards.capabilityTreemap.ariaLabel}
               fallbackDescription={chartCards.capabilityTreemap.fallbackDescription}
             />
@@ -114,6 +209,7 @@ export const ChartShowcaseSection = ({
           <Card
             title={chartCards.qualityScatter.title}
             description={chartCards.qualityScatter.description}
+            aside={renderCardScenarioControl('qualityScatter')}
           >
             <EChart
               option={buildQualityScatterOption(
@@ -127,6 +223,7 @@ export const ChartShowcaseSection = ({
           <Card
             title={chartCards.genderBoxPlot.title}
             description={chartCards.genderBoxPlot.description}
+            aside={renderCardScenarioControl('genderBoxPlot')}
           >
             <EChart
               option={buildGenderBoxPlotOption(
@@ -147,6 +244,7 @@ export const ChartShowcaseSection = ({
           <Card
             title={chartCards.categoryShare.title}
             description={chartCards.categoryShare.description}
+            aside={renderCardScenarioControl('categoryShare')}
           >
             <EChart
               option={buildCategoryShareOption(
@@ -163,6 +261,7 @@ export const ChartShowcaseSection = ({
             className="chart-card--wide"
             title={chartCards.sankey.title}
             description={chartCards.sankey.description}
+            aside={renderCardScenarioControl('sankey')}
           >
             <FlowSankeyChart workflow={chartData.workflow} copy={sankeyCopy} />
           </Card>
