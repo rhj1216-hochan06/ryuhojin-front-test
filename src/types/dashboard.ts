@@ -1,5 +1,11 @@
 export type Locale = 'ko' | 'en';
-export type AppRoutePath = '/' | '/charts' | '/data-grid' | '/timeline' | '/works';
+export type AppRoutePath =
+  | '/'
+  | '/charts'
+  | '/data-grid'
+  | '/timeline'
+  | '/api-playground'
+  | '/works';
 
 export interface NavigationItem {
   id: string;
@@ -235,3 +241,11 @@ export interface PaginatedResponse<TData> {
   total: number;
   hasNextPage: boolean;
 }
+
+export type ApiRequestPhase =
+  | 'idle'
+  | 'loading'
+  | 'success'
+  | 'empty'
+  | 'error'
+  | 'canceled';

@@ -662,6 +662,10 @@ main {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.grid--5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .grid--3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -1989,6 +1993,374 @@ main {
   animation: infinite-table-spin 0.8s linear infinite;
 }
 
+.api-live-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.api-live-badges span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid #dbeafe;
+  border-radius: var(--radius);
+  background: #f7fbff;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.api-playground {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.38fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.api-playground--public-only {
+  grid-template-columns: 1fr;
+}
+
+.api-playground__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.api-playground__controls button {
+  min-height: 38px;
+  border: 1px solid var(--blue);
+  border-radius: var(--radius);
+  background: var(--blue);
+  color: #ffffff;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.api-playground__controls button:nth-child(2) {
+  background: #ffffff;
+  color: var(--blue);
+}
+
+.api-playground__controls button:nth-child(3) {
+  border-color: #fecdd3;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.api-playground__controls button:hover,
+.api-playground__controls button:focus-visible {
+  filter: brightness(0.97);
+}
+
+.api-playground__controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.api-playground__notice {
+  display: grid;
+  gap: 5px;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: var(--radius);
+  background: #f7fbff;
+}
+
+.api-playground__notice strong {
+  color: #1d4ed8;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.api-playground__notice span {
+  color: #4e5968;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.api-playground__notice--warning {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.api-playground__notice--warning strong {
+  color: #92400e;
+}
+
+.api-playground__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 0;
+}
+
+.api-playground__meta div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcfd;
+}
+
+.api-playground__meta dt {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.api-playground__meta dd {
+  margin: 5px 0 0;
+  color: #27323a;
+  font-size: 0.86rem;
+  font-weight: 900;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.api-playground__phase {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 6px 9px;
+  border-radius: var(--radius);
+  font-size: 0.76rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.api-playground__phase--idle {
+  background: #f2f4f6;
+  color: #596571;
+}
+
+.api-playground__phase--loading {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.api-playground__phase--success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.api-playground__phase--empty,
+.api-playground__phase--canceled {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.api-playground__phase--error {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
+.api-playground__response {
+  display: grid;
+  gap: 14px;
+}
+
+.api-playground__state {
+  display: grid;
+  min-height: 210px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius);
+  background: #f8fafc;
+  padding: 24px;
+  text-align: center;
+}
+
+.api-playground__state strong {
+  color: #27323a;
+  font-size: 0.96rem;
+}
+
+.api-playground__state p,
+.api-playground__state small {
+  max-width: 420px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.api-playground__state--error {
+  border-color: #fecdd3;
+  background: #fff7f7;
+}
+
+.api-playground__state--error strong {
+  color: #be123c;
+}
+
+.api-playground__state--loading {
+  border-color: #bfdbfe;
+  background: #f7fbff;
+}
+
+.api-playground__spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #dbeafe;
+  border-top-color: var(--blue);
+  border-radius: 999px;
+  animation: infinite-table-spin 0.8s linear infinite;
+}
+
+.api-playground__summary,
+.api-playground__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.api-playground__footer p {
+  margin: 0;
+}
+
+.api-playground__sentinel {
+  width: 100%;
+  height: 1px;
+}
+
+.api-playground__public-form {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.api-playground__public-form label {
+  display: grid;
+  gap: 6px;
+  color: #41515d;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.api-playground__public-form input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: #27323a;
+  padding: 7px 10px;
+}
+
+.api-playground__public-meta {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 14px;
+}
+
+.tourism-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tourism-result-card {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+}
+
+.tourism-result-card__image {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  place-items: center;
+  overflow: hidden;
+  background: #f2f4f6;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.tourism-result-card__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tourism-result-card__body {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.tourism-result-card__body strong {
+  display: block;
+  color: #191f28;
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.tourism-result-card__body p {
+  margin: 6px 0 0;
+  color: #4e5968;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.tourism-result-card__body dl {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+}
+
+.tourism-result-card__body dl div {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.tourism-result-card__body dt {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.tourism-result-card__body dd {
+  margin: 0;
+  color: #27323a;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.tourism-result-card__source {
+  justify-self: start;
+  padding: 5px 8px;
+  border-radius: var(--radius);
+  background: #eef6f5;
+  color: var(--teal);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
 @keyframes infinite-table-spin {
   to {
     transform: rotate(360deg);
@@ -1996,7 +2368,8 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .infinite-table__spinner {
+  .infinite-table__spinner,
+  .api-playground__spinner {
     animation: none;
   }
 }
@@ -2055,8 +2428,13 @@ main {
   .grid--2,
   .grid--3,
   .grid--4,
+  .grid--5,
   .capability-list,
-  .custom-grid__toolbar {
+  .custom-grid__toolbar,
+  .api-playground,
+  .api-playground__public-form,
+  .api-playground__public-meta,
+  .tourism-result-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2093,10 +2471,11 @@ main {
   .section__actions,
   .chart-scenario-control,
   .chart-scenario-control label,
-  .chart-scenario-control p {
+  .chart-scenario-control p,
+  .api-live-badges {
     width: 100%;
     max-width: none;
-    justify-items: stretch;
+    justify-content: flex-start;
     text-align: left;
     white-space: normal;
   }
@@ -2207,7 +2586,8 @@ main {
   }
 
   .profile-hero__preview-body,
-  .profile-hero__stats {
+  .profile-hero__stats,
+  .api-playground__meta {
     grid-template-columns: 1fr;
   }
 
