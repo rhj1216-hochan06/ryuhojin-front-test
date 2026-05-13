@@ -87,21 +87,25 @@ const buildRandomizedChartData = (payload: DashboardPayload): ChartShowcaseData 
 
 const buildOutlierHeavyBoxPlot = (
   metrics: GenderBoxPlotMetric[],
-): GenderBoxPlotMetric[] =>
-  metrics.map((metric) => {
-    const sortedValues = [...metric.values].sort((first, second) => first - second);
-    const lowBase = sortedValues[0] ?? 0;
-    const highBase = sortedValues[sortedValues.length - 1] ?? 100;
-    const lowOutlierCount = getRandomNumber(1, 2);
-    const highOutlierCount = getRandomNumber(1, 3);
+): GenderBoxPlotMetric[] => {
+  const denseOutlierMetricIndex = getRandomIndex(metrics.length);
+
+  return metrics.map((metric, metricIndex) => {
+    const averageValue =
+      metric.values.reduce((total, value) => total + value, 0) / metric.values.length;
+    const centerValue = Math.round(averageValue || 60);
+    const outlierCount =
+      metricIndex === denseOutlierMetricIndex ? getRandomNumber(10, 19) : getRandomNumber(5, 9);
+    const lowOutlierCount = Math.floor(outlierCount / 2);
+    const highOutlierCount = outlierCount - lowOutlierCount;
+    const centeredValues = Array.from({ length: 44 }, (_, index) =>
+      Math.round(clamp(withRandomOffset(centerValue + (index % 7) - 3, 6), 28, 112)),
+    );
     const lowOutliers = Array.from({ length: lowOutlierCount }, () =>
-      Math.max(0, getRandomNumber(lowBase - 34, lowBase - 10)),
+      Math.max(0, getRandomNumber(centerValue - 58, centerValue - 34)),
     );
     const highOutliers = Array.from({ length: highOutlierCount }, () =>
-      getRandomNumber(highBase + 14, highBase + 46),
-    );
-    const centeredValues = metric.values.map((value) =>
-      Math.round(clamp(withRandomOffset(value, 5), 0, 160)),
+      Math.min(160, getRandomNumber(centerValue + 34, centerValue + 58)),
     );
 
     return {
@@ -109,6 +113,7 @@ const buildOutlierHeavyBoxPlot = (
       values: [...lowOutliers, ...centeredValues, ...highOutliers],
     };
   });
+};
 
 const buildEmptyWorkflow = (): WorkflowSankeyData => ({
   nodes: [],

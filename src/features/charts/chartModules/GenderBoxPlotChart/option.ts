@@ -104,20 +104,29 @@ const formatGenderBoxPlotTooltip = (
 ) => {
   const label = `${metric.group} - ${labels.genderLabels[metric.gender]}`;
   const markerColor = genderBoxPlotColors[metric.gender];
+  const outlierLines = metric.outliers
+    .map((outlier) => formatter.format(outlier))
+    .reduce<string[]>((lines, outlier, index) => {
+      const lineIndex = Math.floor(index / 5);
+      lines[lineIndex] = lines[lineIndex]
+        ? `${lines[lineIndex]}, ${outlier}`
+        : outlier;
+
+      return lines;
+    }, []);
+  const longestOutlierLineLength = Math.max(
+    ...outlierLines.map((line) => line.length),
+    1,
+  );
+  const outlierLineWidth = Math.min(longestOutlierLineLength, 16);
   const outlierLabel =
     metric.outliers.length > 0
-      ? metric.outliers
-          .map((outlier) => formatter.format(outlier))
-          .reduce<string[]>((lines, outlier, index) => {
-            const lineIndex = Math.floor(index / 5);
-            const linePrefix = lineIndex > 0 && !lines[lineIndex] ? ', ' : '';
-            lines[lineIndex] = lines[lineIndex]
-              ? `${lines[lineIndex]}, ${outlier}`
-              : `${linePrefix}${outlier}`;
-
-            return lines;
-          }, [])
-          .join('<br />')
+      ? outlierLines
+          .map(
+            (line) =>
+              `<span style="display:block;width:${outlierLineWidth}ch;text-align:right;white-space:normal;">${line}</span>`,
+          )
+          .join('')
       : '-';
   const rows = [
     [labels.statsLabels.max, formatter.format(metric.max)],
@@ -125,21 +134,24 @@ const formatGenderBoxPlotTooltip = (
     [labels.statsLabels.median, formatter.format(metric.median)],
     [labels.statsLabels.q1, formatter.format(metric.q1)],
     [labels.statsLabels.min, formatter.format(metric.min)],
-    [labels.statsLabels.outlier, outlierLabel],
   ];
 
   return `
-    <div style="min-width:168px;padding:10px 12px;border:1px solid #e4eaf0;border-radius:6px;background:#ffffff;color:#27323a;box-shadow:0 8px 22px rgba(15,23,42,0.12);font-size:12px;line-height:1.55;">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-weight:800;">
+    <div style="min-width:156px;padding:10px 12px;border-radius:6px;background:#2f2f2f;color:#ffffff;box-shadow:0 10px 26px rgba(15,23,42,0.18);font-size:11px;line-height:1.45;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:9px;font-weight:800;">
         <span style="width:7px;height:7px;border-radius:50%;background:${markerColor};display:inline-block;"></span>
         <span>${label}</span>
       </div>
       ${rows
         .map(
           ([name, value]) =>
-            `<div style="display:grid;grid-template-columns:auto minmax(62px,1fr);gap:16px;font-weight:700;"><span>${name}</span><span style="text-align:right;">${value}</span></div>`,
+            `<div style="display:grid;grid-template-columns:auto minmax(60px,1fr);gap:12px;font-weight:800;"><span>${name}</span><span style="text-align:right;">${value}</span></div>`,
         )
         .join('')}
+      <div style="display:grid;grid-template-columns:auto minmax(72px,1fr);gap:12px;align-items:center;margin-top:6px;font-weight:800;">
+        <span>${labels.statsLabels.outlier}</span>
+        <span style="display:grid;justify-content:end;gap:1px;color:#ffffff;font-weight:800;line-height:1.45;">${outlierLabel}</span>
+      </div>
     </div>
   `;
 };
