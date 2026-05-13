@@ -3,8 +3,8 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "start": "sh -c 'if [ -f .env.dev ]; then set -a; . ./.env.dev; set +a; fi; react-scripts start'",
-    "build": "sh -c 'if [ -f .env.dev ]; then set -a; . ./.env.dev; set +a; fi; react-scripts build'",
+    "start": "node scripts/run-react-scripts-with-env.js start",
+    "build": "node scripts/run-react-scripts-with-env.js build",
     "test": "react-scripts test",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit"
