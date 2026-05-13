@@ -217,18 +217,28 @@ const formatGenderBoxPlotTooltip = (
 ) => {
   const label = `${metric.group} - ${labels.genderLabels[metric.gender]}`;
   const markerColor = genderBoxPlotColors[metric.gender];
+  const outlierLabel =
+    metric.outliers.length > 0
+      ? metric.outliers
+          .map((outlier) => formatter.format(outlier))
+          .reduce<string[]>((lines, outlier, index) => {
+            const lineIndex = Math.floor(index / 5);
+            const linePrefix = lineIndex > 0 && !lines[lineIndex] ? ', ' : '';
+            lines[lineIndex] = lines[lineIndex]
+              ? `${lines[lineIndex]}, ${outlier}`
+              : `${linePrefix}${outlier}`;
+
+            return lines;
+          }, [])
+          .join('<br />')
+      : '-';
   const rows = [
     [labels.statsLabels.max, formatter.format(metric.max)],
     [labels.statsLabels.q3, formatter.format(metric.q3)],
     [labels.statsLabels.median, formatter.format(metric.median)],
     [labels.statsLabels.q1, formatter.format(metric.q1)],
     [labels.statsLabels.min, formatter.format(metric.min)],
-    [
-      labels.statsLabels.outlier,
-      metric.outliers.length > 0
-        ? metric.outliers.map((outlier) => formatter.format(outlier)).join(', ')
-        : '-',
-    ],
+    [labels.statsLabels.outlier, outlierLabel],
   ];
 
   return `

@@ -540,12 +540,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       ariaLabel: "전년 대비 판정현황 sankey chart",
       legendLabel: "Sankey 범례",
       fallbackDescription:
-        "2024년 A, C, D2 상태가 2025년 A, C, D2 상태로 이동한 비율을 흐름선으로 표시합니다.",
+        "2025년 A, C, D2 상태가 2026년 A, C, D2 상태로 이동한 비율을 흐름선으로 표시합니다.",
       emptyTitle: "표시할 흐름 데이터가 없습니다.",
       emptyDescription:
         "선택한 시나리오에서는 Sankey 흐름과 상태 막대를 빈 상태로 표시합니다.",
-      previousYear: "2024년",
-      currentYear: "2025년",
+      previousYear: "2025년",
+      currentYear: "2026년",
       unitLabel: "(명)",
       tooltipUnitLabel: "명",
       numberLocale: "ko-KR",
@@ -1042,12 +1042,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       ariaLabel: "Year over year status transition sankey chart",
       legendLabel: "Sankey legend",
       fallbackDescription:
-        "A flow chart showing how 2024 A, C, and D2 statuses move into 2025 A, C, and D2 statuses.",
+        "A flow chart showing how 2025 A, C, and D2 statuses move into 2026 A, C, and D2 statuses.",
       emptyTitle: "No flow data to display.",
       emptyDescription:
         "This scenario shows the custom Sankey component in its empty state.",
-      previousYear: "2024",
-      currentYear: "2025",
+      previousYear: "2025",
+      currentYear: "2026",
       unitLabel: "(people)",
       tooltipUnitLabel: " people",
       numberLocale: "en-US",
