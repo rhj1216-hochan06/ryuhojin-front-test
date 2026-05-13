@@ -1,0 +1,1 @@
+export { GenderBoxPlotChart } from './GenderBoxPlotChart';

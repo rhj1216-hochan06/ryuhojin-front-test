@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
-import type { SankeyLink, WorkflowSankeyData } from '../../types/dashboard';
-import type { SankeyCopy } from '../../i18n/dictionary';
-import {
-  buildWorkflowSankeyOption,
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import type { SankeyCopy } from '../../../../i18n/dictionary';
+import type { SankeyLink, WorkflowSankeyData } from '../../../../types/dashboard';
+import { EChart } from '../../EChart';
+import generateOption, {
   getWorkflowLinkColor,
   judgmentFlowColors,
   workflowSourceOrder,
   workflowTargetOrder,
-} from './chartOptions';
-import { EChart } from './EChart';
+} from './option';
 
 interface FlowSankeyChartProps {
   workflow: WorkflowSankeyData;
@@ -221,6 +220,10 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
   }));
   const hasVisibleWorkflow =
     workflow.nodes.length > 0 && workflow.links.some((link) => link.value > 0);
+  const option = useMemo(
+    () => generateOption(workflow, copy.nodeLabels, copy.tooltipUnitLabel),
+    [copy.nodeLabels, copy.tooltipUnitLabel, workflow],
+  );
 
   useEffect(() => {
     if (!rootRef.current) {
@@ -292,11 +295,7 @@ export const FlowSankeyChart = ({ workflow, copy }: FlowSankeyChartProps) => {
         </div>
         <div className="flow-sankey__center">
           <EChart
-            option={buildWorkflowSankeyOption(
-              workflow,
-              copy.nodeLabels,
-              copy.tooltipUnitLabel,
-            )}
+            option={option}
             ariaLabel={copy.ariaLabel}
             fallbackDescription={copy.fallbackDescription}
             height={214}

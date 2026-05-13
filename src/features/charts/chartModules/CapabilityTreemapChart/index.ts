@@ -1,0 +1,1 @@
+export { CapabilityTreemapChart } from './CapabilityTreemapChart';

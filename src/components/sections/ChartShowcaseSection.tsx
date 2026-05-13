@@ -13,18 +13,13 @@ import type {
   SankeyCopy,
   SectionCopy,
 } from '../../i18n/dictionary';
-import {
-  buildCapabilityTreemapOption,
-  buildCategoryShareOption,
-  buildBusinessTrendOption,
-  buildGenderBoxPlotOption,
-  buildImplementationTrendOption,
-  buildQualityScatterOption,
-  getGenderBoxPlotFocusKey,
-  type ChartLegendSelection,
-} from '../../features/charts/chartOptions';
-import { EChart, type ChartSize } from '../../features/charts/EChart';
-import { FlowSankeyChart } from '../../features/charts/FlowSankeyChart';
+import { BusinessTrendChart } from '../../features/charts/chartModules/BusinessTrendChart';
+import { CapabilityTreemapChart } from '../../features/charts/chartModules/CapabilityTreemapChart';
+import { CategoryShareChart } from '../../features/charts/chartModules/CategoryShareChart';
+import { FlowSankeyChart } from '../../features/charts/chartModules/FlowSankeyChart';
+import { GenderBoxPlotChart } from '../../features/charts/chartModules/GenderBoxPlotChart';
+import { ImplementationTrendChart } from '../../features/charts/chartModules/ImplementationTrendChart';
+import { QualityScatterChart } from '../../features/charts/chartModules/QualityScatterChart';
 import { useChartShowcaseData } from '../../features/charts/useChartShowcaseData';
 import { Card } from '../ui/Card';
 import { FloatingRefreshButton } from '../ui/FloatingRefreshButton';
@@ -86,14 +81,6 @@ export const ChartShowcaseSection = ({
     globalChartScenario,
     chartCardScenarios,
   );
-  const [businessTrendLegendSelection, setBusinessTrendLegendSelection] =
-    useState<ChartLegendSelection>({});
-  const [genderBoxPlotLegendSelection, setGenderBoxPlotLegendSelection] =
-    useState<ChartLegendSelection>({});
-  const [genderBoxPlotFocusKey, setGenderBoxPlotFocusKey] = useState<string | null>(
-    null,
-  );
-  const [categoryShareSize, setCategoryShareSize] = useState<ChartSize>();
   const refreshCharts = () => setChartRefreshKey((current) => current + 1);
   const selectedScenarioCopy = chartScenarios.options[globalChartScenario];
   const handleGlobalScenarioChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -167,15 +154,11 @@ export const ChartShowcaseSection = ({
             description={chartCards.businessTrend.description}
             aside={renderCardScenarioControl('businessTrend')}
           >
-            <EChart
-              option={buildBusinessTrendOption(
-                chartData.businessTrend,
-                chartOptionLabels.businessTrend,
-                businessTrendLegendSelection,
-              )}
-              ariaLabel={chartCards.businessTrend.ariaLabel}
-              fallbackDescription={chartCards.businessTrend.fallbackDescription}
-              onLegendSelectChanged={setBusinessTrendLegendSelection}
+            <BusinessTrendChart
+              metrics={chartData.businessTrend}
+              labels={chartOptionLabels.businessTrend}
+              copy={chartCards.businessTrend}
+              isEmpty={chartData.businessTrend.length === 0}
             />
           </Card>
           <Card
@@ -183,13 +166,11 @@ export const ChartShowcaseSection = ({
             description={chartCards.implementationTrend.description}
             aside={renderCardScenarioControl('implementationTrend')}
           >
-            <EChart
-              option={buildImplementationTrendOption(
-                chartData.implementationTrend,
-                chartOptionLabels.implementationTrend,
-              )}
-              ariaLabel={chartCards.implementationTrend.ariaLabel}
-              fallbackDescription={chartCards.implementationTrend.fallbackDescription}
+            <ImplementationTrendChart
+              metrics={chartData.implementationTrend}
+              labels={chartOptionLabels.implementationTrend}
+              copy={chartCards.implementationTrend}
+              isEmpty={chartData.implementationTrend.length === 0}
             />
           </Card>
           <Card
@@ -197,13 +178,11 @@ export const ChartShowcaseSection = ({
             description={chartCards.capabilityTreemap.description}
             aside={renderCardScenarioControl('capabilityTreemap')}
           >
-            <EChart
-              option={buildCapabilityTreemapOption(
-                chartData.capabilityTree,
-                chartOptionLabels.categoryShare.emptyLabel,
-              )}
-              ariaLabel={chartCards.capabilityTreemap.ariaLabel}
-              fallbackDescription={chartCards.capabilityTreemap.fallbackDescription}
+            <CapabilityTreemapChart
+              nodes={chartData.capabilityTree}
+              emptyLabel={chartOptionLabels.categoryShare.emptyLabel}
+              copy={chartCards.capabilityTreemap}
+              isEmpty={chartData.capabilityTree.length === 0}
             />
           </Card>
           <Card
@@ -211,13 +190,11 @@ export const ChartShowcaseSection = ({
             description={chartCards.qualityScatter.description}
             aside={renderCardScenarioControl('qualityScatter')}
           >
-            <EChart
-              option={buildQualityScatterOption(
-                chartData.qualityDistribution,
-                chartOptionLabels.qualityScatter,
-              )}
-              ariaLabel={chartCards.qualityScatter.ariaLabel}
-              fallbackDescription={chartCards.qualityScatter.fallbackDescription}
+            <QualityScatterChart
+              points={chartData.qualityDistribution}
+              labels={chartOptionLabels.qualityScatter}
+              copy={chartCards.qualityScatter}
+              isEmpty={chartData.qualityDistribution.length === 0}
             />
           </Card>
           <Card
@@ -225,20 +202,11 @@ export const ChartShowcaseSection = ({
             description={chartCards.genderBoxPlot.description}
             aside={renderCardScenarioControl('genderBoxPlot')}
           >
-            <EChart
-              option={buildGenderBoxPlotOption(
-                chartData.genderBoxPlot,
-                chartOptionLabels.genderBoxPlot,
-                genderBoxPlotLegendSelection,
-                genderBoxPlotFocusKey,
-              )}
-              ariaLabel={chartCards.genderBoxPlot.ariaLabel}
-              fallbackDescription={chartCards.genderBoxPlot.fallbackDescription}
-              onLegendSelectChanged={setGenderBoxPlotLegendSelection}
-              onMouseOver={(params) =>
-                setGenderBoxPlotFocusKey(getGenderBoxPlotFocusKey(params))
-              }
-              onMouseOut={() => setGenderBoxPlotFocusKey(null)}
+            <GenderBoxPlotChart
+              metrics={chartData.genderBoxPlot}
+              labels={chartOptionLabels.genderBoxPlot}
+              copy={chartCards.genderBoxPlot}
+              isEmpty={chartData.genderBoxPlot.length === 0}
             />
           </Card>
           <Card
@@ -246,15 +214,11 @@ export const ChartShowcaseSection = ({
             description={chartCards.categoryShare.description}
             aside={renderCardScenarioControl('categoryShare')}
           >
-            <EChart
-              option={buildCategoryShareOption(
-                chartData.categoryShare,
-                chartOptionLabels.categoryShare,
-                categoryShareSize,
-              )}
-              ariaLabel={chartCards.categoryShare.ariaLabel}
-              fallbackDescription={chartCards.categoryShare.fallbackDescription}
-              onSizeChange={setCategoryShareSize}
+            <CategoryShareChart
+              shares={chartData.categoryShare}
+              labels={chartOptionLabels.categoryShare}
+              copy={chartCards.categoryShare}
+              isEmpty={chartData.categoryShare.length === 0}
             />
           </Card>
           <Card
