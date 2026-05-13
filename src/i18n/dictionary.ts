@@ -1,4 +1,5 @@
 import type {
+  ApiRequestPhase,
   CapabilitySummary,
   ChartCardScenarioId,
   GlobalChartScenarioId,
@@ -220,6 +221,59 @@ export interface InfiniteTableCopy {
   statusLabels: Record<InfiniteRenderStatus, string>;
 }
 
+export interface PublicDataApiCopy {
+  sourceBadge: string;
+  endpointBadge: string;
+  contractBadge: string;
+  searchCard: {
+    title: string;
+    description: string;
+  };
+  responseCard: {
+    title: string;
+    description: string;
+  };
+  retryLabel: string;
+  cancelLabel: string;
+  loadMoreLabel: string;
+  loadingLabel: string;
+  loadingMoreLabel: string;
+  idleTitle: string;
+  idleDescription: string;
+  errorTitle: string;
+  canceledTitle: string;
+  canceledDescription: string;
+  endLabel: string;
+  phaseLabels: Record<ApiRequestPhase, string>;
+  metaLabels: {
+    requestId: string;
+    keyword: string;
+    page: string;
+    latency: string;
+    startedAt: string;
+    completedAt: string;
+  };
+  latencyUnit: string;
+  publicData: {
+    keywordLabel: string;
+    keywordPlaceholder: string;
+    searchLabel: string;
+    noticeTitle: string;
+    noticeDescription: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    missingKeyTitle: string;
+    missingKeyDescription: string;
+    imageFallback: string;
+    addressFallback: string;
+    contentTypeLabel: string;
+    regionLabel: string;
+    modifiedLabel: string;
+    totalLabel: (count: number, total: number) => string;
+    sourceLabel: string;
+  };
+}
+
 export interface PublishedWorksCopy {
   roleLabel: string;
   technologiesLabel: string;
@@ -276,6 +330,7 @@ export interface DashboardDictionary {
   sankey: SankeyCopy;
   timeline: TimelineCopy;
   customGrid: CustomGridCopy;
+  apiPlayground: PublicDataApiCopy;
   dataGridCard: {
     title: string;
     description: string;
@@ -285,6 +340,7 @@ export interface DashboardDictionary {
     charts: SectionCopy;
     dataGrid: SectionCopy;
     timeline: SectionCopy;
+    apiPlayground: SectionCopy;
     works: SectionCopy;
   };
   demoRoutes: SectionCopy & {
@@ -296,6 +352,7 @@ export interface DashboardDictionary {
     charts: SectionCopy;
     timeline: SectionCopy;
     table: SectionCopy;
+    apiPlayground: SectionCopy;
     publishedWorks: SectionCopy;
   };
   tableHeaders: TableHeaders;
@@ -650,6 +707,71 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         Low: "낮음",
       },
     },
+    apiPlayground: {
+      sourceBadge: "data.go.kr",
+      endpointBadge: "KorService2/searchKeyword2",
+      contractBadge: "JSON 응답 정규화",
+      searchCard: {
+        title: "관광 정보 검색 API 테스트",
+        description:
+          "검색어로 외부 API를 호출하고 응답을 화면용 카드 데이터로 변환합니다.",
+      },
+      responseCard: {
+        title: "API 응답 결과",
+        description:
+          "요청 상태, 응답 시간, 자동 페이지네이션 결과, 이미지 fallback을 함께 확인합니다.",
+      },
+      retryLabel: "재시도",
+      cancelLabel: "취소",
+      loadMoreLabel: "자동으로 다음 페이지 조회",
+      loadingLabel: "응답을 기다리는 중입니다.",
+      loadingMoreLabel: "다음 페이지를 불러오는 중입니다.",
+      idleTitle: "API 테스트 대기 중",
+      idleDescription: "검색어를 입력하면 관광 정보 검색 API를 호출합니다.",
+      errorTitle: "요청에 실패했습니다.",
+      canceledTitle: "요청이 취소되었습니다.",
+      canceledDescription:
+        "이전 요청은 화면 상태를 덮어쓰지 않도록 취소 처리했습니다.",
+      endLabel: "모든 검색 결과를 불러왔습니다.",
+      phaseLabels: {
+        idle: "대기",
+        loading: "로딩",
+        success: "성공",
+        empty: "빈 데이터",
+        error: "에러",
+        canceled: "취소됨",
+      },
+      metaLabels: {
+        requestId: "요청 ID",
+        keyword: "검색어",
+        page: "페이지",
+        latency: "응답 시간",
+        startedAt: "요청 시각",
+        completedAt: "응답 시각",
+      },
+      latencyUnit: "ms",
+      publicData: {
+        keywordLabel: "검색어",
+        keywordPlaceholder: "예: 서울, 부산, 시장, 한옥",
+        searchLabel: "관광정보 검색",
+        noticeTitle: "GitHub Pages 정적 배포 방식",
+        noticeDescription:
+          "인증키는 프론트 빌드에 포함될 수 있으므로 데모용 키만 사용하고, 실제 서비스에서는 serverless proxy로 숨기는 구조가 필요합니다.",
+        emptyTitle: "검색 결과가 없습니다.",
+        emptyDescription:
+          "다른 키워드로 다시 검색하거나 공공데이터 응답 상태를 확인하세요.",
+        missingKeyTitle: "공공데이터 인증키가 필요합니다.",
+        missingKeyDescription:
+          "로컬 또는 배포 환경에 REACT_APP_DATA_GO_KR_SERVICE_KEY를 설정해야 실제 API를 호출할 수 있습니다.",
+        imageFallback: "이미지 없음",
+        addressFallback: "주소 정보 없음",
+        contentTypeLabel: "콘텐츠 타입",
+        regionLabel: "지역 코드",
+        modifiedLabel: "수정일",
+        totalLabel: (count, total) => `${total}개 중 ${count}개 표시`,
+        sourceLabel: "data.go.kr",
+      },
+    },
     dataGridCard: {
       title: "커스텀 데이터 그리드",
       description:
@@ -679,6 +801,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         href: "#/timeline",
         path: "/timeline",
       },
+      {
+        id: "api-playground",
+        label: "API 테스트",
+        href: "#/api-playground",
+        path: "/api-playground",
+      },
       { id: "works", label: "배포 작업물", href: "#/works", path: "/works" },
     ],
     pages: {
@@ -699,6 +827,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: "일정 편집과 타임라인 흐름을 함께 보여줍니다",
         description:
           "왼쪽 편집 패널과 react-calendar-timeline 캔버스를 함께 배치해 이동, 리사이즈, 확대/축소 흐름을 확인합니다.",
+      },
+      apiPlayground: {
+        eyebrow: "API 테스트 페이지",
+        title: "실제 API 호출 흐름을 테스트합니다",
+        description:
+          "외부 API 호출, 취소, 재시도, 자동 페이지네이션, 응답 정규화 흐름을 한 페이지에서 확인합니다.",
       },
       works: {
         eyebrow: "배포 작업물 페이지",
@@ -744,6 +878,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: "커스텀 데이터 그리드",
         description:
           "계층형 데이터, 검색, 필터, 정렬, 선택, 편집 흐름을 포함한 포트폴리오형 더미 데이터 그리드를 보여줍니다.",
+      },
+      apiPlayground: {
+        eyebrow: "API 테스트",
+        title: "외부 API 연동 테스트",
+        description:
+          "첫 번째 테스트로 관광 정보 검색 API를 연결하고, 이후 CRUD 테스트를 같은 흐름에 추가할 수 있게 구성했습니다.",
       },
       publishedWorks: {
         eyebrow: "실제 결과물",
@@ -1152,6 +1292,71 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         Low: "Low",
       },
     },
+    apiPlayground: {
+      sourceBadge: "data.go.kr",
+      endpointBadge: "KorService2/searchKeyword2",
+      contractBadge: "Normalized JSON response",
+      searchCard: {
+        title: "Tourism Search API Test",
+        description:
+          "Calls an external search API and maps the response into UI-ready cards.",
+      },
+      responseCard: {
+        title: "API Response Result",
+        description:
+          "Shows request state, latency, automatic pagination, and image fallback from the response.",
+      },
+      retryLabel: "Retry",
+      cancelLabel: "Cancel",
+      loadMoreLabel: "Auto-load next page",
+      loadingLabel: "Waiting for the response.",
+      loadingMoreLabel: "Loading the next page.",
+      idleTitle: "Waiting for an API test",
+      idleDescription: "Enter a keyword to call the tourism search API.",
+      errorTitle: "Request failed.",
+      canceledTitle: "Request canceled.",
+      canceledDescription:
+        "The previous request was canceled so it cannot overwrite the screen state.",
+      endLabel: "All search results have been loaded.",
+      phaseLabels: {
+        idle: "Idle",
+        loading: "Loading",
+        success: "Success",
+        empty: "Empty",
+        error: "Error",
+        canceled: "Canceled",
+      },
+      metaLabels: {
+        requestId: "Request ID",
+        keyword: "Keyword",
+        page: "Page",
+        latency: "Latency",
+        startedAt: "Started",
+        completedAt: "Completed",
+      },
+      latencyUnit: "ms",
+      publicData: {
+        keywordLabel: "Keyword",
+        keywordPlaceholder: "e.g. Seoul, Busan, market, hanok",
+        searchLabel: "Search tourism data",
+        noticeTitle: "GitHub Pages static deployment",
+        noticeDescription:
+          "The service key can be included in the frontend bundle, so this demo uses a demo key. Production services should hide it behind a serverless proxy.",
+        emptyTitle: "No search results.",
+        emptyDescription:
+          "Try another keyword or check the public data API response state.",
+        missingKeyTitle: "Public data service key required.",
+        missingKeyDescription:
+          "Set REACT_APP_DATA_GO_KR_SERVICE_KEY locally or in the deployment environment to call the real API.",
+        imageFallback: "No image",
+        addressFallback: "No address",
+        contentTypeLabel: "Content type",
+        regionLabel: "Region code",
+        modifiedLabel: "Modified",
+        totalLabel: (count, total) => `${count} of ${total} rows shown`,
+        sourceLabel: "data.go.kr",
+      },
+    },
     dataGridCard: {
       title: "Custom Data Grid",
       description:
@@ -1181,6 +1386,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         href: "#/timeline",
         path: "/timeline",
       },
+      {
+        id: "api-playground",
+        label: "API Test",
+        href: "#/api-playground",
+        path: "/api-playground",
+      },
       { id: "works", label: "Works", href: "#/works", path: "/works" },
     ],
     pages: {
@@ -1201,6 +1412,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: "Show timeline editing and canvas interactions apart",
         description:
           "The editor panel and react-calendar-timeline canvas sit together so move, resize, and zoom flows are easy to verify.",
+      },
+      apiPlayground: {
+        eyebrow: "API Test Page",
+        title: "Test real API request flows",
+        description:
+          "Inspect external API calls, cancellation, retry, automatic pagination, and response normalization in one page.",
       },
       works: {
         eyebrow: "Published Works Page",
@@ -1246,6 +1463,12 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: "Custom Data Grid",
         description:
           "A dummy portfolio data grid shows nested rows, search, filters, sorting, selection, and edit-mode flows.",
+      },
+      apiPlayground: {
+        eyebrow: "API Test",
+        title: "External API Integration Test",
+        description:
+          "The first test connects tourism search, with room to add CRUD tests above it later.",
       },
       publishedWorks: {
         eyebrow: "Real Outcomes",

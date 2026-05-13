@@ -4,6 +4,7 @@ import { dictionary } from './i18n/dictionary';
 import { useDashboardData } from './hooks/useDashboardData';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import { useDashboardViewModel } from './hooks/useDashboardViewModel';
+import { ApiPlaygroundPage } from './pages/ApiPlaygroundPage';
 import { ChartsPage } from './pages/ChartsPage';
 import { DataGridPage } from './pages/DataGridPage';
 import { HomePage } from './pages/HomePage';
@@ -17,6 +18,7 @@ const routePaths: readonly AppRoutePath[] = [
   '/charts',
   '/data-grid',
   '/timeline',
+  '/api-playground',
   '/works',
 ];
 
@@ -83,6 +85,10 @@ const App = () => {
 
     if (routePath === '/timeline') {
       return <TimelinePage copy={t} payload={viewModel?.payload} />;
+    }
+
+    if (routePath === '/api-playground') {
+      return <ApiPlaygroundPage copy={t} />;
     }
 
     if (routePath === '/works') {
