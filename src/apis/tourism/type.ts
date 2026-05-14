@@ -22,6 +22,7 @@ export interface TourismPlace {
   lclsSystm3: string;
   mapX?: number;
   mapY?: number;
+  naverMapUrl?: string;
 }
 
 export interface TourismSearchParams {

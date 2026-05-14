@@ -74,7 +74,7 @@ export const Dialog = ({
           aria-label={closeLabel}
           onClick={onClose}
         >
-          x
+          <span aria-hidden="true">×</span>
         </button>
         {children}
       </div>

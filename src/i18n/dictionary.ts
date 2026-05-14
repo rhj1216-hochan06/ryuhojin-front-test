@@ -271,11 +271,17 @@ export interface PublicDataApiCopy {
     categoryLabel: string;
     classificationLabel: string;
     legalDistrictLabel: string;
+    legalRegionCodeLabel: string;
+    legalDistrictCodeLabel: string;
     modifiedLabel: string;
     detailEyebrow: string;
     addressDetailLabel: string;
     coordinatesLabel: string;
     coordinatesFallback: string;
+    mapLinkLabel: string;
+    mapLinkAriaLabel: (title: string) => string;
+    languageNoticeLabel: string;
+    languageNoticeTooltip: string;
     detailCloseLabel: string;
     totalLabel: (count: number, total: number) => string;
     sourceLabel: string;
@@ -778,11 +784,18 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         categoryLabel: "분류 코드",
         classificationLabel: "분류체계",
         legalDistrictLabel: "법정동 코드",
-        modifiedLabel: "수정일",
+        legalRegionCodeLabel: "법정동 시도",
+        legalDistrictCodeLabel: "시군구",
+        modifiedLabel: "최근 갱신",
         detailEyebrow: "선택한 관광 정보",
         addressDetailLabel: "주소",
         coordinatesLabel: "좌표",
         coordinatesFallback: "좌표 정보 없음",
+        mapLinkLabel: "네이버 지도에서 보기",
+        mapLinkAriaLabel: (title) => `${title} 위치를 네이버 지도에서 열기`,
+        languageNoticeLabel: "API 원문 안내",
+        languageNoticeTooltip:
+          "관광지명과 주소는 한국관광공사 API 응답 원문 기준으로 제공됩니다.",
         detailCloseLabel: "상세 닫기",
         totalLabel: (count, total) => `${total}개 중 ${count}개 표시`,
         sourceLabel: "한국관광공사 OpenAPI",
@@ -1371,11 +1384,18 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         categoryLabel: "Category code",
         classificationLabel: "Classification",
         legalDistrictLabel: "Legal district code",
-        modifiedLabel: "Modified",
+        legalRegionCodeLabel: "Legal region",
+        legalDistrictCodeLabel: "District",
+        modifiedLabel: "Last updated",
         detailEyebrow: "Selected tourism item",
         addressDetailLabel: "Address",
         coordinatesLabel: "Coordinates",
         coordinatesFallback: "No coordinates",
+        mapLinkLabel: "Open in Naver Map",
+        mapLinkAriaLabel: (title) => `Open ${title} in Naver Map`,
+        languageNoticeLabel: "Original API text",
+        languageNoticeTooltip:
+          "Place names and addresses come from the Korea Tourism OpenAPI response, so result text may remain in Korean while the interface is in English.",
         detailCloseLabel: "Close details",
         totalLabel: (count, total) => `${count} of ${total} rows shown`,
         sourceLabel: "Korea Tourism OpenAPI",

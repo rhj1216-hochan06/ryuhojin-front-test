@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { TourismPlace } from '../../apis/tourism/type';
 import type { PublicDataApiCopy, SectionCopy } from '../../i18n/dictionary';
 import { useTourismSearch } from '../../hooks/useTourismSearch';
 import { Card } from '../common/Card';
@@ -25,6 +26,57 @@ const formatDateTime = (value: string | undefined, locale: string) => {
     second: '2-digit',
   }).format(new Date(value));
 };
+
+const formatCodePath = (codes: string[]) =>
+  codes.filter((code) => code && code !== '-').join(' / ') || '-';
+
+const formatContentTypeSummary = (
+  place: TourismPlace,
+  copy: PublicDataApiCopy,
+) =>
+  `${copy.publicData.contentTypeCodeLabel} ${place.contentTypeId} / ${copy.publicData.multilingualCodeLabel} ${place.contentTypeMultilingualCode}`;
+
+const formatLegalDistrictSummary = (
+  place: TourismPlace,
+  copy: PublicDataApiCopy,
+) => {
+  const codes = [
+    {
+      label: copy.publicData.legalRegionCodeLabel,
+      value: place.legalRegionCode,
+    },
+    {
+      label: copy.publicData.legalDistrictCodeLabel,
+      value: place.legalDistrictCode,
+    },
+  ]
+    .filter(({ value }) => value !== '-')
+    .map(({ label, value }) => `${label} ${value}`);
+
+  return formatCodePath(codes);
+};
+
+const ApiLanguageNotice = ({
+  copy,
+  className,
+}: {
+  copy: PublicDataApiCopy;
+  className?: string;
+}) => (
+  <button
+    type="button"
+    className={['api-language-notice', className].filter(Boolean).join(' ')}
+    aria-label={`${copy.publicData.languageNoticeLabel}: ${copy.publicData.languageNoticeTooltip}`}
+  >
+    <span className="api-language-notice__icon" aria-hidden="true">
+      i
+    </span>
+    <span className="api-language-notice__tooltip" role="tooltip">
+      <strong>{copy.publicData.languageNoticeLabel}</strong>
+      <span>{copy.publicData.languageNoticeTooltip}</span>
+    </span>
+  </button>
+);
 
 export const ApiPlaygroundSection = ({
   section,
@@ -82,6 +134,9 @@ export const ApiPlaygroundSection = ({
 
   const shouldShowResults = items.length > 0;
   const isMissingKey = error?.code === 'MISSING_DATA_GO_KR_SERVICE_KEY';
+  const shouldShowApiLanguageNotice = dateTimeLocale
+    .toLowerCase()
+    .startsWith('en');
   const dialogPlace = items.find((item) => item.id === dialogPlaceId) ?? null;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -242,6 +297,9 @@ export const ApiPlaygroundSection = ({
               <>
                 <div className="api-playground__summary">
                   <span>{copy.publicData.totalLabel(items.length, total)}</span>
+                  {shouldShowApiLanguageNotice && (
+                    <ApiLanguageNotice copy={copy} />
+                  )}
                   {isLoadingMore && <span>{copy.loadingMoreLabel}</span>}
                 </div>
                 <div className="tourism-result-grid">
@@ -264,20 +322,9 @@ export const ApiPlaygroundSection = ({
                           <strong>{item.title}</strong>
                           <p>{item.address || copy.publicData.addressFallback}</p>
                         </div>
-                        <dl>
-                          <div>
-                            <dt>{copy.publicData.contentTypeLabel}</dt>
-                            <dd>{item.contentTypeName}</dd>
-                          </div>
-                          <div>
-                            <dt>{copy.publicData.regionLabel}</dt>
-                            <dd>{item.regionCode}</dd>
-                          </div>
-                          <div>
-                            <dt>{copy.publicData.modifiedLabel}</dt>
-                            <dd>{formatDateTime(item.modifiedAt, dateTimeLocale)}</dd>
-                          </div>
-                        </dl>
+                        <span className="tourism-result-card__type">
+                          {item.contentTypeName}
+                        </span>
                       </div>
                     </button>
                   ))}
@@ -317,15 +364,22 @@ export const ApiPlaygroundSection = ({
             <div className="tourism-result-detail">
               <div className="tourism-result-detail__header">
                 <div>
-                  <span>{copy.publicData.detailEyebrow}</span>
+                  <div className="tourism-result-detail__eyebrow-row">
+                    <span>{copy.publicData.detailEyebrow}</span>
+                    {shouldShowApiLanguageNotice && (
+                      <ApiLanguageNotice
+                        copy={copy}
+                        className="api-language-notice--dialog"
+                      />
+                    )}
+                  </div>
                   <strong id="tourism-result-dialog-title">
                     {dialogPlace.title}
                   </strong>
                 </div>
-                <span>{copy.publicData.sourceLabel}</span>
               </div>
               <dl>
-                <div>
+                <div className="tourism-result-detail__item--wide tourism-result-detail__item--primary">
                   <dt>{copy.publicData.addressDetailLabel}</dt>
                   <dd>
                     {[dialogPlace.address, dialogPlace.addressDetail]
@@ -333,65 +387,56 @@ export const ApiPlaygroundSection = ({
                       .join(' ') || copy.publicData.addressFallback}
                   </dd>
                 </div>
-                <div>
+                <div className="tourism-result-detail__item--wide">
                   <dt>{copy.publicData.contentTypeLabel}</dt>
-                  <dd>{dialogPlace.contentTypeName}</dd>
+                  <dd>
+                    {dialogPlace.contentTypeName}
+                    <small>{formatContentTypeSummary(dialogPlace, copy)}</small>
+                  </dd>
                 </div>
-                <div>
-                  <dt>{copy.publicData.contentTypeCodeLabel}</dt>
-                  <dd>{dialogPlace.contentTypeId}</dd>
-                </div>
-                <div>
-                  <dt>{copy.publicData.multilingualCodeLabel}</dt>
-                  <dd>{dialogPlace.contentTypeMultilingualCode}</dd>
-                </div>
-                <div>
+                <div className="tourism-result-detail__item--wide">
                   <dt>{copy.publicData.classificationLabel}</dt>
                   <dd>{dialogPlace.classificationPath}</dd>
                 </div>
                 <div>
-                  <dt>{copy.publicData.categoryLabel}</dt>
-                  <dd>
-                    {[
-                      dialogPlace.lclsSystm1,
-                      dialogPlace.lclsSystm2,
-                      dialogPlace.lclsSystm3,
-                    ]
-                      .filter((code) => code !== '-')
-                      .join(' / ') || dialogPlace.categoryCode}
-                  </dd>
-                </div>
-                <div>
                   <dt>{copy.publicData.legalDistrictLabel}</dt>
-                  <dd>
-                    {[
-                      dialogPlace.legalRegionCode,
-                      dialogPlace.legalDistrictCode,
-                    ]
-                      .filter((code) => code !== '-')
-                      .join(' / ') || '-'}
-                  </dd>
+                  <dd>{formatLegalDistrictSummary(dialogPlace, copy)}</dd>
                 </div>
-                <div>
-                  <dt>{copy.publicData.regionLabel}</dt>
-                  <dd>{dialogPlace.regionCode}</dd>
-                </div>
-                <div>
-                  <dt>{copy.publicData.modifiedLabel}</dt>
-                  <dd>
-                    {formatDateTime(dialogPlace.modifiedAt, dateTimeLocale)}
-                  </dd>
-                </div>
-                <div>
+
+                <div className="tourism-result-detail__item--map">
                   <dt>{copy.publicData.coordinatesLabel}</dt>
                   <dd>
                     {typeof dialogPlace.mapX === 'number' &&
-                    typeof dialogPlace.mapY === 'number'
-                      ? `${dialogPlace.mapY.toFixed(5)}, ${dialogPlace.mapX.toFixed(5)}`
-                      : copy.publicData.coordinatesFallback}
+                    typeof dialogPlace.mapY === 'number' &&
+                    dialogPlace.naverMapUrl ? (
+                      <>
+                        <a
+                          className="tourism-result-detail__map-link"
+                          href={dialogPlace.naverMapUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={copy.publicData.mapLinkAriaLabel(
+                            dialogPlace.title,
+                          )}
+                        >
+                          {`${dialogPlace.mapY.toFixed(5)}, ${dialogPlace.mapX.toFixed(5)}`}
+                        </a>
+                        <small>{copy.publicData.mapLinkLabel}</small>
+                      </>
+                    ) : (
+                      copy.publicData.coordinatesFallback
+                    )}
                   </dd>
                 </div>
               </dl>
+              <div className="tourism-result-detail__footer">
+                <span>{copy.publicData.sourceLabel}</span>
+                <span>
+                  {copy.publicData.modifiedLabel}
+                  {' '}
+                  {formatDateTime(dialogPlace.modifiedAt, dateTimeLocale)}
+                </span>
+              </div>
             </div>
           </>
         )}

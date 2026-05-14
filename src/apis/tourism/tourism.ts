@@ -67,6 +67,14 @@ const normalizeModifiedAt = (value: string | undefined) => {
     .toISOString();
 };
 
+const createNaverMapUrl = (mapX?: number, mapY?: number) => {
+  if (typeof mapX !== 'number' || typeof mapY !== 'number') {
+    return undefined;
+  }
+
+  return `https://map.naver.com/p/search/${encodeURIComponent(`${mapY},${mapX}`)}`;
+};
+
 const normalizeTourismPlace = (item: TourismApiItem): TourismPlace => {
   const classification = getTourismClassificationSystem({
     lclsSystm1: item.lclsSystm1,
@@ -76,6 +84,8 @@ const normalizeTourismPlace = (item: TourismApiItem): TourismPlace => {
   const contentType = getTourismContentTypeCode(
     item.contenttypeid ?? classification?.contentTypeId,
   );
+  const mapX = toNumber(item.mapx);
+  const mapY = toNumber(item.mapy);
 
   return {
     id: item.contentid ?? `${item.title ?? 'tourism'}-${item.modifiedtime ?? 'unknown'}`,
@@ -96,8 +106,9 @@ const normalizeTourismPlace = (item: TourismApiItem): TourismPlace => {
     lclsSystm1: item.lclsSystm1 ?? '-',
     lclsSystm2: item.lclsSystm2 ?? '-',
     lclsSystm3: item.lclsSystm3 ?? '-',
-    mapX: toNumber(item.mapx),
-    mapY: toNumber(item.mapy),
+    mapX,
+    mapY,
+    naverMapUrl: createNaverMapUrl(mapX, mapY),
   };
 };
 
