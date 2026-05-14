@@ -1,5 +1,5 @@
 import type { ProblemSummary } from '../../types/dashboard';
-import { Section } from '../ui/Section';
+import { Section } from '../common/Section';
 import type { SectionCopy } from '../../i18n/dictionary';
 
 interface OverviewSectionProps {

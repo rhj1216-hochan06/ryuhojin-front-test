@@ -1,7 +1,7 @@
 import { OverviewSection } from '../components/sections/OverviewSection';
 import { SkillSummarySection } from '../components/sections/SkillSummarySection';
-import { Card } from '../components/ui/Card';
-import { Section } from '../components/ui/Section';
+import { Card } from '../components/common/Card';
+import { Section } from '../components/common/Section';
 import type { DashboardDictionary } from '../i18n/dictionary';
 import type { Locale } from '../types/dashboard';
 

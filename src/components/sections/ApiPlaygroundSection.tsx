@@ -2,8 +2,9 @@ import type { FormEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicDataApiCopy, SectionCopy } from '../../i18n/dictionary';
 import { useTourismSearch } from '../../hooks/useTourismSearch';
-import { Card } from '../ui/Card';
-import { Section } from '../ui/Section';
+import { Card } from '../common/Card';
+import { Dialog } from '../common/Dialog';
+import { Section } from '../common/Section';
 
 interface ApiPlaygroundSectionProps {
   section: SectionCopy;
@@ -31,6 +32,7 @@ export const ApiPlaygroundSection = ({
   dateTimeLocale,
 }: ApiPlaygroundSectionProps) => {
   const [tourismKeyword, setTourismKeyword] = useState('서울');
+  const [dialogPlaceId, setDialogPlaceId] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const {
     items,
@@ -42,8 +44,6 @@ export const ApiPlaygroundSection = ({
     isLoading,
     isLoadingMore,
     runSearch,
-    retry,
-    cancelRequest,
     loadMore,
   } = useTourismSearch();
 
@@ -80,25 +80,34 @@ export const ApiPlaygroundSection = ({
     [copy, dateTimeLocale, meta, tourismKeyword],
   );
 
-  const isRetryAvailable = phase === 'error' || phase === 'canceled';
   const shouldShowResults = items.length > 0;
   const isMissingKey = error?.code === 'MISSING_DATA_GO_KR_SERVICE_KEY';
+  const dialogPlace = items.find((item) => item.id === dialogPlaceId) ?? null;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     runSearch(tourismKeyword);
   };
 
+  const closeDialog = () => {
+    setDialogPlaceId(null);
+  };
+
   useEffect(() => {
     const sentinelNode = sentinelRef.current;
 
-    if (!sentinelNode || !shouldShowResults || !hasNextPage) {
+    if (!sentinelNode || !shouldShowResults || !hasNextPage || dialogPlaceId) {
       return undefined;
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isLoading && !isLoadingMore) {
+        if (
+          entry.isIntersecting &&
+          !isLoading &&
+          !isLoadingMore &&
+          !dialogPlaceId
+        ) {
           loadMore();
         }
       },
@@ -113,7 +122,14 @@ export const ApiPlaygroundSection = ({
     return () => {
       observer.disconnect();
     };
-  }, [hasNextPage, isLoading, isLoadingMore, loadMore, shouldShowResults]);
+  }, [
+    dialogPlaceId,
+    hasNextPage,
+    isLoading,
+    isLoadingMore,
+    loadMore,
+    shouldShowResults,
+  ]);
 
   return (
     <Section
@@ -151,16 +167,6 @@ export const ApiPlaygroundSection = ({
                 disabled={isLoading || tourismKeyword.trim().length === 0}
               >
                 {copy.publicData.searchLabel}
-              </button>
-              <button
-                type="button"
-                onClick={retry}
-                disabled={isLoading || !isRetryAvailable}
-              >
-                {copy.retryLabel}
-              </button>
-              <button type="button" onClick={cancelRequest} disabled={!isLoading}>
-                {copy.cancelLabel}
               </button>
             </div>
           </form>
@@ -240,7 +246,12 @@ export const ApiPlaygroundSection = ({
                 </div>
                 <div className="tourism-result-grid">
                   {items.map((item) => (
-                    <article className="tourism-result-card" key={item.id}>
+                    <button
+                      type="button"
+                      className="tourism-result-card"
+                      key={item.id}
+                      onClick={() => setDialogPlaceId(item.id)}
+                    >
                       <div className="tourism-result-card__image">
                         {item.imageUrl ? (
                           <img src={item.imageUrl} alt="" loading="lazy" />
@@ -256,7 +267,7 @@ export const ApiPlaygroundSection = ({
                         <dl>
                           <div>
                             <dt>{copy.publicData.contentTypeLabel}</dt>
-                            <dd>{item.contentTypeId}</dd>
+                            <dd>{item.contentTypeName}</dd>
                           </div>
                           <div>
                             <dt>{copy.publicData.regionLabel}</dt>
@@ -267,11 +278,8 @@ export const ApiPlaygroundSection = ({
                             <dd>{formatDateTime(item.modifiedAt, dateTimeLocale)}</dd>
                           </div>
                         </dl>
-                        <span className="tourism-result-card__source">
-                          {copy.publicData.sourceLabel}
-                        </span>
                       </div>
-                    </article>
+                    </button>
                   ))}
                 </div>
                 <div className="api-playground__footer">
@@ -290,6 +298,79 @@ export const ApiPlaygroundSection = ({
           </div>
         </Card>
       </div>
+      <Dialog
+        open={Boolean(dialogPlace)}
+        titleId="tourism-result-dialog-title"
+        closeLabel={copy.publicData.detailCloseLabel}
+        onClose={closeDialog}
+        surfaceClassName="tourism-result-dialog__surface"
+      >
+        {dialogPlace && (
+          <>
+            <div className="tourism-result-dialog__media">
+              {dialogPlace.imageUrl ? (
+                <img src={dialogPlace.imageUrl} alt="" />
+              ) : (
+                <span>{copy.publicData.imageFallback}</span>
+              )}
+            </div>
+            <div className="tourism-result-detail">
+              <div className="tourism-result-detail__header">
+                <div>
+                  <span>{copy.publicData.detailEyebrow}</span>
+                  <strong id="tourism-result-dialog-title">
+                    {dialogPlace.title}
+                  </strong>
+                </div>
+                <span>{copy.publicData.sourceLabel}</span>
+              </div>
+              <dl>
+                <div>
+                  <dt>{copy.publicData.addressDetailLabel}</dt>
+                  <dd>
+                    {dialogPlace.address || copy.publicData.addressFallback}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.contentTypeLabel}</dt>
+                  <dd>{dialogPlace.contentTypeName}</dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.contentTypeCodeLabel}</dt>
+                  <dd>{dialogPlace.contentTypeId}</dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.multilingualCodeLabel}</dt>
+                  <dd>{dialogPlace.contentTypeMultilingualCode}</dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.regionLabel}</dt>
+                  <dd>{dialogPlace.regionCode}</dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.categoryLabel}</dt>
+                  <dd>{dialogPlace.categoryCode}</dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.modifiedLabel}</dt>
+                  <dd>
+                    {formatDateTime(dialogPlace.modifiedAt, dateTimeLocale)}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.coordinatesLabel}</dt>
+                  <dd>
+                    {typeof dialogPlace.mapX === 'number' &&
+                    typeof dialogPlace.mapY === 'number'
+                      ? `${dialogPlace.mapY.toFixed(5)}, ${dialogPlace.mapX.toFixed(5)}`
+                      : copy.publicData.coordinatesFallback}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </>
+        )}
+      </Dialog>
     </Section>
   );
 };

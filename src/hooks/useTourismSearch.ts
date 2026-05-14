@@ -1,18 +1,13 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import type { TourismPlace, TourismSearchMeta } from '../apis/tourism/type';
 import { normalizeApiRequestError } from '../utils/apiError';
 import type { ApiRequestError } from '../utils/apiError';
 import type { ApiRequestPhase } from '../types/dashboard';
-import {
-  tourismSearchQueryKey,
-  useTourismSearchQuery,
-} from '../query/apiTest/useTourismSearchQuery';
+import { useTourismSearchQuery } from '../query/apiTest/useTourismSearchQuery';
 
 interface TourismSearchState {
   keyword: string;
   searchVersion: number;
-  isCanceled: boolean;
 }
 
 interface UseTourismSearchResult {
@@ -27,20 +22,16 @@ interface UseTourismSearchResult {
   isLoading: boolean;
   isLoadingMore: boolean;
   runSearch: (keyword: string) => void;
-  retry: () => void;
-  cancelRequest: () => void;
   loadMore: () => void;
 }
 
 const INITIAL_PAGE = 0;
 
 export const useTourismSearch = (pageSize = 6): UseTourismSearchResult => {
-  const queryClient = useQueryClient();
   const requestSequenceRef = useRef(0);
   const [searchState, setSearchState] = useState<TourismSearchState>({
     keyword: '',
     searchVersion: 0,
-    isCanceled: false,
   });
 
   const searchQuery = useTourismSearchQuery({
@@ -73,10 +64,6 @@ export const useTourismSearch = (pageSize = 6): UseTourismSearchResult => {
     : null;
 
   const phase: ApiRequestPhase = (() => {
-    if (searchState.isCanceled) {
-      return 'canceled';
-    }
-
     if (searchQuery.isFetching && !searchQuery.isFetchingNextPage) {
       return 'loading';
     }
@@ -107,7 +94,6 @@ export const useTourismSearch = (pageSize = 6): UseTourismSearchResult => {
       setSearchState({
         keyword: '',
         searchVersion: 0,
-        isCanceled: false,
       });
       return;
     }
@@ -115,58 +101,16 @@ export const useTourismSearch = (pageSize = 6): UseTourismSearchResult => {
     setSearchState((current) => ({
       keyword: trimmedKeyword,
       searchVersion: current.searchVersion + 1,
-      isCanceled: false,
     }));
   }, []);
-
-  const retry = useCallback(() => {
-    setSearchState((current) => {
-      if (!current.keyword) {
-        return current;
-      }
-
-      return {
-        ...current,
-        searchVersion: current.searchVersion + 1,
-        isCanceled: false,
-      };
-    });
-  }, []);
-
-  const cancelRequest = useCallback(() => {
-    if (!searchState.keyword) {
-      return;
-    }
-
-    void queryClient.cancelQueries({
-      queryKey: tourismSearchQueryKey(
-        searchState.keyword,
-        pageSize,
-        searchState.searchVersion,
-      ),
-    });
-    setSearchState((current) => ({
-      ...current,
-      isCanceled: true,
-    }));
-  }, [
-    pageSize,
-    queryClient,
-    searchState.keyword,
-    searchState.searchVersion,
-  ]);
 
   const loadMore = useCallback(() => {
-    if (
-      searchQuery.isFetching ||
-      !searchQuery.hasNextPage ||
-      searchState.isCanceled
-    ) {
+    if (searchQuery.isFetching || !searchQuery.hasNextPage) {
       return;
     }
 
     void searchQuery.fetchNextPage();
-  }, [searchQuery, searchState.isCanceled]);
+  }, [searchQuery]);
 
   return {
     keyword: searchState.keyword,
@@ -180,8 +124,6 @@ export const useTourismSearch = (pageSize = 6): UseTourismSearchResult => {
     isLoading: searchQuery.isFetching,
     isLoadingMore: searchQuery.isFetchingNextPage,
     runSearch,
-    retry,
-    cancelRequest,
     loadMore,
   };
 };

@@ -2,8 +2,8 @@ import type { PortfolioGridRow } from '../../types/dashboard';
 import type { CustomGridCopy, InfiniteTableCopy, SectionCopy } from '../../i18n/dictionary';
 import { CustomDataGrid } from '../../features/dataGrid/CustomDataGrid';
 import { InfiniteRenderTable } from '../../features/dataGrid/InfiniteRenderTable';
-import { Card } from '../ui/Card';
-import { Section } from '../ui/Section';
+import { Card } from '../common/Card';
+import { Section } from '../common/Section';
 
 interface DataTableSectionProps {
   section: SectionCopy;

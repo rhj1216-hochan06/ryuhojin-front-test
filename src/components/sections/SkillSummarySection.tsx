@@ -1,7 +1,7 @@
 import type { CapabilitySummary } from '../../types/dashboard';
 import type { SectionCopy } from '../../i18n/dictionary';
-import { Card } from '../ui/Card';
-import { Section } from '../ui/Section';
+import { Card } from '../common/Card';
+import { Section } from '../common/Section';
 
 interface SkillSummarySectionProps {
   section: SectionCopy;

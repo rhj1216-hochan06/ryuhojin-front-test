@@ -6,6 +6,8 @@ export interface TourismPlace {
   address: string;
   imageUrl?: string;
   contentTypeId: string;
+  contentTypeName: string;
+  contentTypeMultilingualCode: string;
   modifiedAt: string;
   regionCode: string;
   categoryCode: string;

@@ -21,9 +21,9 @@ import { GenderBoxPlotChart } from '../../features/charts/chartModules/GenderBox
 import { ImplementationTrendChart } from '../../features/charts/chartModules/ImplementationTrendChart';
 import { QualityScatterChart } from '../../features/charts/chartModules/QualityScatterChart';
 import { useChartShowcaseData } from '../../features/charts/useChartShowcaseData';
-import { Card } from '../ui/Card';
-import { FloatingRefreshButton } from '../ui/FloatingRefreshButton';
-import { Section } from '../ui/Section';
+import { Card } from '../common/Card';
+import { FloatingRefreshButton } from '../common/FloatingRefreshButton';
+import { Section } from '../common/Section';
 
 interface ChartShowcaseSectionProps {
   section: SectionCopy;

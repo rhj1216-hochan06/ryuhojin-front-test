@@ -4,6 +4,12 @@ import {
   createApiRequestError,
   isApiRequestError,
 } from '../../utils/apiError';
+import {
+  tourismApiBase,
+  tourismApiDefaultRequestParams,
+  tourismApiOperations,
+} from '../../assests/data/tourismApiManual';
+import { getTourismContentTypeCode } from '../../assests/data/tourismContentTypeCodes';
 import type {
   TourismApiItem,
   TourismApiResponse,
@@ -12,8 +18,8 @@ import type {
   TourismSearchResponse,
 } from './type';
 
-const baseUrl = 'https://apis.data.go.kr/B551011/KorService2';
-const path = '/searchKeyword2';
+const baseUrl = tourismApiBase.baseUrl;
+const path = tourismApiOperations.searchKeyword2.path;
 const serviceKey = process.env.REACT_APP_DATA_GO_KR_SERVICE_KEY ?? '';
 
 const missingKeyError = createApiRequestError({
@@ -57,18 +63,24 @@ const normalizeModifiedAt = (value: string | undefined) => {
     .toISOString();
 };
 
-const normalizeTourismPlace = (item: TourismApiItem): TourismPlace => ({
-  id: item.contentid ?? `${item.title ?? 'tourism'}-${item.modifiedtime ?? 'unknown'}`,
-  title: item.title ?? 'Untitled tourism item',
-  address: item.addr1 ?? '',
-  imageUrl: item.firstimage || undefined,
-  contentTypeId: item.contenttypeid ?? '-',
-  modifiedAt: normalizeModifiedAt(item.modifiedtime),
-  regionCode: item.areacode ?? '-',
-  categoryCode: item.cat1 ?? '-',
-  mapX: toNumber(item.mapx),
-  mapY: toNumber(item.mapy),
-});
+const normalizeTourismPlace = (item: TourismApiItem): TourismPlace => {
+  const contentType = getTourismContentTypeCode(item.contenttypeid);
+
+  return {
+    id: item.contentid ?? `${item.title ?? 'tourism'}-${item.modifiedtime ?? 'unknown'}`,
+    title: item.title ?? 'Untitled tourism item',
+    address: item.addr1 ?? '',
+    imageUrl: item.firstimage || undefined,
+    contentTypeId: contentType.contentTypeId,
+    contentTypeName: contentType.name,
+    contentTypeMultilingualCode: contentType.multilingualCode,
+    modifiedAt: normalizeModifiedAt(item.modifiedtime),
+    regionCode: item.areacode ?? '-',
+    categoryCode: item.cat1 ?? '-',
+    mapX: toNumber(item.mapx),
+    mapY: toNumber(item.mapy),
+  };
+};
 
 /**
  * @description 한국관광공사 국문 관광정보 키워드 검색
@@ -98,10 +110,10 @@ export const getTourismKeywordSearch = async ({
       params: {
         numOfRows: pageSize,
         pageNo: page,
-        MobileOS: 'WEB',
-        MobileApp: 'Portfolio',
-        _type: 'json',
-        arrange: 'Q',
+        MobileOS: tourismApiDefaultRequestParams.MobileOS,
+        MobileApp: tourismApiDefaultRequestParams.MobileApp,
+        _type: tourismApiDefaultRequestParams._type,
+        arrange: tourismApiDefaultRequestParams.arrangeWithImage,
         keyword,
       },
     });

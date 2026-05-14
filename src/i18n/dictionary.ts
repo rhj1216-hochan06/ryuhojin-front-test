@@ -233,8 +233,6 @@ export interface PublicDataApiCopy {
     title: string;
     description: string;
   };
-  retryLabel: string;
-  cancelLabel: string;
   loadMoreLabel: string;
   loadingLabel: string;
   loadingMoreLabel: string;
@@ -267,8 +265,16 @@ export interface PublicDataApiCopy {
     imageFallback: string;
     addressFallback: string;
     contentTypeLabel: string;
+    contentTypeCodeLabel: string;
+    multilingualCodeLabel: string;
     regionLabel: string;
+    categoryLabel: string;
     modifiedLabel: string;
+    detailEyebrow: string;
+    addressDetailLabel: string;
+    coordinatesLabel: string;
+    coordinatesFallback: string;
+    detailCloseLabel: string;
     totalLabel: (count: number, total: number) => string;
     sourceLabel: string;
   };
@@ -708,21 +714,19 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       },
     },
     apiPlayground: {
-      sourceBadge: "data.go.kr",
+      sourceBadge: "공공데이터 검색",
       endpointBadge: "KorService2/searchKeyword2",
       contractBadge: "JSON 응답 정규화",
       searchCard: {
         title: "관광 정보 검색 API 테스트",
         description:
-          "검색어로 외부 API를 호출하고 응답을 화면용 카드 데이터로 변환합니다.",
+          "검색어로 관광 정보 검색 API를 호출하고 응답을 화면용 결과로 변환합니다.",
       },
       responseCard: {
         title: "API 응답 결과",
         description:
-          "요청 상태, 응답 시간, 자동 페이지네이션 결과, 이미지 fallback을 함께 확인합니다.",
+          "요청 상태, 응답 시간, 자동 페이지네이션, 선택한 결과의 상세 정보를 확인합니다.",
       },
-      retryLabel: "재시도",
-      cancelLabel: "취소",
       loadMoreLabel: "자동으로 다음 페이지 조회",
       loadingLabel: "응답을 기다리는 중입니다.",
       loadingMoreLabel: "다음 페이지를 불러오는 중입니다.",
@@ -766,10 +770,18 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         imageFallback: "이미지 없음",
         addressFallback: "주소 정보 없음",
         contentTypeLabel: "콘텐츠 타입",
+        contentTypeCodeLabel: "국문 코드",
+        multilingualCodeLabel: "다국어 코드",
         regionLabel: "지역 코드",
+        categoryLabel: "분류 코드",
         modifiedLabel: "수정일",
+        detailEyebrow: "선택한 관광 정보",
+        addressDetailLabel: "주소",
+        coordinatesLabel: "좌표",
+        coordinatesFallback: "좌표 정보 없음",
+        detailCloseLabel: "상세 닫기",
         totalLabel: (count, total) => `${total}개 중 ${count}개 표시`,
-        sourceLabel: "data.go.kr",
+        sourceLabel: "한국관광공사 OpenAPI",
       },
     },
     dataGridCard: {
@@ -832,7 +844,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: "API 테스트 페이지",
         title: "실제 API 호출 흐름을 테스트합니다",
         description:
-          "외부 API 호출, 취소, 재시도, 자동 페이지네이션, 응답 정규화 흐름을 한 페이지에서 확인합니다.",
+          "관광 정보 검색 API 호출, 자동 페이지네이션, 응답 정규화, 결과 상세 표시 흐름을 한 페이지에서 확인합니다.",
       },
       works: {
         eyebrow: "배포 작업물 페이지",
@@ -883,7 +895,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: "API 테스트",
         title: "외부 API 연동 테스트",
         description:
-          "첫 번째 테스트로 관광 정보 검색 API를 연결하고, 이후 CRUD 테스트를 같은 흐름에 추가할 수 있게 구성했습니다.",
+          "관광 정보 검색 API를 호출하고, 응답 정규화와 결과 상세 표시까지 이어지는 흐름을 보여줍니다.",
       },
       publishedWorks: {
         eyebrow: "실제 결과물",
@@ -1293,21 +1305,19 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       },
     },
     apiPlayground: {
-      sourceBadge: "data.go.kr",
+      sourceBadge: "Public data search",
       endpointBadge: "KorService2/searchKeyword2",
       contractBadge: "Normalized JSON response",
       searchCard: {
         title: "Tourism Search API Test",
         description:
-          "Calls an external search API and maps the response into UI-ready cards.",
+          "Calls the tourism search API and maps the response into UI-ready results.",
       },
       responseCard: {
         title: "API Response Result",
         description:
-          "Shows request state, latency, automatic pagination, and image fallback from the response.",
+          "Shows request state, latency, automatic pagination, and selected result details.",
       },
-      retryLabel: "Retry",
-      cancelLabel: "Cancel",
       loadMoreLabel: "Auto-load next page",
       loadingLabel: "Waiting for the response.",
       loadingMoreLabel: "Loading the next page.",
@@ -1351,10 +1361,18 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         imageFallback: "No image",
         addressFallback: "No address",
         contentTypeLabel: "Content type",
+        contentTypeCodeLabel: "Korean code",
+        multilingualCodeLabel: "Multilingual code",
         regionLabel: "Region code",
+        categoryLabel: "Category code",
         modifiedLabel: "Modified",
+        detailEyebrow: "Selected tourism item",
+        addressDetailLabel: "Address",
+        coordinatesLabel: "Coordinates",
+        coordinatesFallback: "No coordinates",
+        detailCloseLabel: "Close details",
         totalLabel: (count, total) => `${count} of ${total} rows shown`,
-        sourceLabel: "data.go.kr",
+        sourceLabel: "Korea Tourism OpenAPI",
       },
     },
     dataGridCard: {
@@ -1417,7 +1435,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: "API Test Page",
         title: "Test real API request flows",
         description:
-          "Inspect external API calls, cancellation, retry, automatic pagination, and response normalization in one page.",
+          "Inspect tourism search API calls, automatic pagination, response normalization, and result details in one page.",
       },
       works: {
         eyebrow: "Published Works Page",
@@ -1468,7 +1486,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         eyebrow: "API Test",
         title: "External API Integration Test",
         description:
-          "The first test connects tourism search, with room to add CRUD tests above it later.",
+          "Tourism search API results are normalized and shown with selectable detail data.",
       },
       publishedWorks: {
         eyebrow: "Real Outcomes",

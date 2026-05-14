@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { PublishedWorksCopy, SectionCopy } from '../../i18n/dictionary';
 import type { PublishedWork } from '../../types/dashboard';
-import { Card } from '../ui/Card';
-import { Section } from '../ui/Section';
+import { Card } from '../common/Card';
+import { Section } from '../common/Section';
 
 const slideshowIntervalMs = 3600;
 

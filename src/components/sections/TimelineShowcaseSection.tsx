@@ -1,7 +1,7 @@
 import type { RoadmapGroup, RoadmapItem } from '../../types/dashboard';
 import type { SectionCopy, TimelineCopy } from '../../i18n/dictionary';
 import { RoadmapTimeline } from '../../features/timeline/RoadmapTimeline';
-import { Section } from '../ui/Section';
+import { Section } from '../common/Section';
 
 interface TimelineShowcaseSectionProps {
   section: SectionCopy;
