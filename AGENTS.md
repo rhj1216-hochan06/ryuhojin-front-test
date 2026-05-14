@@ -17,6 +17,8 @@
 ## Folder Responsibilities
 
 - `src/components`: 재사용 가능한 UI 컴포넌트와 dashboard section 컴포넌트
+- `src/apis`: 외부 API별 호출 함수, 응답 정규화, 화면용 API 타입
+- `src/query`: React Query 공통 설정과 API별 query hook
 - `src/features/charts`: chart wrapper, option builder, chart-specific UI
 - `src/features/timeline`: react-calendar-timeline 예제와 스타일
 - `src/hooks`: mock API 호출, 데이터 가공, 화면 상태 훅
@@ -24,6 +26,8 @@
 - `src/mocks`: 실제 서버를 대체하는 dummy data와 mock API
 - `src/types`: 화면/도메인 데이터 타입
 - `src/styles`: 전역 스타일과 디자인 토큰
+- `src/utils`: axios 공통 설정과 API error normalization
+- `src/assests/data`: 관광 API 매뉴얼 기반 TS 메타데이터와 코드표 데이터
 
 ## Component Rules
 
@@ -37,6 +41,19 @@
 - `any` 사용을 피하고 도메인 타입을 `src/types`에 정의한다.
 - mock API 응답도 명확한 제네릭/응답 타입을 가진다.
 - 차트 option builder의 입력과 출력은 명확히 타입을 지정한다.
+
+## API Structure Rules
+
+- API 호출 함수는 `src/apis/<domain>`에 두고, React 컴포넌트에서 axios를 직접 호출하지 않는다.
+- 한국관광공사 관광 API는 `src/apis/tourism/tourism.ts`에서 호출과 정규화를 담당한다.
+- 검색 목록은 `KorService2/searchKeyword2`를 사용하고, 결과 카드 선택 시 `contentId`로 `KorService2/detailCommon2`를 추가 호출해 다이얼로그 상세 정보를 채운다.
+- `detailCommon2` 상세 응답의 `overview`, `homepage`, `tel`, `telname`, `zipcode`, `createdtime`, `firstimage2` 등은 API 계층에서 화면용 타입으로 정규화한다.
+- `homepage`는 HTML anchor 또는 일반 텍스트 URL이 섞여 올 수 있다. 여러 URL을 `label/url` 쌍으로 분리해 UI에서는 각각 클릭 가능한 링크로 렌더링한다.
+- 관광 API 매뉴얼 기반 endpoint, request parameter, response field 메타데이터는 `src/assests/data/tourismApiManual.ts`에 유지한다. docx 원문을 직접 파싱하는 로직을 화면 코드에 넣지 않는다.
+- 관광 API query hook은 `src/query/apiTest`에 두고, query key는 API 목적과 주요 파라미터를 포함한다.
+- React Query 공통 옵션은 `src/query/config.ts`의 `configDefaults`를 사용한다. 현재 기본값은 실패 자동 재시도 없음, window focus 재요청 없음, `staleTime` 5분, `gcTime` 10분이다.
+- API 에러는 `src/utils/apiError.ts`의 `normalizeApiRequestError`로 정규화한 뒤 UI에 전달한다.
+- 정적 배포에서는 `REACT_APP_DATA_GO_KR_SERVICE_KEY`가 프론트 번들에 포함될 수 있으므로 실제 서비스에서는 serverless proxy 등 서버 측 경유 구조를 사용한다.
 
 ## Chart Rules
 
