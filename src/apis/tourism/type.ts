@@ -1,16 +1,25 @@
 import type { ApiResponse, PaginatedResponse } from '../../types/dashboard';
+import type { TourismClassificationSystem } from '../../assests/data/tourismContentTypeCodes';
 
 export interface TourismPlace {
   id: string;
   title: string;
   address: string;
+  addressDetail: string;
   imageUrl?: string;
   contentTypeId: string;
   contentTypeName: string;
   contentTypeMultilingualCode: string;
   modifiedAt: string;
   regionCode: string;
+  legalRegionCode: string;
+  legalDistrictCode: string;
   categoryCode: string;
+  classification: TourismClassificationSystem | null;
+  classificationPath: string;
+  lclsSystm1: string;
+  lclsSystm2: string;
+  lclsSystm3: string;
   mapX?: number;
   mapY?: number;
 }
@@ -46,11 +55,19 @@ export interface TourismApiItem {
   contentid?: string;
   title?: string;
   addr1?: string;
+  addr2?: string;
   firstimage?: string;
   contenttypeid?: string;
   modifiedtime?: string;
   areacode?: string;
   cat1?: string;
+  cat2?: string;
+  cat3?: string;
+  lDongRegnCd?: string;
+  lDongSignguCd?: string;
+  lclsSystm1?: string;
+  lclsSystm2?: string;
+  lclsSystm3?: string;
   mapx?: string;
   mapy?: string;
 }

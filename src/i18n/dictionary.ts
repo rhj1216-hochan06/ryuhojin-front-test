@@ -269,6 +269,8 @@ export interface PublicDataApiCopy {
     multilingualCodeLabel: string;
     regionLabel: string;
     categoryLabel: string;
+    classificationLabel: string;
+    legalDistrictLabel: string;
     modifiedLabel: string;
     detailEyebrow: string;
     addressDetailLabel: string;
@@ -774,6 +776,8 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         multilingualCodeLabel: "다국어 코드",
         regionLabel: "지역 코드",
         categoryLabel: "분류 코드",
+        classificationLabel: "분류체계",
+        legalDistrictLabel: "법정동 코드",
         modifiedLabel: "수정일",
         detailEyebrow: "선택한 관광 정보",
         addressDetailLabel: "주소",
@@ -1365,6 +1369,8 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         multilingualCodeLabel: "Multilingual code",
         regionLabel: "Region code",
         categoryLabel: "Category code",
+        classificationLabel: "Classification",
+        legalDistrictLabel: "Legal district code",
         modifiedLabel: "Modified",
         detailEyebrow: "Selected tourism item",
         addressDetailLabel: "Address",

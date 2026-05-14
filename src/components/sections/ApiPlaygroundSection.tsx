@@ -328,7 +328,9 @@ export const ApiPlaygroundSection = ({
                 <div>
                   <dt>{copy.publicData.addressDetailLabel}</dt>
                   <dd>
-                    {dialogPlace.address || copy.publicData.addressFallback}
+                    {[dialogPlace.address, dialogPlace.addressDetail]
+                      .filter(Boolean)
+                      .join(' ') || copy.publicData.addressFallback}
                   </dd>
                 </div>
                 <div>
@@ -344,12 +346,35 @@ export const ApiPlaygroundSection = ({
                   <dd>{dialogPlace.contentTypeMultilingualCode}</dd>
                 </div>
                 <div>
-                  <dt>{copy.publicData.regionLabel}</dt>
-                  <dd>{dialogPlace.regionCode}</dd>
+                  <dt>{copy.publicData.classificationLabel}</dt>
+                  <dd>{dialogPlace.classificationPath}</dd>
                 </div>
                 <div>
                   <dt>{copy.publicData.categoryLabel}</dt>
-                  <dd>{dialogPlace.categoryCode}</dd>
+                  <dd>
+                    {[
+                      dialogPlace.lclsSystm1,
+                      dialogPlace.lclsSystm2,
+                      dialogPlace.lclsSystm3,
+                    ]
+                      .filter((code) => code !== '-')
+                      .join(' / ') || dialogPlace.categoryCode}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.legalDistrictLabel}</dt>
+                  <dd>
+                    {[
+                      dialogPlace.legalRegionCode,
+                      dialogPlace.legalDistrictCode,
+                    ]
+                      .filter((code) => code !== '-')
+                      .join(' / ') || '-'}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{copy.publicData.regionLabel}</dt>
+                  <dd>{dialogPlace.regionCode}</dd>
                 </div>
                 <div>
                   <dt>{copy.publicData.modifiedLabel}</dt>

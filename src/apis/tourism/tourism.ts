@@ -9,7 +9,11 @@ import {
   tourismApiDefaultRequestParams,
   tourismApiOperations,
 } from '../../assests/data/tourismApiManual';
-import { getTourismContentTypeCode } from '../../assests/data/tourismContentTypeCodes';
+import {
+  getTourismClassificationPath,
+  getTourismClassificationSystem,
+  getTourismContentTypeCode,
+} from '../../assests/data/tourismContentTypeCodes';
 import type {
   TourismApiItem,
   TourismApiResponse,
@@ -64,19 +68,34 @@ const normalizeModifiedAt = (value: string | undefined) => {
 };
 
 const normalizeTourismPlace = (item: TourismApiItem): TourismPlace => {
-  const contentType = getTourismContentTypeCode(item.contenttypeid);
+  const classification = getTourismClassificationSystem({
+    lclsSystm1: item.lclsSystm1,
+    lclsSystm2: item.lclsSystm2,
+    lclsSystm3: item.lclsSystm3,
+  });
+  const contentType = getTourismContentTypeCode(
+    item.contenttypeid ?? classification?.contentTypeId,
+  );
 
   return {
     id: item.contentid ?? `${item.title ?? 'tourism'}-${item.modifiedtime ?? 'unknown'}`,
     title: item.title ?? 'Untitled tourism item',
     address: item.addr1 ?? '',
+    addressDetail: item.addr2 ?? '',
     imageUrl: item.firstimage || undefined,
     contentTypeId: contentType.contentTypeId,
     contentTypeName: contentType.name,
     contentTypeMultilingualCode: contentType.multilingualCode,
     modifiedAt: normalizeModifiedAt(item.modifiedtime),
     regionCode: item.areacode ?? '-',
-    categoryCode: item.cat1 ?? '-',
+    legalRegionCode: item.lDongRegnCd ?? '-',
+    legalDistrictCode: item.lDongSignguCd ?? '-',
+    categoryCode: item.lclsSystm3 ?? item.cat3 ?? item.cat2 ?? item.cat1 ?? '-',
+    classification,
+    classificationPath: getTourismClassificationPath(classification),
+    lclsSystm1: item.lclsSystm1 ?? '-',
+    lclsSystm2: item.lclsSystm2 ?? '-',
+    lclsSystm3: item.lclsSystm3 ?? '-',
     mapX: toNumber(item.mapx),
     mapY: toNumber(item.mapy),
   };
