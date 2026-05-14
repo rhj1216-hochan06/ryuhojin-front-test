@@ -25,11 +25,33 @@ export interface TourismPlace {
   naverMapUrl?: string;
 }
 
+export interface TourismHomepageLink {
+  label: string;
+  url: string;
+}
+
+export interface TourismPlaceDetail extends TourismPlace {
+  createdAt?: string;
+  phone: string;
+  phoneName: string;
+  homepageHtml: string;
+  homepageText: string;
+  homepageLinks: TourismHomepageLink[];
+  thumbnailImageUrl?: string;
+  zipCode: string;
+  overview: string;
+}
+
 export interface TourismSearchParams {
   keyword: string;
   page: number;
   pageSize: number;
   requestId: number;
+  signal?: AbortSignal;
+}
+
+export interface TourismCommonDetailParams {
+  contentId: string;
   signal?: AbortSignal;
 }
 
@@ -47,6 +69,8 @@ export type TourismSearchResponse = ApiResponse<
   PaginatedResponse<TourismPlace>
 > & TourismSearchMeta;
 
+export type TourismCommonDetailResponse = ApiResponse<TourismPlaceDetail>;
+
 export interface TourismApiHeader {
   resultCode?: string;
   resultMsg?: string;
@@ -58,8 +82,14 @@ export interface TourismApiItem {
   addr1?: string;
   addr2?: string;
   firstimage?: string;
+  firstimage2?: string;
+  cpyrhtDivCd?: string;
   contenttypeid?: string;
+  createdtime?: string;
   modifiedtime?: string;
+  tel?: string;
+  telname?: string;
+  homepage?: string;
   areacode?: string;
   cat1?: string;
   cat2?: string;
@@ -69,8 +99,11 @@ export interface TourismApiItem {
   lclsSystm1?: string;
   lclsSystm2?: string;
   lclsSystm3?: string;
+  zipcode?: string;
   mapx?: string;
   mapy?: string;
+  mlevel?: string;
+  overview?: string;
 }
 
 export interface TourismApiBody {

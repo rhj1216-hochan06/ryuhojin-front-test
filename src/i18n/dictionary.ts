@@ -275,7 +275,14 @@ export interface PublicDataApiCopy {
     legalDistrictCodeLabel: string;
     modifiedLabel: string;
     detailEyebrow: string;
+    detailLoadingLabel: string;
+    detailErrorTitle: string;
     addressDetailLabel: string;
+    overviewLabel: string;
+    phoneLabel: string;
+    createdLabel: string;
+    homepageLabel: string;
+    zipCodeLabel: string;
     coordinatesLabel: string;
     coordinatesFallback: string;
     mapLinkLabel: string;
@@ -285,6 +292,7 @@ export interface PublicDataApiCopy {
     detailCloseLabel: string;
     totalLabel: (count: number, total: number) => string;
     sourceLabel: string;
+    detailSourceLabel: string;
   };
 }
 
@@ -724,7 +732,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
     apiPlayground: {
       sourceBadge: "공공데이터 검색",
       endpointBadge: "KorService2/searchKeyword2",
-      contractBadge: "JSON 응답 정규화",
+      contractBadge: "detailCommon2 상세 조회",
       searchCard: {
         title: "관광 정보 검색 API 테스트",
         description:
@@ -733,7 +741,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       responseCard: {
         title: "API 응답 결과",
         description:
-          "요청 상태, 응답 시간, 자동 페이지네이션, 선택한 결과의 상세 정보를 확인합니다.",
+          "요청 상태, 응답 시간, 자동 페이지네이션, 선택한 결과의 detailCommon2 상세 응답을 확인합니다.",
       },
       loadMoreLabel: "자동으로 다음 페이지 조회",
       loadingLabel: "응답을 기다리는 중입니다.",
@@ -788,7 +796,14 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         legalDistrictCodeLabel: "시군구",
         modifiedLabel: "최근 갱신",
         detailEyebrow: "선택한 관광 정보",
+        detailLoadingLabel: "KorService2/detailCommon2 공통정보를 조회하는 중입니다.",
+        detailErrorTitle: "공통정보 상세 조회에 실패했습니다.",
         addressDetailLabel: "주소",
+        overviewLabel: "개요",
+        phoneLabel: "전화번호",
+        createdLabel: "등록일",
+        homepageLabel: "홈페이지",
+        zipCodeLabel: "우편번호",
         coordinatesLabel: "좌표",
         coordinatesFallback: "좌표 정보 없음",
         mapLinkLabel: "네이버 지도에서 보기",
@@ -799,6 +814,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         detailCloseLabel: "상세 닫기",
         totalLabel: (count, total) => `${total}개 중 ${count}개 표시`,
         sourceLabel: "한국관광공사 OpenAPI",
+        detailSourceLabel: "KorService2/detailCommon2",
       },
     },
     dataGridCard: {
@@ -1324,7 +1340,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
     apiPlayground: {
       sourceBadge: "Public data search",
       endpointBadge: "KorService2/searchKeyword2",
-      contractBadge: "Normalized JSON response",
+      contractBadge: "detailCommon2 detail fetch",
       searchCard: {
         title: "Tourism Search API Test",
         description:
@@ -1333,7 +1349,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
       responseCard: {
         title: "API Response Result",
         description:
-          "Shows request state, latency, automatic pagination, and selected result details.",
+          "Shows request state, latency, automatic pagination, and the selected result's detailCommon2 response.",
       },
       loadMoreLabel: "Auto-load next page",
       loadingLabel: "Waiting for the response.",
@@ -1388,7 +1404,14 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         legalDistrictCodeLabel: "District",
         modifiedLabel: "Last updated",
         detailEyebrow: "Selected tourism item",
+        detailLoadingLabel: "Loading KorService2/detailCommon2 common details.",
+        detailErrorTitle: "Failed to load common details.",
         addressDetailLabel: "Address",
+        overviewLabel: "Overview",
+        phoneLabel: "Phone",
+        createdLabel: "Created",
+        homepageLabel: "Homepage",
+        zipCodeLabel: "Zip code",
         coordinatesLabel: "Coordinates",
         coordinatesFallback: "No coordinates",
         mapLinkLabel: "Open in Naver Map",
@@ -1399,6 +1422,7 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         detailCloseLabel: "Close details",
         totalLabel: (count, total) => `${count} of ${total} rows shown`,
         sourceLabel: "Korea Tourism OpenAPI",
+        detailSourceLabel: "KorService2/detailCommon2",
       },
     },
     dataGridCard: {

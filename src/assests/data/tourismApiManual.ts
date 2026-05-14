@@ -62,6 +62,8 @@ export type TourismApiResponseFieldId =
   | 'mlevel'
   | 'modifiedtime'
   | 'tel'
+  | 'telname'
+  | 'homepage'
   | 'title'
   | 'lDongRegnCd'
   | 'lDongSignguCd'
@@ -69,6 +71,7 @@ export type TourismApiResponseFieldId =
   | 'lclsSystm2'
   | 'lclsSystm3'
   | 'zipcode'
+  | 'overview'
   | 'code'
   | 'name'
   | 'rnum'
@@ -526,6 +529,20 @@ export const tourismApiResponseFields: Record<
     sample: '064-760-2633',
     description: '전화번호입니다.',
   },
+  telname: {
+    id: 'telname',
+    nameKo: '전화번호명',
+    required: false,
+    sample: '관광안내소',
+    description: '전화번호에 대응되는 안내명입니다.',
+  },
+  homepage: {
+    id: 'homepage',
+    nameKo: '홈페이지',
+    required: false,
+    sample: '<a href="https://tour.daegu.go.kr" target="_blank">홈페이지</a>',
+    description: '관광정보 홈페이지 HTML 링크입니다.',
+  },
   title: {
     id: 'title',
     nameKo: '제목',
@@ -574,6 +591,13 @@ export const tourismApiResponseFields: Record<
     required: false,
     sample: '63546',
     description: '우편번호입니다.',
+  },
+  overview: {
+    id: 'overview',
+    nameKo: '개요',
+    required: false,
+    sample: '관광지 소개 문장입니다.',
+    description: '관광정보 개요 설명입니다.',
   },
   code: {
     id: 'code',
@@ -702,6 +726,13 @@ const listResponseFieldIds: TourismApiResponseFieldId[] = [
   'zipcode',
 ];
 
+const detailCommonResponseFieldIds: TourismApiResponseFieldId[] = [
+  ...listResponseFieldIds,
+  'telname',
+  'homepage',
+  'overview',
+];
+
 export const tourismApiOperations: Record<
   TourismApiOperationId,
   TourismApiOperation
@@ -806,7 +837,7 @@ export const tourismApiOperations: Record<
     path: '/detailCommon2',
     description: '기본정보, 대표 이미지, 분류, 지역, 주소, 좌표, 개요를 조회합니다.',
     requestParamIds: [...commonParamIds, 'contentId'],
-    responseFieldIds: listResponseFieldIds,
+    responseFieldIds: detailCommonResponseFieldIds,
     portfolioUse: '검색 결과 다이얼로그의 상세 탭을 실제 상세 API로 확장할 때 사용합니다.',
   },
   detailIntro2: {

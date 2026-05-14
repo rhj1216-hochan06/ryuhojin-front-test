@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { TourismPlace } from '../../apis/tourism/type';
 import type { PublicDataApiCopy, SectionCopy } from '../../i18n/dictionary';
 import { useTourismSearch } from '../../hooks/useTourismSearch';
+import { useTourismCommonDetailQuery } from '../../query/apiTest/useTourismCommonDetailQuery';
+import { normalizeApiRequestError } from '../../utils/apiError';
 import { Card } from '../common/Card';
 import { Dialog } from '../common/Dialog';
 import { Section } from '../common/Section';
@@ -27,34 +29,23 @@ const formatDateTime = (value: string | undefined, locale: string) => {
   }).format(new Date(value));
 };
 
-const formatCodePath = (codes: string[]) =>
-  codes.filter((code) => code && code !== '-').join(' / ') || '-';
+const formatDate = (value: string | undefined, locale: string) => {
+  if (!value) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(value));
+};
 
 const formatContentTypeSummary = (
   place: TourismPlace,
   copy: PublicDataApiCopy,
 ) =>
   `${copy.publicData.contentTypeCodeLabel} ${place.contentTypeId} / ${copy.publicData.multilingualCodeLabel} ${place.contentTypeMultilingualCode}`;
-
-const formatLegalDistrictSummary = (
-  place: TourismPlace,
-  copy: PublicDataApiCopy,
-) => {
-  const codes = [
-    {
-      label: copy.publicData.legalRegionCodeLabel,
-      value: place.legalRegionCode,
-    },
-    {
-      label: copy.publicData.legalDistrictCodeLabel,
-      value: place.legalDistrictCode,
-    },
-  ]
-    .filter(({ value }) => value !== '-')
-    .map(({ label, value }) => `${label} ${value}`);
-
-  return formatCodePath(codes);
-};
 
 const ApiLanguageNotice = ({
   copy,
@@ -138,6 +129,16 @@ export const ApiPlaygroundSection = ({
     .toLowerCase()
     .startsWith('en');
   const dialogPlace = items.find((item) => item.id === dialogPlaceId) ?? null;
+  const detailQuery = useTourismCommonDetailQuery(dialogPlace?.id);
+  const detailError = detailQuery.error
+    ? normalizeApiRequestError(detailQuery.error)
+    : null;
+  const dialogDetail = detailQuery.data?.data ?? null;
+  const dialogDisplayPlace = dialogDetail ?? dialogPlace;
+  const dialogImageUrl =
+    dialogDetail?.imageUrl ??
+    dialogDetail?.thumbnailImageUrl ??
+    dialogPlace?.imageUrl;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -352,11 +353,11 @@ export const ApiPlaygroundSection = ({
         onClose={closeDialog}
         surfaceClassName="tourism-result-dialog__surface"
       >
-        {dialogPlace && (
+        {dialogPlace && dialogDisplayPlace && (
           <>
             <div className="tourism-result-dialog__media">
-              {dialogPlace.imageUrl ? (
-                <img src={dialogPlace.imageUrl} alt="" />
+              {dialogImageUrl ? (
+                <img src={dialogImageUrl} alt="" />
               ) : (
                 <span>{copy.publicData.imageFallback}</span>
               )}
@@ -374,52 +375,68 @@ export const ApiPlaygroundSection = ({
                     )}
                   </div>
                   <strong id="tourism-result-dialog-title">
-                    {dialogPlace.title}
+                    {dialogDisplayPlace.title}
                   </strong>
                 </div>
               </div>
+              {detailQuery.isFetching && (
+                <div className="tourism-result-detail__status">
+                  <span className="api-playground__spinner" aria-hidden="true" />
+                  <strong>{copy.publicData.detailLoadingLabel}</strong>
+                </div>
+              )}
+              {detailError && (
+                <div
+                  className="tourism-result-detail__status tourism-result-detail__status--error"
+                  role="alert"
+                >
+                  <strong>{copy.publicData.detailErrorTitle}</strong>
+                  <p>{detailError.message}</p>
+                </div>
+              )}
               <dl>
                 <div className="tourism-result-detail__item--wide tourism-result-detail__item--primary">
                   <dt>{copy.publicData.addressDetailLabel}</dt>
                   <dd>
-                    {[dialogPlace.address, dialogPlace.addressDetail]
+                    {[dialogDisplayPlace.address, dialogDisplayPlace.addressDetail]
                       .filter(Boolean)
                       .join(' ') || copy.publicData.addressFallback}
                   </dd>
                 </div>
-                <div className="tourism-result-detail__item--wide">
+                <div>
                   <dt>{copy.publicData.contentTypeLabel}</dt>
                   <dd>
-                    {dialogPlace.contentTypeName}
-                    <small>{formatContentTypeSummary(dialogPlace, copy)}</small>
+                    {dialogDisplayPlace.contentTypeName}
+                    <small>{formatContentTypeSummary(dialogDisplayPlace, copy)}</small>
                   </dd>
                 </div>
-                <div className="tourism-result-detail__item--wide">
-                  <dt>{copy.publicData.classificationLabel}</dt>
-                  <dd>{dialogPlace.classificationPath}</dd>
-                </div>
                 <div>
-                  <dt>{copy.publicData.legalDistrictLabel}</dt>
-                  <dd>{formatLegalDistrictSummary(dialogPlace, copy)}</dd>
+                  <dt>{copy.publicData.classificationLabel}</dt>
+                  <dd>{dialogDisplayPlace.classificationPath}</dd>
                 </div>
-
-                <div className="tourism-result-detail__item--map">
+                {dialogDetail && (
+                  <div className="tourism-result-detail__item--wide tourism-result-detail__overview">
+                    <dt>{copy.publicData.overviewLabel}</dt>
+                    <dd>{dialogDetail.overview || '-'}</dd>
+                  </div>
+                )}
+                <div>
                   <dt>{copy.publicData.coordinatesLabel}</dt>
                   <dd>
-                    {typeof dialogPlace.mapX === 'number' &&
-                    typeof dialogPlace.mapY === 'number' &&
-                    dialogPlace.naverMapUrl ? (
+                    {typeof dialogDisplayPlace.mapX === 'number' &&
+                    typeof dialogDisplayPlace.mapY === 'number' &&
+                    dialogDisplayPlace.naverMapUrl ? (
                       <>
                         <a
                           className="tourism-result-detail__map-link"
-                          href={dialogPlace.naverMapUrl}
+                          href={dialogDisplayPlace.naverMapUrl}
                           target="_blank"
                           rel="noreferrer"
                           aria-label={copy.publicData.mapLinkAriaLabel(
-                            dialogPlace.title,
+                            dialogDisplayPlace.title,
                           )}
                         >
-                          {`${dialogPlace.mapY.toFixed(5)}, ${dialogPlace.mapX.toFixed(5)}`}
+                          {`${dialogDisplayPlace.mapY.toFixed(5)}, ${dialogDisplayPlace.mapX.toFixed(5)}`}
                         </a>
                         <small>{copy.publicData.mapLinkLabel}</small>
                       </>
@@ -428,13 +445,60 @@ export const ApiPlaygroundSection = ({
                     )}
                   </dd>
                 </div>
+                {dialogDetail && (
+                  <>
+                    <div>
+                      <dt>{copy.publicData.zipCodeLabel}</dt>
+                      <dd>{dialogDetail.zipCode}</dd>
+                    </div>
+                    <div>
+                      <dt>{copy.publicData.phoneLabel}</dt>
+                      <dd>
+                        {dialogDetail.phone || '-'}
+                        {dialogDetail.phoneName && (
+                          <small>{dialogDetail.phoneName}</small>
+                        )}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>{copy.publicData.createdLabel}</dt>
+                      <dd>{formatDate(dialogDetail.createdAt, dateTimeLocale)}</dd>
+                    </div>
+                    <div className="tourism-result-detail__item--wide">
+                      <dt>{copy.publicData.homepageLabel}</dt>
+                      <dd>
+                        {dialogDetail.homepageLinks.length > 0 ? (
+                          <span className="tourism-result-detail__link-list">
+                            {dialogDetail.homepageLinks.map((link) => (
+                              <a
+                                className="tourism-result-detail__map-link"
+                                href={link.url}
+                                key={`${link.label}-${link.url}`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {link.label}
+                              </a>
+                            ))}
+                          </span>
+                        ) : (
+                          dialogDetail.homepageText || '-'
+                        )}
+                      </dd>
+                    </div>
+                  </>
+                )}
               </dl>
               <div className="tourism-result-detail__footer">
-                <span>{copy.publicData.sourceLabel}</span>
+                <span>
+                  {dialogDetail
+                    ? copy.publicData.detailSourceLabel
+                    : copy.publicData.sourceLabel}
+                </span>
                 <span>
                   {copy.publicData.modifiedLabel}
                   {' '}
-                  {formatDateTime(dialogPlace.modifiedAt, dateTimeLocale)}
+                  {formatDate(dialogDisplayPlace.modifiedAt, dateTimeLocale)}
                 </span>
               </div>
             </div>
