@@ -2276,9 +2276,18 @@ main {
     transform 0.16s ease;
 }
 
-.api-language-notice__tooltip strong {
+.api-language-notice .api-language-notice__tooltip strong {
+  color: #ffffff;
   font-size: 0.78rem;
   font-weight: 900;
+  line-height: 1.35;
+}
+
+.api-language-notice .api-language-notice__tooltip span {
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .api-language-notice:hover .api-language-notice__tooltip,
@@ -2545,10 +2554,10 @@ main {
 }
 
 .tourism-result-detail__eyebrow-row .api-language-notice__tooltip {
-  right: auto;
-  left: 0;
+  right: 0;
+  left: auto;
   bottom: auto;
-  top: calc(100% + 8px);
+  top: calc(100% + 4px);
 }
 
 .tourism-result-detail__header span {
