@@ -1,4 +1,5 @@
 import type {
+  ApiDemoScenarioId,
   ApiRequestPhase,
   CapabilitySummary,
   ChartCardScenarioId,
@@ -232,6 +233,49 @@ export interface PublicDataApiCopy {
   responseCard: {
     title: string;
     description: string;
+  };
+  failureDemo: {
+    label: string;
+    description: string;
+    emptyKeyword: string;
+    serviceErrorCodeLabel: string;
+    unavailableErrorTitle: string;
+    unavailableErrorDescription: string;
+    unavailableErrorListLabel: string;
+    retryLabel: string;
+    liveModeLabel: string;
+    options: Record<
+      ApiDemoScenarioId,
+      {
+        label: string;
+        description: string;
+        logMessage: string;
+        recovery: string;
+        tooltip?: string;
+      }
+    >;
+  };
+  requestLog: {
+    title: string;
+    description: string;
+    labels: {
+      endpoint: string;
+      scenario: string;
+      phase: string;
+      statusCode: string;
+      errorCode: string;
+      retryable: string;
+      message: string;
+      recovery: string;
+    };
+    idleMessage: string;
+    loadingMessage: string;
+    successMessage: (count: number, total: number) => string;
+    emptyMessage: string;
+    retryableYes: string;
+    retryableNo: string;
+    notApplicable: string;
+    noActionNeeded: string;
   };
   loadMoreLabel: string;
   loadingLabel: string;
@@ -742,6 +786,88 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: "API 응답 결과",
         description:
           "요청 상태, 응답 시간, 자동 페이지네이션, 선택한 결과의 detailCommon2 상세 응답을 확인합니다.",
+      },
+      failureDemo: {
+        label: "실패 처리 시나리오",
+        description:
+          "시나리오를 선택하는 순간 결과 영역과 요청 로그가 갱신됩니다. 관광정보 검색 버튼을 누르면 다시 실제 호출 모드로 전환됩니다.",
+        emptyKeyword: "결과가존재하지않는검색어",
+        serviceErrorCodeLabel: "오류 종류",
+        unavailableErrorTitle: "분류만 가능한 오류",
+        unavailableErrorDescription:
+          "트래픽 초과, 만료키, IP 제한, 서버 내부 오류처럼 현재 데모에서 의도적으로 실제 발생시키기 어려운 코드는 문서 기준으로만 분류했습니다.",
+        unavailableErrorListLabel: "오류 리스트 보기",
+        retryLabel: "같은 조건으로 다시 시도",
+        liveModeLabel: "정상 호출 모드로 전환",
+        options: {
+          live: {
+            label: "실제 호출",
+            description: "현재 인증키와 네트워크 상태로 공공데이터 API를 호출합니다.",
+            logMessage: "실제 API 응답을 기준으로 상태를 표시합니다.",
+            recovery:
+              "실패 시 인증키, 요청 파라미터, 네트워크 상태를 확인한 뒤 다시 시도합니다.",
+          },
+          serviceError: {
+            label: "API 결과 코드 오류",
+            description: "선택한 resultCode를 정규화된 에러로 표시합니다.",
+            logMessage:
+              "선택한 공공데이터 resultCode 응답을 화면용 에러로 정규화했습니다.",
+            recovery:
+              "인증키와 필수 파라미터를 확인하고 사용자에게 재입력 또는 관리자 확인을 안내합니다.",
+          },
+          networkError: {
+            label: "네트워크 실패 재현",
+            description: "외부 API endpoint에 도달하지 못한 상황을 재현합니다.",
+            logMessage:
+              "네트워크 실패를 API_NETWORK_ERROR로 정규화했습니다.",
+            recovery:
+              "일시적인 연결 문제로 보고 재시도 버튼을 제공하며, 반복되면 잠시 후 다시 시도하도록 안내합니다.",
+            tooltip:
+              "브라우저에서 안정적으로 실제 네트워크 차단을 만들 수 없어서 정규화된 네트워크 실패 상태를 즉시 재현합니다.",
+          },
+          timeout: {
+            label: "응답 지연 설명",
+            description: "요청 제한 시간을 넘긴 상황을 설명용 상태로 보여줍니다.",
+            logMessage: "요청 시간 초과를 API_TIMEOUT으로 정규화했습니다.",
+            recovery:
+              "중복 요청을 막고 같은 조건 재시도 또는 검색 조건 축소를 안내합니다.",
+            tooltip:
+              "GitHub Pages 데모에서 실제 timeout을 안정적으로 만들기는 어렵기 때문에, timeout 정규화 결과와 대처 방식을 설명 상태로 보여줍니다.",
+          },
+          empty: {
+            label: "빈 결과 실제 호출",
+            description:
+              "검색어 결과가존재하지않는검색어로 실제 API를 호출해 빈 결과를 확인합니다.",
+            logMessage:
+              "HTTP/API 응답은 성공했지만 화면에 표시할 관광 정보가 없습니다.",
+            recovery:
+              "다른 검색어를 제안하고 요청 자체는 성공했음을 명확히 구분합니다.",
+          },
+        },
+      },
+      requestLog: {
+        title: "요청 로그와 대처",
+        description:
+          "최근 검색 요청의 endpoint, 정규화된 에러 코드, 재시도 가능 여부, 사용자 대처를 한 번에 보여줍니다.",
+        labels: {
+          endpoint: "Endpoint",
+          scenario: "시나리오",
+          phase: "상태",
+          statusCode: "상태 코드",
+          errorCode: "에러 코드",
+          retryable: "재시도",
+          message: "정규화 메시지",
+          recovery: "대처",
+        },
+        idleMessage: "아직 실행된 요청이 없습니다.",
+        loadingMessage: "요청을 보내고 응답을 기다리는 중입니다.",
+        successMessage: (count, total) =>
+          `정상 응답을 화면용 목록 ${count}개로 변환했습니다. 전체 ${total}개입니다.`,
+        emptyMessage: "요청은 성공했지만 화면에 표시할 결과가 없습니다.",
+        retryableYes: "가능",
+        retryableNo: "불가",
+        notApplicable: "-",
+        noActionNeeded: "정상 응답입니다. 별도 대처가 필요하지 않습니다.",
       },
       loadMoreLabel: "자동으로 다음 페이지 조회",
       loadingLabel: "응답을 기다리는 중입니다.",
@@ -1350,6 +1476,92 @@ export const dictionary: Record<Locale, DashboardDictionary> = {
         title: "API Response Result",
         description:
           "Shows request state, latency, automatic pagination, and the selected result's detailCommon2 response.",
+      },
+      failureDemo: {
+        label: "Failure handling scenario",
+        description:
+          "Selecting a scenario updates the result area and request log immediately. The tourism search button switches back to live API mode.",
+        emptyKeyword: "결과가존재하지않는검색어",
+        serviceErrorCodeLabel: "Error type",
+        unavailableErrorTitle: "Classified only",
+        unavailableErrorDescription:
+          "Traffic-limit, expired-key, IP-restriction, and internal-server errors are classified from the manual because this demo cannot intentionally trigger them reliably.",
+        unavailableErrorListLabel: "View error list",
+        retryLabel: "Retry with the same conditions",
+        liveModeLabel: "Switch to live API mode",
+        options: {
+          live: {
+            label: "Live request",
+            description:
+              "Calls the public data API with the current key and network state.",
+            logMessage: "State is based on the live API response.",
+            recovery:
+              "If it fails, check the service key, request parameters, and network state before retrying.",
+          },
+          serviceError: {
+            label: "API result-code error",
+            description:
+              "Shows the selected resultCode as a normalized UI error.",
+            logMessage:
+              "The selected public data resultCode was normalized into a UI error.",
+            recovery:
+              "Check the service key and required parameters, then guide the user to retry or contact an administrator.",
+          },
+          networkError: {
+            label: "Network failure replay",
+            description:
+              "Replays a case where the endpoint cannot be reached.",
+            logMessage:
+              "The network failure was normalized as API_NETWORK_ERROR.",
+            recovery:
+              "Treat it as a temporary connection issue, provide retry, and guide the user to try again later if it repeats.",
+            tooltip:
+              "A static browser demo cannot reliably block the real network on demand, so this immediately replays the normalized network-failure state.",
+          },
+          timeout: {
+            label: "Timeout explanation",
+            description:
+              "Shows the state for a request that exceeded the expected response time.",
+            logMessage: "The timeout was normalized as API_TIMEOUT.",
+            recovery:
+              "Prevent duplicate requests and guide the user to retry or narrow the search conditions.",
+            tooltip:
+              "A GitHub Pages demo cannot reliably create a real timeout, so this explains the normalized timeout result and recovery path.",
+          },
+          empty: {
+            label: "Live empty result",
+            description:
+              "Calls the real API with keyword 결과가존재하지않는검색어 to confirm an empty result.",
+            logMessage:
+              "The HTTP/API response succeeded, but there are no tourism items to display.",
+            recovery:
+              "Suggest another keyword while making it clear that the request itself succeeded.",
+          },
+        },
+      },
+      requestLog: {
+        title: "Request Log And Recovery",
+        description:
+          "Shows the latest endpoint, normalized error code, retryability, and user recovery action.",
+        labels: {
+          endpoint: "Endpoint",
+          scenario: "Scenario",
+          phase: "Phase",
+          statusCode: "Status code",
+          errorCode: "Error code",
+          retryable: "Retryable",
+          message: "Normalized message",
+          recovery: "Recovery",
+        },
+        idleMessage: "No request has been executed yet.",
+        loadingMessage: "The request was sent and is waiting for a response.",
+        successMessage: (count, total) =>
+          `The response was mapped into ${count} UI-ready rows out of ${total}.`,
+        emptyMessage: "The request succeeded, but there are no results to show.",
+        retryableYes: "Yes",
+        retryableNo: "No",
+        notApplicable: "-",
+        noActionNeeded: "The response is healthy. No recovery action is required.",
       },
       loadMoreLabel: "Auto-load next page",
       loadingLabel: "Waiting for the response.",

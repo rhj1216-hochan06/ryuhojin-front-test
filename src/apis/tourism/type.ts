@@ -48,6 +48,7 @@ export interface TourismSearchParams {
   pageSize: number;
   requestId: number;
   signal?: AbortSignal;
+  failureTestCase?: 'missingMobileOs' | 'invalidServiceKey';
 }
 
 export interface TourismCommonDetailParams {
@@ -116,6 +117,9 @@ export interface TourismApiBody {
 }
 
 export interface TourismApiResponse {
+  responseTime?: string;
+  resultCode?: string;
+  resultMsg?: string;
   response?: {
     header?: TourismApiHeader;
     body?: TourismApiBody;

@@ -242,6 +242,21 @@ export interface PaginatedResponse<TData> {
   hasNextPage: boolean;
 }
 
+export type ApiDemoScenarioId =
+  | 'live'
+  | 'serviceError'
+  | 'networkError'
+  | 'timeout'
+  | 'empty';
+
+export interface ApiDemoServiceError {
+  source: 'portal' | 'provider';
+  code: string;
+  message: string;
+  description: string;
+  testCase: 'missingMobileOs' | 'invalidServiceKey';
+}
+
 export type ApiRequestPhase =
   | 'idle'
   | 'loading'

@@ -1,13 +1,19 @@
 import type { FormEvent } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  tourismPortalErrorCodes,
+  tourismProviderResultCodes,
+} from '../../assests/data/tourismApiManual';
 import type { TourismPlace } from '../../apis/tourism/type';
 import type { PublicDataApiCopy, SectionCopy } from '../../i18n/dictionary';
 import { useTourismSearch } from '../../hooks/useTourismSearch';
 import { useTourismCommonDetailQuery } from '../../query/apiTest/useTourismCommonDetailQuery';
+import type { ApiDemoScenarioId, ApiDemoServiceError } from '../../types/dashboard';
 import { normalizeApiRequestError } from '../../utils/apiError';
 import { Card } from '../common/Card';
 import { Dialog } from '../common/Dialog';
 import { Section } from '../common/Section';
+import { TogglePanel } from '../common/TogglePanel';
 
 interface ApiPlaygroundSectionProps {
   section: SectionCopy;
@@ -47,6 +53,97 @@ const formatContentTypeSummary = (
 ) =>
   `${copy.publicData.contentTypeCodeLabel} ${place.contentTypeId} / ${copy.publicData.multilingualCodeLabel} ${place.contentTypeMultilingualCode}`;
 
+const apiDemoScenarioIds: ApiDemoScenarioId[] = [
+  'live',
+  'serviceError',
+  'networkError',
+  'timeout',
+  'empty',
+];
+
+type ServiceErrorOption = ApiDemoServiceError & {
+  id: string;
+};
+
+const getProviderErrorCode = (code: string) =>
+  tourismProviderResultCodes.find((errorCode) => errorCode.code === code);
+
+const getPortalErrorCode = (code: string) =>
+  tourismPortalErrorCodes.find((errorCode) => errorCode.code === code);
+
+const createServiceErrorOption = ({
+  source,
+  code,
+  testCase,
+}: {
+  source: ServiceErrorOption['source'];
+  code: string;
+  testCase: ServiceErrorOption['testCase'];
+}): ServiceErrorOption | null => {
+  const manualError =
+    source === 'provider'
+      ? getProviderErrorCode(code)
+      : getPortalErrorCode(code);
+
+  if (!manualError) {
+    return null;
+  }
+
+  return {
+    id: `${source}:${manualError.code}`,
+    source,
+    code: manualError.code,
+    message: manualError.message,
+    description: manualError.description,
+    testCase,
+  };
+};
+
+const serviceErrorOptions = [
+  createServiceErrorOption({
+    source: 'provider',
+    code: '11',
+    testCase: 'missingMobileOs',
+  }),
+  createServiceErrorOption({
+    source: 'portal',
+    code: '30',
+    testCase: 'invalidServiceKey',
+  }),
+].filter((option): option is ServiceErrorOption => Boolean(option));
+
+const unavailableServiceErrorOptions = [
+  ...tourismProviderResultCodes
+    .filter((errorCode) => errorCode.code !== '00')
+    .map((errorCode) => ({
+      id: `provider:${errorCode.code}`,
+      source: 'provider' as const,
+      code: errorCode.code,
+      message: errorCode.message,
+      description: errorCode.description,
+    })),
+  ...tourismPortalErrorCodes.map((errorCode) => ({
+    id: `portal:${errorCode.code}`,
+    source: 'portal' as const,
+    code: errorCode.code,
+    message: errorCode.message,
+    description: errorCode.description,
+  })),
+].filter(
+  (errorCode) =>
+    !serviceErrorOptions.some((option) => option.id === errorCode.id),
+);
+
+const defaultServiceErrorId = 'portal:30';
+const fallbackServiceError = serviceErrorOptions[0] ?? {
+  id: defaultServiceErrorId,
+  source: 'portal' as const,
+  code: '30',
+  message: 'SERVICE_KEY_IS_NOT_REGISTERED_ERROR',
+  description: '등록되지 않은 서비스키',
+  testCase: 'invalidServiceKey' as const,
+};
+
 const ApiLanguageNotice = ({
   copy,
   className,
@@ -69,12 +166,36 @@ const ApiLanguageNotice = ({
   </button>
 );
 
+const ApiScenarioInfoTooltip = ({
+  label,
+  tooltip,
+}: {
+  label: string;
+  tooltip: string;
+}) => (
+  <span
+    className="api-scenario-info"
+    aria-label={`${label}: ${tooltip}`}
+  >
+    <span className="api-scenario-info__icon" aria-hidden="true">
+      i
+    </span>
+    <span className="api-scenario-info__tooltip" role="tooltip">
+      {tooltip}
+    </span>
+  </span>
+);
+
 export const ApiPlaygroundSection = ({
   section,
   copy,
   dateTimeLocale,
 }: ApiPlaygroundSectionProps) => {
   const [tourismKeyword, setTourismKeyword] = useState('서울');
+  const [demoScenario, setDemoScenario] =
+    useState<ApiDemoScenarioId>('live');
+  const [serviceErrorId, setServiceErrorId] =
+    useState(defaultServiceErrorId);
   const [dialogPlaceId, setDialogPlaceId] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const {
@@ -88,7 +209,7 @@ export const ApiPlaygroundSection = ({
     isLoadingMore,
     runSearch,
     loadMore,
-  } = useTourismSearch();
+  } = useTourismSearch({ demoScenario });
 
   const metaRows = useMemo(
     () => [
@@ -125,6 +246,20 @@ export const ApiPlaygroundSection = ({
 
   const shouldShowResults = items.length > 0;
   const isMissingKey = error?.code === 'MISSING_DATA_GO_KR_SERVICE_KEY';
+  const selectedScenario = copy.failureDemo.options[demoScenario];
+  const selectedServiceError =
+    serviceErrorOptions.find((option) => option.id === serviceErrorId) ??
+    fallbackServiceError;
+  const selectedServiceErrorLabel =
+    `${selectedServiceError.source === 'provider' ? '제공기관' : '공통'} ${selectedServiceError.code} · ${selectedServiceError.description}`;
+  const errorRecovery = isMissingKey
+    ? copy.publicData.missingKeyDescription
+    : demoScenario === 'serviceError'
+      ? selectedScenario.recovery
+      : selectedScenario.recovery;
+  const scenarioKeyword =
+    demoScenario === 'empty' ? copy.failureDemo.emptyKeyword : tourismKeyword;
+  const canRetrySearch = scenarioKeyword.trim().length > 0 && !isLoading;
   const shouldShowApiLanguageNotice = dateTimeLocale
     .toLowerCase()
     .startsWith('en');
@@ -140,9 +275,156 @@ export const ApiPlaygroundSection = ({
     dialogDetail?.thumbnailImageUrl ??
     dialogPlace?.imageUrl;
 
+  const requestLogMessage = (() => {
+    if (phase === 'idle') {
+      return copy.requestLog.idleMessage;
+    }
+
+    if (phase === 'loading') {
+      return copy.requestLog.loadingMessage;
+    }
+
+    if (error) {
+      if (demoScenario === 'serviceError' && !isMissingKey) {
+        return `resultCode ${selectedServiceError.code} (${selectedServiceError.message}) · ${selectedServiceError.description}`;
+      }
+
+      return error.message;
+    }
+
+    if (demoScenario === 'serviceError') {
+      return `resultCode ${selectedServiceError.code} (${selectedServiceError.message}) · ${selectedServiceError.description}`;
+    }
+
+    if (demoScenario !== 'live') {
+      return selectedScenario.logMessage;
+    }
+
+    if (phase === 'success') {
+      return copy.requestLog.successMessage(items.length, total);
+    }
+
+    if (phase === 'empty') {
+      return copy.requestLog.emptyMessage;
+    }
+
+    return copy.requestLog.idleMessage;
+  })();
+
+  const requestLogRecovery = (() => {
+    if (phase === 'idle' || phase === 'loading') {
+      return copy.requestLog.notApplicable;
+    }
+
+    if (phase === 'success') {
+      return copy.requestLog.noActionNeeded;
+    }
+
+    if (isMissingKey) {
+      return copy.publicData.missingKeyDescription;
+    }
+
+    if (demoScenario === 'serviceError') {
+      return selectedScenario.recovery;
+    }
+
+    return selectedScenario.recovery;
+  })();
+
+  const requestLogRows = [
+    {
+      label: copy.requestLog.labels.endpoint,
+      value: copy.endpointBadge,
+    },
+    {
+      label: copy.requestLog.labels.scenario,
+      value:
+        demoScenario === 'serviceError'
+          ? `${selectedScenario.label} / ${selectedServiceErrorLabel}`
+          : selectedScenario.label,
+    },
+    {
+      label: copy.requestLog.labels.phase,
+      value: copy.phaseLabels[phase],
+    },
+    {
+      label: copy.requestLog.labels.statusCode,
+      value:
+        error?.statusCode ?? (phase === 'success' || phase === 'empty' ? 200 : '-'),
+    },
+    {
+      label: copy.requestLog.labels.errorCode,
+      value: error?.code ?? copy.requestLog.notApplicable,
+    },
+    {
+      label: copy.requestLog.labels.retryable,
+      value: error
+        ? error.retryable
+          ? copy.requestLog.retryableYes
+          : copy.requestLog.retryableNo
+        : copy.requestLog.notApplicable,
+    },
+    {
+      label: copy.requestLog.labels.message,
+      value: requestLogMessage,
+      wide: true,
+    },
+    {
+      label: copy.requestLog.labels.recovery,
+      value: requestLogRecovery,
+      wide: true,
+    },
+  ];
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    runSearch(tourismKeyword);
+    setDialogPlaceId(null);
+    setDemoScenario('live');
+    runSearch(tourismKeyword, { demoScenario: 'live' });
+  };
+
+  const handleDemoScenarioChange = (scenario: ApiDemoScenarioId) => {
+    setDialogPlaceId(null);
+    setDemoScenario(scenario);
+
+    if (scenario === 'empty') {
+      setTourismKeyword(copy.failureDemo.emptyKeyword);
+      runSearch(copy.failureDemo.emptyKeyword, { demoScenario: 'empty' });
+      return;
+    }
+
+    const nextKeyword = tourismKeyword.trim() || '서울';
+
+    if (!tourismKeyword.trim() && scenario !== 'live') {
+      setTourismKeyword(nextKeyword);
+    }
+
+    runSearch(nextKeyword, {
+      demoScenario: scenario,
+      serviceError: selectedServiceError,
+    });
+  };
+
+  const handleServiceErrorCodeChange = (
+    nextServiceErrorId: string,
+  ) => {
+    setServiceErrorId(nextServiceErrorId);
+    const nextServiceError =
+      serviceErrorOptions.find((option) => option.id === nextServiceErrorId) ??
+      fallbackServiceError;
+
+    if (demoScenario === 'serviceError') {
+      const nextKeyword = tourismKeyword.trim() || '서울';
+
+      if (!tourismKeyword.trim()) {
+        setTourismKeyword(nextKeyword);
+      }
+
+      runSearch(nextKeyword, {
+        demoScenario: 'serviceError',
+        serviceError: nextServiceError,
+      });
+    }
   };
 
   const closeDialog = () => {
@@ -227,6 +509,81 @@ export const ApiPlaygroundSection = ({
             </div>
           </form>
 
+          <fieldset className="api-playground__scenario">
+            <legend>{copy.failureDemo.label}</legend>
+            <p>{copy.failureDemo.description}</p>
+            <div className="api-playground__scenario-options">
+              {apiDemoScenarioIds.map((scenarioId) => {
+                const scenario = copy.failureDemo.options[scenarioId];
+
+                return (
+                  <button
+                    type="button"
+                    className={[
+                      'api-playground__scenario-card',
+                      demoScenario === scenarioId
+                        ? 'api-playground__scenario-card--active'
+                        : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    key={scenarioId}
+                    aria-pressed={demoScenario === scenarioId}
+                    onClick={() => handleDemoScenarioChange(scenarioId)}
+                  >
+                    <span className="api-playground__scenario-card-header">
+                      <strong>{scenario.label}</strong>
+                      {scenario.tooltip && (
+                        <ApiScenarioInfoTooltip
+                          label={scenario.label}
+                          tooltip={scenario.tooltip}
+                        />
+                      )}
+                    </span>
+                    <span>{scenario.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {demoScenario === 'serviceError' && (
+              <div className="api-playground__service-error-panel">
+                <label className="api-playground__service-error-select">
+                  <span>{copy.failureDemo.serviceErrorCodeLabel}</span>
+                  <select
+                    value={serviceErrorId}
+                    onChange={(event) =>
+                      handleServiceErrorCodeChange(event.target.value)}
+                  >
+                    {serviceErrorOptions.map((option) => (
+                      <option value={option.id} key={option.id}>
+                        {`${option.source === 'provider' ? '제공기관' : '공통'} ${option.code} · ${option.description}`}
+                      </option>
+                    ))}
+                  </select>
+                  <small>
+                    {`${selectedServiceError.message} · ${selectedServiceError.description}`}
+                  </small>
+                </label>
+                <TogglePanel
+                  className="api-playground__unavailable-errors"
+                  buttonClassName="api-playground__error-list-trigger"
+                  panelClassName="api-playground__error-list-panel"
+                  label={copy.failureDemo.unavailableErrorListLabel}
+                  title={copy.failureDemo.unavailableErrorTitle}
+                  description={copy.failureDemo.unavailableErrorDescription}
+                >
+                  <div className="api-playground__error-list">
+                    {unavailableServiceErrorOptions.map((option) => (
+                      <span key={option.id}>
+                        {`${option.source === 'provider' ? '제공기관' : '공통'} ${option.code} · ${option.description}`}
+                      </span>
+                    ))}
+                  </div>
+                </TogglePanel>
+              </div>
+            )}
+          </fieldset>
+
           <div className="api-playground__notice api-playground__notice--warning">
             <strong>{copy.publicData.noticeTitle}</strong>
             <span>{copy.publicData.noticeDescription}</span>
@@ -284,6 +641,32 @@ export const ApiPlaygroundSection = ({
                     : error.message}
                 </p>
                 <small>{`${error.code} · ${error.statusCode}`}</small>
+                <div className="api-playground__error-recovery">
+                  <span>{copy.requestLog.labels.recovery}</span>
+                  <strong>{errorRecovery}</strong>
+                </div>
+                <div className="api-playground__state-actions">
+                  <button
+                    type="button"
+                    disabled={!canRetrySearch}
+                    onClick={() =>
+                      runSearch(scenarioKeyword, {
+                        demoScenario,
+                        serviceError: selectedServiceError,
+                      })}
+                  >
+                    {copy.failureDemo.retryLabel}
+                  </button>
+                  {demoScenario !== 'live' && (
+                    <button
+                      type="button"
+                      className="api-playground__state-action--secondary"
+                      onClick={() => handleDemoScenarioChange('live')}
+                    >
+                      {copy.failureDemo.liveModeLabel}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -344,6 +727,25 @@ export const ApiPlaygroundSection = ({
               </>
             )}
           </div>
+        </Card>
+
+        <Card
+          title={copy.requestLog.title}
+          description={copy.requestLog.description}
+        >
+          <dl className="api-playground__request-log" aria-live="polite">
+            {requestLogRows.map((row) => (
+              <div
+                key={row.label}
+                className={
+                  row.wide ? 'api-playground__request-log-item--wide' : undefined
+                }
+              >
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
         </Card>
       </div>
       <Dialog

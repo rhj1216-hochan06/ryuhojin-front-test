@@ -228,11 +228,13 @@ const parseTourismApiResponse = (data: TourismApiResponse | string) =>
 
 const assertTourismApiSuccess = (payload: TourismApiResponse) => {
   const header = payload.response?.header;
+  const resultCode = header?.resultCode ?? payload.resultCode;
+  const resultMsg = header?.resultMsg ?? payload.resultMsg;
 
-  if (header?.resultCode && header.resultCode !== '0000') {
+  if (resultCode && resultCode !== '0000' && resultCode !== '00') {
     throw createApiRequestError({
-      message: header.resultMsg ?? 'Public data API returned an error result.',
-      code: `PUBLIC_DATA_${header.resultCode}`,
+      message: resultMsg ?? 'Public data API returned an error result.',
+      code: `PUBLIC_DATA_${resultCode}`,
       statusCode: 400,
     });
   }
@@ -248,8 +250,9 @@ export const getTourismKeywordSearch = async ({
   pageSize,
   requestId,
   signal,
+  failureTestCase,
 }: TourismSearchParams): Promise<TourismSearchResponse> => {
-  if (!serviceKey) {
+  if (!serviceKey && failureTestCase !== 'invalidServiceKey') {
     throw missingKeyError;
   }
 
@@ -259,20 +262,27 @@ export const getTourismKeywordSearch = async ({
 
   const startedAt = new Date().toISOString();
   const startedTime = Date.now();
-  const requestUrl = `${baseUrl}${keywordSearchPath}?serviceKey=${serviceKey}`;
+  const requestServiceKey =
+    failureTestCase === 'invalidServiceKey'
+      ? 'INVALID_SERVICE_KEY_FOR_PORTFOLIO_DEMO'
+      : serviceKey;
+  const requestUrl = `${baseUrl}${keywordSearchPath}?serviceKey=${requestServiceKey}`;
+  const requestParams = {
+    numOfRows: pageSize,
+    pageNo: page,
+    ...(failureTestCase === 'missingMobileOs'
+      ? {}
+      : { MobileOS: tourismApiDefaultRequestParams.MobileOS }),
+    MobileApp: tourismApiDefaultRequestParams.MobileApp,
+    _type: tourismApiDefaultRequestParams._type,
+    arrange: tourismApiDefaultRequestParams.arrangeWithImage,
+    keyword,
+  };
 
   try {
     const response = await axios.get<TourismApiResponse | string>(requestUrl, {
       signal,
-      params: {
-        numOfRows: pageSize,
-        pageNo: page,
-        MobileOS: tourismApiDefaultRequestParams.MobileOS,
-        MobileApp: tourismApiDefaultRequestParams.MobileApp,
-        _type: tourismApiDefaultRequestParams._type,
-        arrange: tourismApiDefaultRequestParams.arrangeWithImage,
-        keyword,
-      },
+      params: requestParams,
     });
     const payload = parseTourismApiResponse(response.data);
     const body = payload.response?.body;
