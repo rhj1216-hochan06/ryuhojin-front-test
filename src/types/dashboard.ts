@@ -254,7 +254,7 @@ export interface ApiDemoServiceError {
   code: string;
   message: string;
   description: string;
-  testCase: 'missingMobileOs' | 'invalidServiceKey';
+  testCase: 'invalidRowsParameter' | 'missingMobileOs' | 'invalidServiceKey';
 }
 
 export type ApiRequestPhase =

@@ -48,7 +48,7 @@ export interface TourismSearchParams {
   pageSize: number;
   requestId: number;
   signal?: AbortSignal;
-  failureTestCase?: 'missingMobileOs' | 'invalidServiceKey';
+  failureTestCase?: 'invalidRowsParameter' | 'missingMobileOs' | 'invalidServiceKey';
 }
 
 export interface TourismCommonDetailParams {

@@ -2025,6 +2025,123 @@ main {
   grid-template-columns: 1fr;
 }
 
+.api-playground__accordion-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.api-playground__accordion {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+}
+
+.api-playground__accordion-summary {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  background: transparent;
+  color: #27323a;
+  font: inherit;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.api-playground__accordion-summary:hover,
+.api-playground__accordion-summary:focus-visible {
+  background: #f7fbff;
+  outline: none;
+}
+
+.api-playground__accordion-summary:focus-visible {
+  box-shadow: inset 0 0 0 3px rgba(49, 130, 246, 0.22);
+}
+
+.api-playground__accordion-copy {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.api-playground__accordion-copy strong {
+  color: #27323a;
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.api-playground__accordion-copy span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.api-playground__accordion-meta {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.api-playground__accordion-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #f7fbff;
+  color: #1d4ed8;
+  padding: 5px 8px;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.api-playground__accordion-icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+
+.api-playground__accordion-icon::before,
+.api-playground__accordion-icon::after {
+  position: absolute;
+  top: 8px;
+  left: 3px;
+  width: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: #64748b;
+  content: "";
+  transition: transform 0.16s ease;
+}
+
+.api-playground__accordion-icon::after {
+  transform: rotate(90deg);
+}
+
+.api-playground__accordion--open .api-playground__accordion-icon::after {
+  transform: rotate(0deg);
+}
+
+.api-playground__accordion-body {
+  border-top: 1px solid var(--line);
+  padding: 14px;
+}
+
+.api-playground__request-panel {
+  display: grid;
+  gap: 10px;
+}
+
 .api-playground__controls {
   display: flex;
   flex-wrap: wrap;
@@ -2389,7 +2506,7 @@ main {
 .api-playground__scenario {
   display: grid;
   gap: 10px;
-  margin: 14px 0 0;
+  margin: 0;
   border: 0;
   padding: 0;
 }
@@ -2669,6 +2786,11 @@ main {
 .api-playground__public-meta {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-bottom: 14px;
+}
+
+.api-playground__request-panel .api-playground__public-meta,
+.api-playground__request-panel .api-playground__notice {
+  margin: 0;
 }
 
 .api-playground__request-log {
@@ -3160,6 +3282,7 @@ main {
   .capability-list,
   .custom-grid__toolbar,
   .api-playground,
+  .api-playground__accordion-summary,
   .api-playground__public-form,
   .api-playground__public-meta,
   .api-playground__scenario-options,
@@ -3173,6 +3296,16 @@ main {
 
   .api-playground__request-log .api-playground__request-log-item--wide {
     grid-column: auto;
+  }
+
+  .api-playground__accordion-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .api-playground__accordion-meta {
+    justify-content: space-between;
+    width: 100%;
   }
 
   .common-dialog {

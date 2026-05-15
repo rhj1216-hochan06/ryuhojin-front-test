@@ -223,8 +223,79 @@ const normalizeTourismPlaceDetail = (item: TourismApiItem): TourismPlaceDetail =
   };
 };
 
-const parseTourismApiResponse = (data: TourismApiResponse | string) =>
-  typeof data === 'string' ? (JSON.parse(data) as TourismApiResponse) : data;
+const getXmlTextContent = (element: Document | Element, tagName: string) =>
+  element.getElementsByTagName(tagName)[0]?.textContent?.trim();
+
+const toXmlApiItem = (element: Element): TourismApiItem => ({
+  contentid: getXmlTextContent(element, 'contentid'),
+  title: getXmlTextContent(element, 'title'),
+  addr1: getXmlTextContent(element, 'addr1'),
+  addr2: getXmlTextContent(element, 'addr2'),
+  firstimage: getXmlTextContent(element, 'firstimage'),
+  firstimage2: getXmlTextContent(element, 'firstimage2'),
+  cpyrhtDivCd: getXmlTextContent(element, 'cpyrhtDivCd'),
+  contenttypeid: getXmlTextContent(element, 'contenttypeid'),
+  createdtime: getXmlTextContent(element, 'createdtime'),
+  modifiedtime: getXmlTextContent(element, 'modifiedtime'),
+  tel: getXmlTextContent(element, 'tel'),
+  telname: getXmlTextContent(element, 'telname'),
+  homepage: getXmlTextContent(element, 'homepage'),
+  areacode: getXmlTextContent(element, 'areacode'),
+  cat1: getXmlTextContent(element, 'cat1'),
+  cat2: getXmlTextContent(element, 'cat2'),
+  cat3: getXmlTextContent(element, 'cat3'),
+  lDongRegnCd: getXmlTextContent(element, 'lDongRegnCd'),
+  lDongSignguCd: getXmlTextContent(element, 'lDongSignguCd'),
+  lclsSystm1: getXmlTextContent(element, 'lclsSystm1'),
+  lclsSystm2: getXmlTextContent(element, 'lclsSystm2'),
+  lclsSystm3: getXmlTextContent(element, 'lclsSystm3'),
+  zipcode: getXmlTextContent(element, 'zipcode'),
+  mapx: getXmlTextContent(element, 'mapx'),
+  mapy: getXmlTextContent(element, 'mapy'),
+  mlevel: getXmlTextContent(element, 'mlevel'),
+  overview: getXmlTextContent(element, 'overview'),
+});
+
+const parseTourismXmlResponse = (data: string): TourismApiResponse => {
+  const xmlDocument = new DOMParser().parseFromString(data, 'application/xml');
+  const parseError = xmlDocument.getElementsByTagName('parsererror')[0];
+
+  if (parseError) {
+    throw new Error('Public data API returned an unsupported response format.');
+  }
+
+  const itemElements = Array.from(xmlDocument.getElementsByTagName('item'));
+  const items = itemElements.map(toXmlApiItem);
+
+  return {
+    resultCode: getXmlTextContent(xmlDocument, 'resultCode'),
+    resultMsg: getXmlTextContent(xmlDocument, 'resultMsg'),
+    response: {
+      header: {
+        resultCode: getXmlTextContent(xmlDocument, 'resultCode'),
+        resultMsg: getXmlTextContent(xmlDocument, 'resultMsg'),
+      },
+      body: {
+        items: items.length > 0 ? { item: items } : undefined,
+        pageNo: getXmlTextContent(xmlDocument, 'pageNo'),
+        numOfRows: getXmlTextContent(xmlDocument, 'numOfRows'),
+        totalCount: getXmlTextContent(xmlDocument, 'totalCount'),
+      },
+    },
+  };
+};
+
+const parseTourismApiResponse = (data: TourismApiResponse | string) => {
+  if (typeof data !== 'string') {
+    return data;
+  }
+
+  const trimmedData = data.trim();
+
+  return trimmedData.startsWith('<')
+    ? parseTourismXmlResponse(trimmedData)
+    : (JSON.parse(trimmedData) as TourismApiResponse);
+};
 
 const assertTourismApiSuccess = (payload: TourismApiResponse) => {
   const header = payload.response?.header;
@@ -267,9 +338,12 @@ export const getTourismKeywordSearch = async ({
       ? 'INVALID_SERVICE_KEY_FOR_PORTFOLIO_DEMO'
       : serviceKey;
   const requestUrl = `${baseUrl}${keywordSearchPath}?serviceKey=${requestServiceKey}`;
+  const paginationParams =
+    failureTestCase === 'invalidRowsParameter'
+      ? { nums: pageSize, page }
+      : { numOfRows: pageSize, pageNo: page };
   const requestParams = {
-    numOfRows: pageSize,
-    pageNo: page,
+    ...paginationParams,
     ...(failureTestCase === 'missingMobileOs'
       ? {}
       : { MobileOS: tourismApiDefaultRequestParams.MobileOS }),

@@ -1,5 +1,5 @@
-import type { FormEvent } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import type { FormEvent, ReactNode } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   tourismPortalErrorCodes,
   tourismProviderResultCodes,
@@ -60,6 +60,7 @@ const apiDemoScenarioIds: ApiDemoScenarioId[] = [
   'timeout',
   'empty',
 ];
+const defaultTourismKeyword = '서울';
 
 type ServiceErrorOption = ApiDemoServiceError & {
   id: string;
@@ -100,6 +101,11 @@ const createServiceErrorOption = ({
 };
 
 const serviceErrorOptions = [
+  createServiceErrorOption({
+    source: 'provider',
+    code: '10',
+    testCase: 'invalidRowsParameter',
+  }),
   createServiceErrorOption({
     source: 'provider',
     code: '11',
@@ -186,17 +192,72 @@ const ApiScenarioInfoTooltip = ({
   </span>
 );
 
+const ApiAccordionPanel = ({
+  title,
+  description,
+  badge,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  description: string;
+  badge?: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) => {
+  const panelId = useId();
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <section
+      className={[
+        'api-playground__accordion',
+        isOpen ? 'api-playground__accordion--open' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <button
+        type="button"
+        className="api-playground__accordion-summary"
+        aria-controls={panelId}
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <span className="api-playground__accordion-copy">
+          <strong>{title}</strong>
+          <span>{description}</span>
+        </span>
+        <span className="api-playground__accordion-meta">
+          {badge && (
+            <span className="api-playground__accordion-badge">
+              {badge}
+            </span>
+          )}
+          <span className="api-playground__accordion-icon" aria-hidden="true" />
+        </span>
+      </button>
+      {isOpen && (
+        <div id={panelId} className="api-playground__accordion-body">
+          {children}
+        </div>
+      )}
+    </section>
+  );
+};
+
 export const ApiPlaygroundSection = ({
   section,
   copy,
   dateTimeLocale,
 }: ApiPlaygroundSectionProps) => {
-  const [tourismKeyword, setTourismKeyword] = useState('서울');
+  const [tourismKeyword, setTourismKeyword] = useState(defaultTourismKeyword);
   const [demoScenario, setDemoScenario] =
     useState<ApiDemoScenarioId>('live');
   const [serviceErrorId, setServiceErrorId] =
     useState(defaultServiceErrorId);
   const [dialogPlaceId, setDialogPlaceId] = useState<string | null>(null);
+  const lastLiveKeywordRef = useRef(defaultTourismKeyword);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const {
     items,
@@ -376,8 +437,38 @@ export const ApiPlaygroundSection = ({
     },
   ];
 
+  const rememberLiveKeyword = (keyword: string) => {
+    const trimmedKeyword = keyword.trim();
+
+    if (
+      trimmedKeyword.length > 0 &&
+      trimmedKeyword !== copy.failureDemo.emptyKeyword
+    ) {
+      lastLiveKeywordRef.current = trimmedKeyword;
+    }
+  };
+
+  const getSearchKeywordAfterEmptyScenario = () => {
+    const trimmedKeyword = tourismKeyword.trim();
+
+    if (
+      demoScenario === 'empty' &&
+      trimmedKeyword === copy.failureDemo.emptyKeyword
+    ) {
+      return lastLiveKeywordRef.current.trim();
+    }
+
+    return trimmedKeyword;
+  };
+
+  const handleKeywordChange = (keyword: string) => {
+    setTourismKeyword(keyword);
+    rememberLiveKeyword(keyword);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    rememberLiveKeyword(tourismKeyword);
     setDialogPlaceId(null);
     setDemoScenario('live');
     runSearch(tourismKeyword, { demoScenario: 'live' });
@@ -388,17 +479,24 @@ export const ApiPlaygroundSection = ({
     setDemoScenario(scenario);
 
     if (scenario === 'empty') {
+      rememberLiveKeyword(tourismKeyword);
       setTourismKeyword(copy.failureDemo.emptyKeyword);
       runSearch(copy.failureDemo.emptyKeyword, { demoScenario: 'empty' });
       return;
     }
 
-    const nextKeyword = tourismKeyword.trim() || '서울';
+    const nextKeyword =
+      getSearchKeywordAfterEmptyScenario() || defaultTourismKeyword;
+    const shouldRestoreKeywordInput =
+      !tourismKeyword.trim() ||
+      (demoScenario === 'empty' &&
+        tourismKeyword.trim() === copy.failureDemo.emptyKeyword);
 
-    if (!tourismKeyword.trim() && scenario !== 'live') {
+    if (shouldRestoreKeywordInput) {
       setTourismKeyword(nextKeyword);
     }
 
+    rememberLiveKeyword(nextKeyword);
     runSearch(nextKeyword, {
       demoScenario: scenario,
       serviceError: selectedServiceError,
@@ -414,12 +512,13 @@ export const ApiPlaygroundSection = ({
       fallbackServiceError;
 
     if (demoScenario === 'serviceError') {
-      const nextKeyword = tourismKeyword.trim() || '서울';
+      const nextKeyword = tourismKeyword.trim() || defaultTourismKeyword;
 
       if (!tourismKeyword.trim()) {
         setTourismKeyword(nextKeyword);
       }
 
+      rememberLiveKeyword(nextKeyword);
       runSearch(nextKeyword, {
         demoScenario: 'serviceError',
         serviceError: nextServiceError,
@@ -496,7 +595,7 @@ export const ApiPlaygroundSection = ({
                 value={tourismKeyword}
                 placeholder={copy.publicData.keywordPlaceholder}
                 disabled={isLoading}
-                onChange={(event) => setTourismKeyword(event.target.value)}
+                onChange={(event) => handleKeywordChange(event.target.value)}
               />
             </label>
             <div className="api-playground__controls">
@@ -508,96 +607,128 @@ export const ApiPlaygroundSection = ({
               </button>
             </div>
           </form>
-
-          <fieldset className="api-playground__scenario">
-            <legend>{copy.failureDemo.label}</legend>
-            <p>{copy.failureDemo.description}</p>
-            <div className="api-playground__scenario-options">
-              {apiDemoScenarioIds.map((scenarioId) => {
-                const scenario = copy.failureDemo.options[scenarioId];
-
-                return (
-                  <button
-                    type="button"
-                    className={[
-                      'api-playground__scenario-card',
-                      demoScenario === scenarioId
-                        ? 'api-playground__scenario-card--active'
-                        : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    key={scenarioId}
-                    aria-pressed={demoScenario === scenarioId}
-                    onClick={() => handleDemoScenarioChange(scenarioId)}
-                  >
-                    <span className="api-playground__scenario-card-header">
-                      <strong>{scenario.label}</strong>
-                      {scenario.tooltip && (
-                        <ApiScenarioInfoTooltip
-                          label={scenario.label}
-                          tooltip={scenario.tooltip}
-                        />
-                      )}
-                    </span>
-                    <span>{scenario.description}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {demoScenario === 'serviceError' && (
-              <div className="api-playground__service-error-panel">
-                <label className="api-playground__service-error-select">
-                  <span>{copy.failureDemo.serviceErrorCodeLabel}</span>
-                  <select
-                    value={serviceErrorId}
-                    onChange={(event) =>
-                      handleServiceErrorCodeChange(event.target.value)}
-                  >
-                    {serviceErrorOptions.map((option) => (
-                      <option value={option.id} key={option.id}>
-                        {`${option.source === 'provider' ? '제공기관' : '공통'} ${option.code} · ${option.description}`}
-                      </option>
-                    ))}
-                  </select>
-                  <small>
-                    {`${selectedServiceError.message} · ${selectedServiceError.description}`}
-                  </small>
-                </label>
-                <TogglePanel
-                  className="api-playground__unavailable-errors"
-                  buttonClassName="api-playground__error-list-trigger"
-                  panelClassName="api-playground__error-list-panel"
-                  label={copy.failureDemo.unavailableErrorListLabel}
-                  title={copy.failureDemo.unavailableErrorTitle}
-                  description={copy.failureDemo.unavailableErrorDescription}
-                >
-                  <div className="api-playground__error-list">
-                    {unavailableServiceErrorOptions.map((option) => (
-                      <span key={option.id}>
-                        {`${option.source === 'provider' ? '제공기관' : '공통'} ${option.code} · ${option.description}`}
-                      </span>
-                    ))}
-                  </div>
-                </TogglePanel>
-              </div>
-            )}
-          </fieldset>
-
-          <div className="api-playground__notice api-playground__notice--warning">
-            <strong>{copy.publicData.noticeTitle}</strong>
-            <span>{copy.publicData.noticeDescription}</span>
-          </div>
-
-          <dl className="api-playground__meta api-playground__public-meta">
-            {metaRows.map((row) => (
-              <div key={row.label}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
         </Card>
+
+        <div className="api-playground__accordion-stack">
+          <ApiAccordionPanel
+            title={copy.failureDemo.label}
+            description={copy.failureDemo.description}
+            badge={selectedScenario.label}
+          >
+            <fieldset className="api-playground__scenario">
+              <legend className="sr-only">{copy.failureDemo.label}</legend>
+              <div className="api-playground__scenario-options">
+                {apiDemoScenarioIds.map((scenarioId) => {
+                  const scenario = copy.failureDemo.options[scenarioId];
+
+                  return (
+                    <button
+                      type="button"
+                      className={[
+                        'api-playground__scenario-card',
+                        demoScenario === scenarioId
+                          ? 'api-playground__scenario-card--active'
+                          : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      key={scenarioId}
+                      aria-pressed={demoScenario === scenarioId}
+                      onClick={() => handleDemoScenarioChange(scenarioId)}
+                    >
+                      <span className="api-playground__scenario-card-header">
+                        <strong>{scenario.label}</strong>
+                        {scenario.tooltip && (
+                          <ApiScenarioInfoTooltip
+                            label={scenario.label}
+                            tooltip={scenario.tooltip}
+                          />
+                        )}
+                      </span>
+                      <span>{scenario.description}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {demoScenario === 'serviceError' && (
+                <div className="api-playground__service-error-panel">
+                  <label className="api-playground__service-error-select">
+                    <span>{copy.failureDemo.serviceErrorCodeLabel}</span>
+                    <select
+                      value={serviceErrorId}
+                      onChange={(event) =>
+                        handleServiceErrorCodeChange(event.target.value)}
+                    >
+                      {serviceErrorOptions.map((option) => (
+                        <option value={option.id} key={option.id}>
+                          {`${option.source === 'provider' ? '제공기관' : '공통'} ${option.code} · ${option.description}`}
+                        </option>
+                      ))}
+                    </select>
+                    <small>
+                      {`${selectedServiceError.message} · ${selectedServiceError.description}`}
+                    </small>
+                  </label>
+                  <TogglePanel
+                    className="api-playground__unavailable-errors"
+                    buttonClassName="api-playground__error-list-trigger"
+                    panelClassName="api-playground__error-list-panel"
+                    label={copy.failureDemo.unavailableErrorListLabel}
+                    title={copy.failureDemo.unavailableErrorTitle}
+                    description={copy.failureDemo.unavailableErrorDescription}
+                  >
+                    <div className="api-playground__error-list">
+                      {unavailableServiceErrorOptions.map((option) => (
+                        <span key={option.id}>
+                          {`${option.source === 'provider' ? '제공기관' : '공통'} ${option.code} · ${option.description}`}
+                        </span>
+                      ))}
+                    </div>
+                  </TogglePanel>
+                </div>
+              )}
+            </fieldset>
+          </ApiAccordionPanel>
+
+          <ApiAccordionPanel
+            title={copy.requestLog.title}
+            description={copy.requestLog.description}
+            badge={copy.phaseLabels[phase]}
+            defaultOpen
+          >
+            <div className="api-playground__request-panel">
+              <dl className="api-playground__request-log" aria-live="polite">
+                {requestLogRows.map((row) => (
+                  <div
+                    key={row.label}
+                    className={
+                      row.wide
+                        ? 'api-playground__request-log-item--wide'
+                        : undefined
+                    }
+                  >
+                    <dt>{row.label}</dt>
+                    <dd>{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <dl className="api-playground__meta api-playground__public-meta">
+                {metaRows.map((row) => (
+                  <div key={row.label}>
+                    <dt>{row.label}</dt>
+                    <dd>{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="api-playground__notice api-playground__notice--warning">
+                <strong>{copy.publicData.noticeTitle}</strong>
+                <span>{copy.publicData.noticeDescription}</span>
+              </div>
+            </div>
+          </ApiAccordionPanel>
+        </div>
 
         <Card
           title={copy.responseCard.title}
@@ -727,25 +858,6 @@ export const ApiPlaygroundSection = ({
               </>
             )}
           </div>
-        </Card>
-
-        <Card
-          title={copy.requestLog.title}
-          description={copy.requestLog.description}
-        >
-          <dl className="api-playground__request-log" aria-live="polite">
-            {requestLogRows.map((row) => (
-              <div
-                key={row.label}
-                className={
-                  row.wide ? 'api-playground__request-log-item--wide' : undefined
-                }
-              >
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
         </Card>
       </div>
       <Dialog
